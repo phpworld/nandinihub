@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 09, 2025 at 06:32 AM
+-- Generation Time: Jul 29, 2025 at 08:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -80,7 +80,9 @@ INSERT INTO `cart` (`id`, `user_id`, `session_id`, `product_id`, `quantity`, `pr
 (19, NULL, 'ed1ef4961384e873e2d301769aa0b1de', 3, 1, 30.00, '2025-05-26 13:11:20', '2025-05-26 13:11:20'),
 (79, 4, NULL, 2, 1, 60.00, '2025-06-29 10:07:08', '2025-06-29 10:07:08'),
 (80, 4, NULL, 7, 1, 800.00, '2025-06-29 10:07:09', '2025-06-29 10:07:09'),
-(81, 4, NULL, 8, 1, 50.00, '2025-06-29 10:07:10', '2025-06-29 10:07:10');
+(81, 4, NULL, 8, 1, 50.00, '2025-06-29 10:07:10', '2025-06-29 10:07:10'),
+(84, 9, NULL, 1, 2, 40.00, '2025-07-09 06:04:04', '2025-07-09 06:04:04'),
+(88, NULL, '5f3a3e0b78f121a3ce3898de1dd86a34', 1, 1, 40.00, '2025-07-27 09:29:45', '2025-07-27 09:29:45');
 
 -- --------------------------------------------------------
 
@@ -204,7 +206,28 @@ INSERT INTO `migrations` (`id`, `version`, `class`, `group`, `namespace`, `time`
 (17, '2025-06-29-000002', 'App\\Database\\Migrations\\UpdateUserAddressesTable', 'default', 'App', 1751175888, 11),
 (18, '2025-06-29-070000', 'App\\Database\\Migrations\\CreateShippingMethodsTable', 'default', 'App', 1751179966, 12),
 (19, '2025-06-29-080000', 'App\\Database\\Migrations\\AddShippingMethodToOrders', 'default', 'App', 1751181485, 13),
-(20, '2025-06-29-120000', 'App\\Database\\Migrations\\CreatePagesTable', 'default', 'App', 1751185495, 14);
+(20, '2025-06-29-120000', 'App\\Database\\Migrations\\CreatePagesTable', 'default', 'App', 1751185495, 14),
+(21, '2024-01-15-000001', 'App\\Database\\Migrations\\CreateUserDevicesTable', 'default', 'App', 1752039768, 15),
+(22, '2024-01-15-000002', 'App\\Database\\Migrations\\CreateNotificationsTable', 'default', 'App', 1752039768, 15);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `user_id` int(11) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` enum('order_update','promotion','general','system') NOT NULL DEFAULT 'general',
+  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data`)),
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `read_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -580,7 +603,13 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `phon
 (1, 'Admin', 'User', 'admin@nandinihub.com', '$2y$10$D8EYVZHlgsH8H11BkCIDqe14D.QJVgcFAfieuP/a8tvYrN3BOUpiC', '+91 98765 43210', '123 Admin Street, Business District', 'Mumbai', 'Maharashtra', '400001', 1, 'admin', '2025-05-26 10:04:35', '2025-05-26 10:04:35'),
 (2, 'Test', 'Customer', 'customer@test.com', '$2y$10$nYwd33PGZItMRhFDlhAd8uQ6d8308ByNwW/wRMF2LEcrsXYKRhJ3O', '+91 87654 32109', '456 Customer Lane, Residential Area', 'Delhi', 'Delhi', '110001', 1, 'customer', '2025-05-26 10:04:35', '2025-05-26 10:04:35'),
 (3, 'Vinay', 'Singh', 'vinaysingh43@gmail.com', '$2y$10$MvxwBn4m4ZBWJdDd7Dh1hOuDaAPdaUaEKP1RisQVYFhkLlxrlSfj6', '919457790679', 'LGF 10 Anora kalan papnamow Road', 'Lucknow', 'Utter Pradesh', '226028', 1, 'customer', '2025-05-26 11:41:02', '2025-05-26 12:57:36'),
-(4, 'Viplav nath', 'Singh', 'viplavnathsingh@gmail.com', '$2y$10$SNRoTgSHPRLB1IjYzj7dKOLYpRjCFiUaQ3xKpJjMlb0pLsQE8cszS', '9876543211', 'LGF 19 Anora kala Sai Complex', 'Lucknow', 'Utter Pradesh', '226028', 1, 'customer', '2025-05-28 12:44:17', '2025-05-28 12:44:54');
+(4, 'Viplav nath', 'Singh', 'viplavnathsingh@gmail.com', '$2y$10$SNRoTgSHPRLB1IjYzj7dKOLYpRjCFiUaQ3xKpJjMlb0pLsQE8cszS', '9876543211', 'LGF 19 Anora kala Sai Complex', 'Lucknow', 'Utter Pradesh', '226028', 1, 'customer', '2025-05-28 12:44:17', '2025-05-28 12:44:54'),
+(5, 'Test', 'User', 'test1752036241@example.com', '$2y$10$2h43nZ8c9atMhxS3IPgvGuX8TI.eJ3.GWpqH99LBgG09B4Vopd7rq', '9876543210', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 04:44:02', '2025-07-09 04:44:02'),
+(6, 'Test', 'User', 'test1752037602@example.com', '$2y$10$84wsJK/mpIByEhybapd6iOR12c55EfPXv3R97.g9EJMYd7.iNW0gi', '9876543210', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 05:06:42', '2025-07-09 05:06:42'),
+(9, 'Test', 'User', 'test@example.com', '$2y$10$q6.OSUFOe.U7WSJEVszkNOYsuRkz8hK40fBomfrZ2aFJni63WPrOS', '1234567890', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 05:51:30', '2025-07-09 05:51:30'),
+(10, 'Test2', 'User2', 'test2@example.com', '$2y$10$jAI7wHYju5qfs8/CFBi8YuH0jnLTzlCdTyXo/xA/ZG0f6.tARbQsm', '9876543211', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 05:51:43', '2025-07-09 05:51:43'),
+(11, 'Test', 'User', 'test_1752040868@example.com', '$2y$10$.Ns.BElzJBW6UYB2uncVV.OzW8nkg3vZp1GlEX98CNi2/sWq5Z7UO', '9876543210', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 06:01:08', '2025-07-09 06:01:08'),
+(12, 'Test', 'User', 'test_1752041043@example.com', '$2y$10$nm0sjk2u6tJiaVJoZ0udb.wRwHnvuug5fIa4tw1Rcq2IokRjsfUI2', '9876543210', NULL, NULL, NULL, NULL, 1, 'customer', '2025-07-09 06:04:03', '2025-07-09 06:04:03');
 
 -- --------------------------------------------------------
 
@@ -614,7 +643,34 @@ INSERT INTO `user_addresses` (`id`, `user_id`, `name`, `phone`, `address_line1`,
 (1, 3, 'Vinay Singh', '9457790679', 'LGF 10 ANORA KALAN', '', '', 'Lucknow', 'Uttar Pradesh', '226028', 'India', 1, 'TECHNO COLLAGE', '2025-06-29 05:48:55', '2025-06-29 05:49:08'),
 (2, 3, 'Vinay Singh', '9457790679', 'Malviya Nager 182 ', '', '', 'Gorakhpur', 'Uttar Pradesh', '273008', 'India', 0, 'Water Tank', '2025-06-29 07:29:04', '2025-06-29 07:29:04'),
 (3, 4, 'Viplav Nath Singh', '8845554885', 'SVN Associates Sai Complex LGF 20 ANORA KALAN', '', '', 'Lucknow', 'Uttar Pradesh', '226028', 'India', 1, '', '2025-06-29 07:55:24', '2025-06-29 07:55:24'),
-(4, 4, 'Viplav Nath Singh', '5464646456', 'Anora Kala House No 27 Tirupati homes ', '', '', 'Lucknow', 'Uttar Pradesh', '226028', 'India', 0, '', '2025-06-29 07:57:01', '2025-06-29 07:57:01');
+(4, 4, 'Viplav Nath Singh', '5464646456', 'Anora Kala House No 27 Tirupati homes ', '', '', 'Lucknow', 'Uttar Pradesh', '226028', 'India', 0, '', '2025-06-29 07:57:01', '2025-06-29 07:57:01'),
+(5, 9, 'Test Address', '9876543210', '123 Test Street', NULL, '', 'Test City', 'Test State', '123456', 'India', 0, NULL, '2025-07-09 06:04:04', '2025-07-09 06:04:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_devices`
+--
+
+CREATE TABLE `user_devices` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `user_id` int(11) UNSIGNED NOT NULL,
+  `device_token` varchar(500) NOT NULL,
+  `platform` enum('ios','android','web') NOT NULL DEFAULT 'android',
+  `device_info` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`device_info`)),
+  `notification_preferences` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`notification_preferences`)),
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `last_used_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_devices`
+--
+
+INSERT INTO `user_devices` (`id`, `user_id`, `device_token`, `platform`, `device_info`, `notification_preferences`, `is_active`, `created_at`, `updated_at`, `last_used_at`) VALUES
+(1, 9, 'ExponentPushToken[test-token-123]', 'android', '{\"brand\":\"Test\",\"model\":\"Test Device\"}', NULL, 1, '2025-07-09 05:52:16', '2025-07-09 06:04:05', '2025-07-09 06:04:05');
 
 -- --------------------------------------------------------
 
@@ -684,6 +740,16 @@ ALTER TABLE `coupon_usage`
 --
 ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `user_id_is_read` (`user_id`,`is_read`),
+  ADD KEY `type` (`type`),
+  ADD KEY `created_at` (`created_at`);
 
 --
 -- Indexes for table `orders`
@@ -772,6 +838,15 @@ ALTER TABLE `user_addresses`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `user_id_device_token` (`user_id`,`device_token`),
+  ADD KEY `is_active` (`is_active`);
+
+--
 -- Indexes for table `wishlist`
 --
 ALTER TABLE `wishlist`
@@ -794,7 +869,7 @@ ALTER TABLE `banners`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -818,7 +893,13 @@ ALTER TABLE `coupon_usage`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -872,13 +953,19 @@ ALTER TABLE `shipping_methods`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `user_addresses`
 --
 ALTER TABLE `user_addresses`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `wishlist`
@@ -904,6 +991,12 @@ ALTER TABLE `coupon_usage`
   ADD CONSTRAINT `coupon_usage_coupon_id_foreign` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `coupon_usage_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `coupon_usage_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `orders`
@@ -937,6 +1030,12 @@ ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE SET NULL,
   ADD CONSTRAINT `reviews_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `reviews_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  ADD CONSTRAINT `user_devices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `wishlist`
