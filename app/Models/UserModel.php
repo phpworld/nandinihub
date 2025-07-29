@@ -22,7 +22,8 @@ class UserModel extends Model
         'city',
         'state',
         'pincode',
-        'is_active'
+        'is_active',
+        'role'
     ];
 
     // Dates

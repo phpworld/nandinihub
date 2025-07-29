@@ -1,3 +1,8 @@
+<?php
+$settingModel = new \App\Models\SettingModel();
+$siteLogo = $settingModel->getSetting('site_logo', '');
+$siteFavicon = $settingModel->getSetting('site_favicon', '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -93,8 +98,29 @@
             font-weight: bold;
         }
 
-        .cart-badge {
+        .cart-badge,
+        .wishlist-badge {
             background-color: var(--primary-color);
+        }
+
+        .wishlist-btn {
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .wishlist-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .wishlist-btn i {
+            font-size: 14px;
         }
 
         footer {
@@ -319,15 +345,34 @@
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-bottom: 1px solid #dee2e6;
         }
+
+        .alert-fixed-top-right {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1055;
+            min-width: 300px;
+            max-width: 90vw;
+        }
     </style>
+
+    <?php
+    if (!empty($siteFavicon) && file_exists(FCPATH . $siteFavicon)) {
+        echo '<link rel="icon" type="image/x-icon" href="' . base_url($siteFavicon) . '">';
+    }
+    ?>
 </head>
 
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="<?= base_url('/') ?>">
-                <i class="fas fa-om me-2"></i>Nandini Hub
+            <a class="navbar-brand d-flex align-items-center" href="<?= base_url('/') ?>">
+                <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
+                    <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:40px;max-width:120px;object-fit:contain;" class="me-2">
+                <?php else: ?>
+                    <i class="fas fa-om me-2"></i>Nandini Hub
+                <?php endif; ?>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -390,6 +435,19 @@
                             </li>
                         </ul>
                     </li>
+
+                    <?php
+                    // Load pages for header navigation
+                    $pageModel = new \App\Models\PageModel();
+                    $headerPages = $pageModel->getHeaderPages();
+                    ?>
+                    <?php foreach ($headerPages as $page): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('pages/' . esc($page['slug'])) ?>">
+                                <?= esc($page['title']) ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
 
                 <!-- Search Form -->
@@ -402,6 +460,16 @@
 
                 <!-- User Menu -->
                 <ul class="navbar-nav">
+                    <?php if (session()->get('is_logged_in')): ?>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="<?= base_url('wishlist') ?>">
+                                <i class="fas fa-heart"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill wishlist-badge" id="wishlistCount">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="<?= base_url('cart') ?>">
                             <i class="fas fa-shopping-cart"></i>
@@ -419,6 +487,8 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="<?= base_url('profile') ?>">My Profile</a></li>
                                 <li><a class="dropdown-item" href="<?= base_url('orders') ?>">My Orders</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('addresses') ?>">My Addresses</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('wishlist') ?>">My Wishlist</a></li>
                                 <?php
                                 $userModel = new \App\Models\UserModel();
                                 $user = $userModel->find(session()->get('user_id'));
@@ -450,21 +520,6 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
-
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
-
     <!-- Main Content -->
     <main>
         <?= $this->renderSection('content') ?>
@@ -475,7 +530,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5><i class="fas fa-om me-2"></i>Nandini Hub</h5>
+                    <h5>
+                        <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
+                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:40px;max-width:120px;object-fit:contain;" class="me-2 mb-2">
+                        <?php else: ?>
+                            <i class="fas fa-om me-2"></i>Nandini Hub
+                        <?php endif; ?>
+                    </h5>
                     <p>Your trusted source for premium quality puja samagri and spiritual items. Bringing divine blessings to your doorstep.</p>
                 </div>
                 <div class="col-md-2">
@@ -483,8 +544,14 @@
                     <ul class="list-unstyled">
                         <li><a href="<?= base_url('/') ?>" class="text-light text-decoration-none">Home</a></li>
                         <li><a href="<?= base_url('products') ?>" class="text-light text-decoration-none">Products</a></li>
-                        <li><a href="<?= base_url('about') ?>" class="text-light text-decoration-none">About Us</a></li>
-                        <li><a href="<?= base_url('contact') ?>" class="text-light text-decoration-none">Contact</a></li>
+                        <?php
+                        // Load pages for footer navigation
+                        $pageModel = new \App\Models\PageModel();
+                        $footerPages = $pageModel->getFooterPages();
+                        ?>
+                        <?php foreach ($footerPages as $page): ?>
+                            <li><a href="<?= base_url('pages/' . esc($page['slug'])) ?>" class="text-light text-decoration-none"><?= esc($page['title']) ?></a></li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
                 <div class="col-md-3">
@@ -535,6 +602,7 @@
         // Load cart count on page load
         $(document).ready(function() {
             loadCartCount();
+            loadWishlistCount();
             loadCategories();
 
             // Initialize AOS
@@ -552,6 +620,18 @@
             });
         }
 
+        function loadWishlistCount() {
+            <?php if (session()->get('is_logged_in')): ?>
+                $.get('<?= base_url('wishlist/count') ?>', function(data) {
+                    $('#wishlistCount').text(data.count || 0);
+                });
+            <?php endif; ?>
+        }
+
+        function updateWishlistCount(count) {
+            $('#wishlistCount').text(count || 0);
+        }
+
         function loadCategories() {
             // This would typically load from an API endpoint
             // For now, we'll use static categories
@@ -561,31 +641,69 @@
         function addToCart(productId, quantity = 1) {
             $.post('<?= base_url('cart/add') ?>', {
                 product_id: productId,
-                quantity: quantity
+                quantity: quantity,
+                <?= csrf_token() ?>: '<?= csrf_hash() ?>'
             }, function(response) {
                 if (response.success) {
                     $('#cartCount').text(response.cartCount);
-                    showAlert('success', response.message);
+                    showToast('success', response.message);
                 } else {
-                    showAlert('danger', response.message);
+                    showToast('error', response.message);
                 }
             }).fail(function() {
-                showAlert('danger', 'Failed to add item to cart');
+                showToast('error', 'Failed to add item to cart');
+            });
+        }
+
+        // Toggle wishlist function
+        function toggleWishlist(productId, button) {
+            <?php if (!session()->get('is_logged_in')): ?>
+                window.location.href = '<?= base_url('login') ?>';
+                return;
+            <?php endif; ?>
+
+            const originalHtml = button.html();
+            button.prop('disabled', true);
+
+            $.post('<?= base_url('wishlist/toggle') ?>', {
+                product_id: productId,
+                <?= csrf_token() ?>: '<?= csrf_hash() ?>'
+            }, function(response) {
+                if (response.success) {
+                    updateWishlistCount(response.wishlistCount);
+
+                    // Update button appearance
+                    if (response.in_wishlist) {
+                        button.removeClass('btn-outline-danger').addClass('btn-danger');
+                        button.find('i').removeClass('far').addClass('fas');
+                    } else {
+                        button.removeClass('btn-danger').addClass('btn-outline-danger');
+                        button.find('i').removeClass('fas').addClass('far');
+                    }
+
+                    showToast('success', response.message);
+                } else {
+                    showToast('error', response.message);
+                }
+            }).fail(function() {
+                showToast('error', 'Failed to update wishlist');
+            }).always(function() {
+                button.prop('disabled', false);
             });
         }
 
         function showAlert(type, message) {
             const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <div class="alert alert-${type} alert-dismissible fade show alert-fixed-top-right" role="alert">
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `;
-            $('main').prepend(alertHtml);
+            $('body').append(alertHtml);
 
             // Auto dismiss after 3 seconds
             setTimeout(function() {
-                $('.alert').alert('close');
+                $('.alert.alert-fixed-top-right').alert('close');
             }, 3000);
         }
     </script>

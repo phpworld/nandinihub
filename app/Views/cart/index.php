@@ -55,7 +55,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <img src="<?= $item['image'] ? base_url('uploads/products/' . esc($item['image'])) : 'https://via.placeholder.com/80x60/f8f9fa/6c757d?text=' . urlencode($item['name']) ?>"
-                                                         class="rounded me-3" style="width: 80px; height: 60px; object-fit: cover;" alt="<?= esc($item['name']) ?>">
+                                                        class="rounded me-3" style="width: 80px; height: 60px; object-fit: cover;" alt="<?= esc($item['name']) ?>">
                                                     <div>
                                                         <h6 class="mb-1"><?= esc($item['name']) ?></h6>
                                                         <small class="text-muted">
@@ -73,12 +73,12 @@
                                             <td class="align-middle">
                                                 <div class="input-group" style="width: 120px;">
                                                     <button class="btn btn-outline-secondary btn-sm" type="button"
-                                                            onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] - 1 ?>)">-</button>
+                                                        onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] - 1 ?>)">-</button>
                                                     <input type="number" class="form-control form-control-sm text-center"
-                                                           value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock_quantity'] ?>"
-                                                           onchange="updateQuantity(<?= $item['id'] ?>, this.value)">
+                                                        value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock_quantity'] ?>"
+                                                        onchange="updateQuantity(<?= $item['id'] ?>, this.value)">
                                                     <button class="btn btn-outline-secondary btn-sm" type="button"
-                                                            onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] + 1 ?>)">+</button>
+                                                        onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] + 1 ?>)">+</button>
                                                 </div>
                                             </td>
                                             <td class="align-middle">
@@ -86,7 +86,7 @@
                                             </td>
                                             <td class="align-middle">
                                                 <button class="btn btn-outline-danger btn-sm"
-                                                        onclick="removeFromCart(<?= $item['id'] ?>)">
+                                                    onclick="removeFromCart(<?= $item['id'] ?>)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -248,7 +248,21 @@
 
     function clearCart() {
         if (confirm('Are you sure you want to clear your entire cart?')) {
-            window.location.href = '<?= base_url('cart/clear') ?>';
+            // Show loading state
+            const clearBtn = $('button[onclick="clearCart()"]');
+            const originalText = clearBtn.html();
+            clearBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Clearing...');
+
+            $.post('<?= base_url('cart/clear') ?>', {}, function(response) {
+                // Reload the page to show empty cart
+                location.reload();
+            }).fail(function() {
+                // If AJAX fails, fallback to direct navigation
+                window.location.href = '<?= base_url('cart/clear') ?>';
+            }).always(function() {
+                // Restore button state
+                clearBtn.prop('disabled', false).html(originalText);
+            });
         }
     }
 

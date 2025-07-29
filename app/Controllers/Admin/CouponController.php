@@ -21,6 +21,37 @@ class CouponController extends BaseController
     }
 
     /**
+     * Check admin access and redirect if not authorized
+     */
+    private function checkAdminAccess()
+    {
+        // Check if user is logged in
+        if (!session()->get('user_id')) {
+            // Store the intended URL for redirect after login
+            session()->set('redirect_to', current_url());
+            session()->setFlashdata('error', 'Please login to access the admin panel.');
+            return redirect()->to('/login');
+        }
+
+        // Verify user exists and has admin role
+        $userModel = new \App\Models\UserModel();
+        $user = $userModel->find(session()->get('user_id'));
+        if (!$user || $user['role'] !== 'admin') {
+            session()->setFlashdata('error', 'Access denied - Admin privileges required.');
+            return redirect()->to('/');
+        }
+
+        // Check if user account is active
+        if (!$user['is_active']) {
+            session()->destroy();
+            session()->setFlashdata('error', 'Your account has been deactivated. Please contact administrator.');
+            return redirect()->to('/login');
+        }
+
+        return true;
+    }
+
+    /**
      * Get admin data with sidebar items
      */
     private function getAdminData($activeSection = 'coupons')
@@ -108,6 +139,10 @@ class CouponController extends BaseController
      */
     public function index()
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $data = array_merge($this->getAdminData('coupons'), [
             'title' => 'Manage Coupons',
             'coupons' => $this->couponModel->orderBy('created_at', 'DESC')->findAll()
@@ -121,6 +156,10 @@ class CouponController extends BaseController
      */
     public function create()
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $data = array_merge($this->getAdminData('coupons'), [
             'title' => 'Create New Coupon',
             'coupon' => null,
@@ -135,6 +174,10 @@ class CouponController extends BaseController
      */
     public function store()
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $rules = [
             'code' => 'required|min_length[3]|max_length[50]|is_unique[coupons.code]',
             'name' => 'required|min_length[3]|max_length[255]',
@@ -186,20 +229,31 @@ class CouponController extends BaseController
      */
     public function edit($id)
     {
-        $coupon = $this->couponModel->find($id);
-
-        if (!$coupon) {
-            session()->setFlashdata('error', 'Coupon not found.');
-            return redirect()->to('/admin/coupons');
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
         }
 
-        $data = array_merge($this->getAdminData('coupons'), [
-            'title' => 'Edit Coupon',
-            'coupon' => $coupon,
-            'validation' => null
-        ]);
+        try {
+            $coupon = $this->couponModel->find($id);
 
-        return view('admin/coupons/form', $data);
+            if (!$coupon) {
+                session()->setFlashdata('error', 'Coupon not found.');
+                return redirect()->to('/admin/coupons');
+            }
+
+            $data = array_merge($this->getAdminData('coupons'), [
+                'title' => 'Edit Coupon',
+                'coupon' => $coupon,
+                'validation' => null
+            ]);
+
+            return view('admin/coupons/form', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Coupon edit error: ' . $e->getMessage());
+            session()->setFlashdata('error', 'An error occurred while loading the coupon: ' . $e->getMessage());
+            return redirect()->to('/admin/coupons');
+        }
     }
 
     /**
@@ -207,6 +261,10 @@ class CouponController extends BaseController
      */
     public function update($id)
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $coupon = $this->couponModel->find($id);
 
         if (!$coupon) {
@@ -251,12 +309,24 @@ class CouponController extends BaseController
             'is_active' => $this->request->getPost('is_active') ? true : false
         ];
 
-        if ($this->couponModel->update($id, $data)) {
-            session()->setFlashdata('success', 'Coupon updated successfully!');
-            return redirect()->to('/admin/coupons');
-        } else {
-            session()->setFlashdata('error', 'Failed to update coupon. Please try again.');
+        try {
+            // Temporarily disable model validation to use controller validation
+            $this->couponModel->skipValidation(true);
+
+            if ($this->couponModel->update($id, $data)) {
+                session()->setFlashdata('success', 'Coupon updated successfully!');
+                return redirect()->to('/admin/coupons');
+            } else {
+                session()->setFlashdata('error', 'Failed to update coupon. Please try again.');
+                return redirect()->back()->withInput();
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Coupon update error: ' . $e->getMessage());
+            session()->setFlashdata('error', 'An error occurred while updating the coupon: ' . $e->getMessage());
             return redirect()->back()->withInput();
+        } finally {
+            // Re-enable model validation for other operations
+            $this->couponModel->skipValidation(false);
         }
     }
 
@@ -265,6 +335,10 @@ class CouponController extends BaseController
      */
     public function delete($id)
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $coupon = $this->couponModel->find($id);
 
         if (!$coupon) {
@@ -286,6 +360,10 @@ class CouponController extends BaseController
      */
     public function toggle($id)
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $coupon = $this->couponModel->find($id);
 
         if (!$coupon) {
@@ -307,6 +385,10 @@ class CouponController extends BaseController
      */
     public function stats($id)
     {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
         $stats = $this->couponService->getCouponStatistics($id);
 
         if (empty($stats)) {
@@ -314,11 +396,11 @@ class CouponController extends BaseController
             return redirect()->to('/admin/coupons');
         }
 
-        $data = [
+        $data = array_merge($this->getAdminData('coupons'), [
             'title' => 'Coupon Statistics',
             'stats' => $stats,
             'usage_history' => $this->usageModel->getUsageWithDetails($id, 20)
-        ];
+        ]);
 
         return view('admin/coupons/stats', $data);
     }

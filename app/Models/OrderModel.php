@@ -23,6 +23,7 @@ class OrderModel extends Model
         'discount_amount',
         'coupon_id',
         'coupon_code',
+        'shipping_method_id',
         'payment_method',
         'payment_status',
         'shipping_address',
@@ -77,8 +78,9 @@ class OrderModel extends Model
 
     public function getOrderWithDetails($orderId, $userId = null)
     {
-        $builder = $this->select('orders.*, users.first_name, users.last_name, users.email, users.phone')
+        $builder = $this->select('orders.*, users.first_name, users.last_name, users.email, users.phone, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time')
             ->join('users', 'users.id = orders.user_id')
+            ->join('shipping_methods', 'shipping_methods.id = orders.shipping_method_id', 'left')
             ->where('orders.id', $orderId);
 
         if ($userId) {
@@ -90,7 +92,9 @@ class OrderModel extends Model
 
     public function getOrderByNumber($orderNumber, $userId = null)
     {
-        $builder = $this->where('order_number', $orderNumber);
+        $builder = $this->select('orders.*, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time')
+            ->join('shipping_methods', 'shipping_methods.id = orders.shipping_method_id', 'left')
+            ->where('order_number', $orderNumber);
 
         if ($userId) {
             $builder->where('user_id', $userId);
@@ -168,6 +172,78 @@ class OrderModel extends Model
         }
 
         return $builder->findAll();
+    }
+
+    public function getUserOrdersWithFilters($userId, $filters = [])
+    {
+        $builder = $this->where('user_id', $userId);
+
+        // Apply status filter
+        if (!empty($filters['status'])) {
+            $builder->where('status', $filters['status']);
+        }
+
+        // Apply search filter (search in order number or notes)
+        if (!empty($filters['search'])) {
+            $builder->groupStart()
+                ->like('order_number', $filters['search'])
+                ->orLike('notes', $filters['search'])
+                ->groupEnd();
+        }
+
+        // Apply date range filter
+        if (!empty($filters['date_from'])) {
+            $builder->where('created_at >=', $filters['date_from'] . ' 00:00:00');
+        }
+        if (!empty($filters['date_to'])) {
+            $builder->where('created_at <=', $filters['date_to'] . ' 23:59:59');
+        }
+
+        $builder->orderBy('created_at', 'DESC');
+
+        // Get total count for pagination
+        $totalCount = $builder->countAllResults(false);
+
+        // Apply pagination
+        $perPage = $filters['per_page'] ?? 10;
+        $page = $filters['page'] ?? 1;
+        $offset = ($page - 1) * $perPage;
+
+        $orders = $builder->limit($perPage, $offset)->findAll();
+
+        // Create pagination
+        $pager = \Config\Services::pager();
+
+        // Build URL with existing query parameters
+        $queryParams = [];
+
+        // Preserve existing filters in pagination links
+        if (!empty($filters['status'])) {
+            $queryParams['status'] = $filters['status'];
+        }
+        if (!empty($filters['search'])) {
+            $queryParams['search'] = $filters['search'];
+        }
+        if (!empty($filters['date_from'])) {
+            $queryParams['date_from'] = $filters['date_from'];
+        }
+        if (!empty($filters['date_to'])) {
+            $queryParams['date_to'] = $filters['date_to'];
+        }
+
+        // Set path with query parameters
+        $baseUrl = base_url('orders');
+        if (!empty($queryParams)) {
+            $baseUrl .= '?' . http_build_query($queryParams);
+        }
+        $pager->setPath($baseUrl);
+        $pager->makeLinks($page, $perPage, $totalCount);
+
+        return [
+            'data' => $orders,
+            'pager' => $pager,
+            'total' => $totalCount
+        ];
     }
 
     public function getRecentOrders($limit = 10)

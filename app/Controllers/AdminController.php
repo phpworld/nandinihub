@@ -36,15 +36,26 @@ class AdminController extends BaseController
 
     private function checkAdminAccess()
     {
+        // Check if user is logged in
         if (!session()->get('user_id')) {
-            // For testing: automatically set admin session
-            // In production, this should redirect to login
-            session()->set('user_id', 1); // Admin user ID from database
+            // Store the intended URL for redirect after login
+            session()->set('redirect_to', current_url());
+            session()->setFlashdata('error', 'Please login to access the admin panel.');
+            return redirect()->to('/login');
         }
 
+        // Verify user exists and has admin role
         $user = $this->userModel->find(session()->get('user_id'));
         if (!$user || $user['role'] !== 'admin') {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Access denied - Admin privileges required');
+            session()->setFlashdata('error', 'Access denied - Admin privileges required.');
+            return redirect()->to('/');
+        }
+
+        // Check if user account is active
+        if (!$user['is_active']) {
+            session()->destroy();
+            session()->setFlashdata('error', 'Your account has been deactivated. Please contact administrator.');
+            return redirect()->to('/login');
         }
 
         return true;
@@ -124,6 +135,26 @@ class AdminController extends BaseController
                 ]
             ],
             [
+                'title' => 'Shipping',
+                'url' => base_url('admin/shipping'),
+                'icon' => 'fas fa-shipping-fast',
+                'key' => 'shipping',
+                'submenu' => [
+                    ['title' => 'Shipping Methods', 'url' => base_url('admin/shipping')],
+                    ['title' => 'Add Method', 'url' => base_url('admin/shipping/create')]
+                ]
+            ],
+            [
+                'title' => 'Pages',
+                'url' => base_url('admin/pages'),
+                'icon' => 'fas fa-file-alt',
+                'key' => 'pages',
+                'submenu' => [
+                    ['title' => 'All Pages', 'url' => base_url('admin/pages')],
+                    ['title' => 'Add Page', 'url' => base_url('admin/pages/create')]
+                ]
+            ],
+            [
                 'title' => 'Settings',
                 'url' => base_url('admin/settings'),
                 'icon' => 'fas fa-cog',
@@ -134,7 +165,10 @@ class AdminController extends BaseController
 
     public function index()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck; // Return redirect response
+        }
 
         // Get dashboard statistics
         $totalProducts = $this->productModel->countAll();
@@ -163,7 +197,10 @@ class AdminController extends BaseController
     // Product Management
     public function products()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Get filter parameters
         $categoryFilter = $this->request->getGet('category');
@@ -204,7 +241,10 @@ class AdminController extends BaseController
 
     public function createProduct()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $categories = $this->categoryModel->getActiveCategories();
 
@@ -216,9 +256,363 @@ class AdminController extends BaseController
         return view('admin/products/create', $data);
     }
 
+    public function importProducts()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $categories = $this->categoryModel->getActiveCategories();
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Import Products - Admin',
+            'categories' => $categories
+        ]);
+
+        return view('admin/products/import', $data);
+    }
+
+    public function processImport()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $file = $this->request->getFile('import_file');
+
+        if (!$file || !$file->isValid()) {
+            session()->setFlashdata('error', 'Please select a valid file to import.');
+            return redirect()->to('/admin/products/import');
+        }
+
+        $allowedExtensions = ['csv', 'xlsx', 'xls'];
+        $fileExtension = $file->getClientExtension();
+
+        if (!in_array(strtolower($fileExtension), $allowedExtensions)) {
+            session()->setFlashdata('error', 'Please upload a CSV or Excel file (.csv, .xlsx, .xls).');
+            return redirect()->to('/admin/products/import');
+        }
+
+        try {
+            // Move file to temp location
+            $tempPath = WRITEPATH . 'uploads/temp/';
+            if (!is_dir($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+
+            $fileName = 'import_' . time() . '.' . $fileExtension;
+            $file->move($tempPath, $fileName);
+            $filePath = $tempPath . $fileName;
+
+            // Process the file
+            $importData = $this->parseImportFile($filePath, $fileExtension);
+
+            if (empty($importData['data'])) {
+                session()->setFlashdata('error', 'No valid data found in the file.');
+                return redirect()->to('/admin/products/import');
+            }
+
+            // Store import data in session for preview
+            session()->set('import_data', $importData);
+            session()->set('import_file_path', $filePath);
+
+            return redirect()->to('/admin/products/import/preview');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Error processing file: ' . $e->getMessage());
+            return redirect()->to('/admin/products/import');
+        }
+    }
+
+    public function importPreview()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $importData = session()->get('import_data');
+        if (!$importData) {
+            session()->setFlashdata('error', 'No import data found. Please upload a file first.');
+            return redirect()->to('/admin/products/import');
+        }
+
+        $categories = $this->categoryModel->getActiveCategories();
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Import Preview - Admin',
+            'importData' => $importData,
+            'categories' => $categories
+        ]);
+
+        return view('admin/products/import_preview', $data);
+    }
+
+    public function executeImport()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $importData = session()->get('import_data');
+        if (!$importData) {
+            session()->setFlashdata('error', 'No import data found. Please upload a file first.');
+            return redirect()->to('/admin/products/import');
+        }
+
+        $successCount = 0;
+        $errorCount = 0;
+        $errors = [];
+
+        foreach ($importData['data'] as $index => $row) {
+            try {
+                // Skip validation for bulk import
+                $this->productModel->skipValidation(true);
+
+                if ($this->productModel->insert($row)) {
+                    $successCount++;
+                } else {
+                    $errorCount++;
+                    $errors[] = "Row " . ($index + 2) . ": " . implode(', ', $this->productModel->errors());
+                }
+            } catch (\Exception $e) {
+                $errorCount++;
+                $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+            }
+        }
+
+        // Clean up
+        $filePath = session()->get('import_file_path');
+        if ($filePath && file_exists($filePath)) {
+            unlink($filePath);
+        }
+        session()->remove(['import_data', 'import_file_path']);
+
+        $message = "Import completed: {$successCount} products imported successfully";
+        if ($errorCount > 0) {
+            $message .= ", {$errorCount} errors occurred.";
+            session()->setFlashdata('import_errors', $errors);
+        }
+
+        session()->setFlashdata('success', $message);
+        return redirect()->to('/admin/products');
+    }
+
+    private function parseImportFile($filePath, $extension)
+    {
+        $data = [];
+        $headers = [];
+        $errors = [];
+
+        if ($extension === 'csv') {
+            $data = $this->parseCsvFile($filePath);
+        } else {
+            // For Excel files, we'll use a simple approach
+            // In a production environment, you might want to use PhpSpreadsheet
+            throw new \Exception('Excel file support requires PhpSpreadsheet library. Please use CSV format.');
+        }
+
+        return [
+            'data' => $data['rows'],
+            'headers' => $data['headers'],
+            'errors' => $errors,
+            'total_rows' => count($data['rows'])
+        ];
+    }
+
+    private function parseCsvFile($filePath)
+    {
+        $rows = [];
+        $headers = [];
+
+        if (($handle = fopen($filePath, "r")) !== FALSE) {
+            $lineNumber = 0;
+
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $lineNumber++;
+
+                if ($lineNumber === 1) {
+                    // First row contains headers
+                    $headers = array_map('trim', $data);
+                    continue;
+                }
+
+                if (count($data) !== count($headers)) {
+                    continue; // Skip malformed rows
+                }
+
+                $row = array_combine($headers, array_map('trim', $data));
+                $processedRow = $this->processImportRow($row);
+
+                if ($processedRow) {
+                    $rows[] = $processedRow;
+                }
+            }
+            fclose($handle);
+        }
+
+        return ['headers' => $headers, 'rows' => $rows];
+    }
+
+    private function processImportRow($row)
+    {
+        // Map CSV columns to database fields
+        $columnMapping = [
+            'name' => ['name', 'product_name', 'title'],
+            'category_id' => ['category_id', 'category'],
+            'description' => ['description', 'desc'],
+            'short_description' => ['short_description', 'short_desc', 'summary'],
+            'price' => ['price', 'regular_price'],
+            'sale_price' => ['sale_price', 'discount_price'],
+            'sku' => ['sku', 'product_code'],
+            'stock_quantity' => ['stock_quantity', 'stock', 'quantity'],
+            'weight' => ['weight'],
+            'dimensions' => ['dimensions', 'size'],
+            'is_featured' => ['is_featured', 'featured'],
+            'is_active' => ['is_active', 'active', 'status'],
+            'meta_title' => ['meta_title', 'seo_title'],
+            'meta_description' => ['meta_description', 'seo_description']
+        ];
+
+        $processedRow = [];
+
+        foreach ($columnMapping as $dbField => $possibleColumns) {
+            $value = null;
+
+            foreach ($possibleColumns as $column) {
+                if (isset($row[$column]) && $row[$column] !== '') {
+                    $value = $row[$column];
+                    break;
+                }
+            }
+
+            // Process specific fields
+            switch ($dbField) {
+                case 'category_id':
+                    if (is_numeric($value)) {
+                        $processedRow[$dbField] = (int)$value;
+                    } else if ($value) {
+                        // Try to find category by name
+                        $category = $this->categoryModel->where('name', $value)->first();
+                        $processedRow[$dbField] = $category ? $category['id'] : 1; // Default to first category
+                    } else {
+                        $processedRow[$dbField] = 1; // Default category
+                    }
+                    break;
+
+                case 'price':
+                case 'sale_price':
+                case 'weight':
+                    $processedRow[$dbField] = $value ? (float)$value : null;
+                    break;
+
+                case 'stock_quantity':
+                    $processedRow[$dbField] = $value ? (int)$value : 0;
+                    break;
+
+                case 'is_featured':
+                case 'is_active':
+                    $processedRow[$dbField] = in_array(strtolower($value), ['1', 'true', 'yes', 'active']) ? 1 : 0;
+                    break;
+
+                case 'sku':
+                    if (!$value) {
+                        // Generate SKU if not provided
+                        $processedRow[$dbField] = 'SKU' . time() . rand(100, 999);
+                    } else {
+                        $processedRow[$dbField] = $value;
+                    }
+                    break;
+
+                default:
+                    $processedRow[$dbField] = $value;
+            }
+        }
+
+        // Generate slug if name is provided
+        if (!empty($processedRow['name'])) {
+            $processedRow['slug'] = url_title($processedRow['name'], '-', true);
+        }
+
+        // Validate required fields
+        if (empty($processedRow['name']) || empty($processedRow['price'])) {
+            return null; // Skip invalid rows
+        }
+
+        return $processedRow;
+    }
+
+    public function downloadSampleCsv()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $categories = $this->categoryModel->getActiveCategories();
+
+        $sampleData = [
+            [
+                'name' => 'Sample Product 1',
+                'category_id' => $categories[0]['id'] ?? 1,
+                'description' => 'This is a sample product description',
+                'short_description' => 'Sample short description',
+                'price' => '99.99',
+                'sale_price' => '79.99',
+                'sku' => 'SAMPLE001',
+                'stock_quantity' => '50',
+                'weight' => '0.5',
+                'dimensions' => '10x10x5',
+                'is_featured' => '1',
+                'is_active' => '1',
+                'meta_title' => 'Sample Product 1 - Best Quality',
+                'meta_description' => 'Buy Sample Product 1 at best price'
+            ],
+            [
+                'name' => 'Sample Product 2',
+                'category_id' => $categories[1]['id'] ?? 1,
+                'description' => 'Another sample product description',
+                'short_description' => 'Another sample short description',
+                'price' => '149.99',
+                'sale_price' => '',
+                'sku' => 'SAMPLE002',
+                'stock_quantity' => '25',
+                'weight' => '1.0',
+                'dimensions' => '15x15x8',
+                'is_featured' => '0',
+                'is_active' => '1',
+                'meta_title' => 'Sample Product 2 - Premium Quality',
+                'meta_description' => 'Buy Sample Product 2 at best price'
+            ]
+        ];
+
+        $filename = 'product_import_sample.csv';
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+
+        // Write headers
+        fputcsv($output, array_keys($sampleData[0]));
+
+        // Write sample data
+        foreach ($sampleData as $row) {
+            fputcsv($output, $row);
+        }
+
+        fclose($output);
+        exit;
+    }
+
     public function toggleProductStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -241,7 +635,10 @@ class AdminController extends BaseController
 
     public function toggleProductFeatured($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -264,7 +661,10 @@ class AdminController extends BaseController
 
     public function bulkProductAction()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -390,7 +790,10 @@ class AdminController extends BaseController
 
     public function exportProducts()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $products = $this->productModel->select('products.*, categories.name as category_name')
             ->join('categories', 'categories.id = products.category_id')
@@ -441,7 +844,10 @@ class AdminController extends BaseController
     // Category Management
     public function categories()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $categories = $this->categoryModel->orderBy('sort_order', 'ASC')
             ->orderBy('name', 'ASC')
@@ -457,7 +863,10 @@ class AdminController extends BaseController
 
     public function createCategory()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $data = array_merge($this->getAdminData('products'), [
             'title' => 'Add New Category - Admin'
@@ -468,7 +877,10 @@ class AdminController extends BaseController
 
     public function storeCategory()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
@@ -516,7 +928,10 @@ class AdminController extends BaseController
 
     public function editCategory($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $category = $this->categoryModel->find($id);
         if (!$category) {
@@ -533,7 +948,10 @@ class AdminController extends BaseController
 
     public function updateCategory($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Debug: Log the incoming data
         log_message('info', 'Category update attempt for ID: ' . $id);
@@ -610,7 +1028,10 @@ class AdminController extends BaseController
 
     public function deleteCategory($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Get category data before deletion
         $category = $this->categoryModel->find($id);
@@ -665,7 +1086,10 @@ class AdminController extends BaseController
 
     public function toggleCategoryStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -688,7 +1112,10 @@ class AdminController extends BaseController
 
     public function getCategoryProductCount($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -700,7 +1127,10 @@ class AdminController extends BaseController
 
     public function storeProduct()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $rules = [
             'category_id' => 'required|integer',
@@ -772,7 +1202,10 @@ class AdminController extends BaseController
 
     public function editProduct($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $product = $this->productModel->find($id);
         if (!$product) {
@@ -792,7 +1225,10 @@ class AdminController extends BaseController
 
     public function updateProduct($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Debug: Log the incoming data
         log_message('info', 'Product update attempt for ID: ' . $id);
@@ -881,7 +1317,10 @@ class AdminController extends BaseController
 
     public function deleteProduct($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Get product data before deletion
         $product = $this->productModel->find($id);
@@ -922,7 +1361,10 @@ class AdminController extends BaseController
     // Order Management
     public function orders()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $orders = $this->orderModel->getOrdersWithItems();
 
@@ -936,7 +1378,10 @@ class AdminController extends BaseController
 
     public function viewOrder($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $order = $this->orderModel->getOrderWithDetails($id);
         if (!$order) {
@@ -961,7 +1406,10 @@ class AdminController extends BaseController
 
     public function printOrder($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $order = $this->orderModel->getOrderWithDetails($id);
         if (!$order) {
@@ -979,9 +1427,70 @@ class AdminController extends BaseController
         return view('admin/orders/print', $data);
     }
 
+    public function downloadOrderPdf($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $order = $this->orderModel->getOrderWithDetails($id);
+        if (!$order) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Order not found');
+        }
+
+        $orderItems = $this->orderItemModel->getOrderItems($id);
+
+        // Load DOMPDF
+        require_once ROOTPATH . 'vendor/autoload.php';
+
+        $dompdf = new \Dompdf\Dompdf();
+
+        // Generate HTML for PDF
+        $html = $this->generateInvoiceHtml($order, $orderItems);
+        $dompdf->loadHtml($html);
+
+        // Setup the paper size and orientation
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF to Browser
+        $filename = 'Invoice_' . $order['order_number'] . '.pdf';
+        $dompdf->stream($filename, ['Attachment' => true]);
+    }
+
+    private function generateInvoiceHtml($order, $orderItems)
+    {
+        $settingModel = new \App\Models\SettingModel();
+        $siteName = $settingModel->getSetting('site_name', 'NANDINI HUB');
+        $siteTagline = $settingModel->getSetting('site_tagline', 'Your Trusted Shopping Destination');
+        $contactEmail = $settingModel->getSetting('contact_email', 'info@nandinihub.com');
+        $contactPhone = $settingModel->getSetting('contact_phone', '+91 9876543210');
+        $siteLogo = $settingModel->getSetting('site_logo', '');
+        $businessAddress = $settingModel->getSetting('business_address', '123 Business Street, City, State - 123456');
+
+        $data = [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'siteName' => $siteName,
+            'siteTagline' => $siteTagline,
+            'contactEmail' => $contactEmail,
+            'contactPhone' => $contactPhone,
+            'siteLogo' => $siteLogo,
+            'businessAddress' => $businessAddress
+        ];
+
+        return view('admin/orders/pdf_template', $data);
+    }
+
     public function updateOrderStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $status = $this->request->getPost('status');
 
@@ -996,7 +1505,10 @@ class AdminController extends BaseController
 
     public function updatePaymentStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $paymentStatus = $this->request->getPost('payment_status');
 
@@ -1012,7 +1524,10 @@ class AdminController extends BaseController
     // Review Management
     public function reviews()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Get pagination parameters
         $page = (int) ($this->request->getGet('page') ?? 1);
@@ -1084,7 +1599,10 @@ class AdminController extends BaseController
 
     public function approveReview($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if ($this->reviewModel->approveReview($id)) {
             session()->setFlashdata('success', 'Review approved successfully');
@@ -1097,7 +1615,10 @@ class AdminController extends BaseController
 
     public function rejectReview($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Instead of just rejecting, delete the review automatically
         if ($this->reviewModel->delete($id)) {
@@ -1111,7 +1632,10 @@ class AdminController extends BaseController
 
     public function deleteReview($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             // Non-AJAX request
@@ -1134,7 +1658,10 @@ class AdminController extends BaseController
     // User Management
     public function users()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $users = $this->userModel->orderBy('created_at', 'DESC')->findAll();
 
@@ -1148,7 +1675,10 @@ class AdminController extends BaseController
 
     public function viewUser($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $user = $this->userModel->find($id);
         if (!$user) {
@@ -1171,7 +1701,10 @@ class AdminController extends BaseController
 
     public function toggleUserStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();
@@ -1195,7 +1728,10 @@ class AdminController extends BaseController
     // Settings Management
     public function settings()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         // Get all settings from database
         $settings = $this->settingModel->getAllSettings();
@@ -1210,7 +1746,10 @@ class AdminController extends BaseController
 
     public function updateSettings()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $rules = [
             'site_name' => 'required|min_length[2]|max_length[255]',
@@ -1232,9 +1771,27 @@ class AdminController extends BaseController
             'site_description' => $this->request->getPost('site_description'),
             'contact_email' => $this->request->getPost('contact_email'),
             'contact_phone' => $this->request->getPost('contact_phone'),
+            'business_address' => $this->request->getPost('address'),
             'google_analytics_id' => $this->request->getPost('google_analytics_id'),
             'google_analytics_enabled' => $this->request->getPost('google_analytics_enabled') ? true : false,
         ];
+
+        // Handle logo upload (save to uploads/logo/)
+        $logoFile = $this->request->getFile('site_logo');
+        if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+            $logoName = 'logo_' . time() . '.' . $logoFile->getExtension();
+            $logoPath = 'uploads/logo/' . $logoName;
+            $logoFile->move(ROOTPATH . 'uploads/logo', $logoName, true);
+            $settingsData['site_logo'] = $logoPath;
+        }
+        // Handle favicon upload (save to uploads/favicon/)
+        $faviconFile = $this->request->getFile('site_favicon');
+        if ($faviconFile && $faviconFile->isValid() && !$faviconFile->hasMoved()) {
+            $faviconName = 'favicon_' . time() . '.' . $faviconFile->getExtension();
+            $faviconPath = 'uploads/favicon/' . $faviconName;
+            $faviconFile->move(ROOTPATH . 'uploads/favicon', $faviconName, true);
+            $settingsData['site_favicon'] = $faviconPath;
+        }
 
         // Update settings in database
         if ($this->settingModel->updateSettings($settingsData)) {
@@ -1249,7 +1806,10 @@ class AdminController extends BaseController
     // Banner Management
     public function banners()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $banners = $this->bannerModel->orderBy('sort_order', 'ASC')
             ->orderBy('created_at', 'DESC')
@@ -1265,7 +1825,10 @@ class AdminController extends BaseController
 
     public function createBanner()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $data = array_merge($this->getAdminData('banners'), [
             'title' => 'Add New Banner - Admin'
@@ -1276,7 +1839,10 @@ class AdminController extends BaseController
 
     public function storeBanner()
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $rules = [
             'title' => 'required|min_length[2]|max_length[255]',
@@ -1328,7 +1894,10 @@ class AdminController extends BaseController
 
     public function editBanner($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $banner = $this->bannerModel->find($id);
         if (!$banner) {
@@ -1345,7 +1914,10 @@ class AdminController extends BaseController
 
     public function updateBanner($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $banner = $this->bannerModel->find($id);
         if (!$banner) {
@@ -1406,7 +1978,10 @@ class AdminController extends BaseController
 
     public function deleteBanner($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         $banner = $this->bannerModel->find($id);
         if (!$banner) {
@@ -1443,7 +2018,10 @@ class AdminController extends BaseController
 
     public function toggleBannerStatus($id)
     {
-        $this->checkAdminAccess();
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
 
         if (!$this->request->isAJAX()) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException();

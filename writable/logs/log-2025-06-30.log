@@ -1,0 +1,15 @@
+CRITICAL - 2025-06-30 06:01:27 --> ErrorException: Undefined array key "subtotal"
+[Method: GET, Route: admin/orders/15/pdf]
+in APPPATH\Views\admin\orders\pdf_template.php on line 311.
+ 1 APPPATH\Views\admin\orders\pdf_template.php(311): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "subtotal"', 'D:\\xampp\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\pdf_template.php', 311)
+ 2 SYSTEMPATH\View\View.php(224): include('D:\\xampp\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\pdf_template.php')
+ 3 SYSTEMPATH\View\View.php(227): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1173): CodeIgniter\View\View->render('admin/orders/pdf_template', [], true)
+ 5 APPPATH\Controllers\AdminController.php(1485): view('admin/orders/pdf_template', [...])
+ 6 APPPATH\Controllers\AdminController.php(1450): App\Controllers\AdminController->generateInvoiceHtml([...], [...])
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AdminController->downloadOrderPdf('15')
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AdminController))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

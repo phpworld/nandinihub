@@ -41,26 +41,26 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="code" class="form-label">Coupon Code *</label>
-                                    <input type="text" class="form-control" id="code" name="code" 
-                                           value="<?= old('code', $coupon['code'] ?? '') ?>" 
-                                           placeholder="e.g., SAVE20" maxlength="50" required>
+                                    <input type="text" class="form-control" id="code" name="code"
+                                        value="<?= old('code', $coupon['code'] ?? '') ?>"
+                                        placeholder="e.g., SAVE20" maxlength="50" required>
                                     <div class="form-text">Use uppercase letters and numbers only</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Coupon Name *</label>
-                                    <input type="text" class="form-control" id="name" name="name" 
-                                           value="<?= old('name', $coupon['name'] ?? '') ?>" 
-                                           placeholder="e.g., Save 20% Off" required>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="<?= old('name', $coupon['name'] ?? '') ?>"
+                                        placeholder="e.g., Save 20% Off" required>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="2" 
-                                      placeholder="Brief description of the coupon"><?= old('description', $coupon['description'] ?? '') ?></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="2"
+                                placeholder="Brief description of the coupon"><?= old('description', $coupon['description'] ?? '') ?></textarea>
                         </div>
 
                         <div class="row">
@@ -84,18 +84,18 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="value" class="form-label">Value *</label>
-                                    <input type="number" class="form-control" id="value" name="value" 
-                                           value="<?= old('value', $coupon['value'] ?? '') ?>" 
-                                           step="0.01" min="0" required>
+                                    <input type="number" class="form-control" id="value" name="value"
+                                        value="<?= old('value', $coupon['value'] ?? '') ?>"
+                                        step="0.01" min="0" required>
                                     <div class="form-text" id="value-help">Enter percentage or amount</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="minimum_order_amount" class="form-label">Minimum Order Amount</label>
-                                    <input type="number" class="form-control" id="minimum_order_amount" name="minimum_order_amount" 
-                                           value="<?= old('minimum_order_amount', $coupon['minimum_order_amount'] ?? '0') ?>" 
-                                           step="0.01" min="0">
+                                    <input type="number" class="form-control" id="minimum_order_amount" name="minimum_order_amount"
+                                        value="<?= old('minimum_order_amount', $coupon['minimum_order_amount'] ?? '0') ?>"
+                                        step="0.01" min="0">
                                     <div class="form-text">₹0 for no minimum</div>
                                 </div>
                             </div>
@@ -105,18 +105,18 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="maximum_discount_amount" class="form-label">Maximum Discount Amount</label>
-                                    <input type="number" class="form-control" id="maximum_discount_amount" name="maximum_discount_amount" 
-                                           value="<?= old('maximum_discount_amount', $coupon['maximum_discount_amount'] ?? '') ?>" 
-                                           step="0.01" min="0">
+                                    <input type="number" class="form-control" id="maximum_discount_amount" name="maximum_discount_amount"
+                                        value="<?= old('maximum_discount_amount', $coupon['maximum_discount_amount'] ?? '') ?>"
+                                        step="0.01" min="0">
                                     <div class="form-text">Leave empty for no limit</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="usage_limit_per_customer" class="form-label">Usage Limit Per Customer *</label>
-                                    <input type="number" class="form-control" id="usage_limit_per_customer" name="usage_limit_per_customer" 
-                                           value="<?= old('usage_limit_per_customer', $coupon['usage_limit_per_customer'] ?? '1') ?>" 
-                                           min="1" required>
+                                    <input type="number" class="form-control" id="usage_limit_per_customer" name="usage_limit_per_customer"
+                                        value="<?= old('usage_limit_per_customer', $coupon['usage_limit_per_customer'] ?? '1') ?>"
+                                        min="1" required>
                                 </div>
                             </div>
                         </div>
@@ -125,32 +125,32 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="usage_limit" class="form-label">Total Usage Limit</label>
-                                    <input type="number" class="form-control" id="usage_limit" name="usage_limit" 
-                                           value="<?= old('usage_limit', $coupon['usage_limit'] ?? '') ?>" 
-                                           min="1">
+                                    <input type="number" class="form-control" id="usage_limit" name="usage_limit"
+                                        value="<?= old('usage_limit', $coupon['usage_limit'] ?? '') ?>"
+                                        min="1">
                                     <div class="form-text">Leave empty for unlimited</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="valid_from" class="form-label">Valid From</label>
-                                    <input type="datetime-local" class="form-control" id="valid_from" name="valid_from" 
-                                           value="<?= old('valid_from', $coupon['valid_from'] ?? '') ?>">
+                                    <input type="datetime-local" class="form-control" id="valid_from" name="valid_from"
+                                        value="<?= old('valid_from', isset($coupon['valid_from']) && $coupon['valid_from'] ? date('Y-m-d\TH:i', strtotime($coupon['valid_from'])) : '') ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="valid_until" class="form-label">Valid Until</label>
-                                    <input type="datetime-local" class="form-control" id="valid_until" name="valid_until" 
-                                           value="<?= old('valid_until', $coupon['valid_until'] ?? '') ?>">
+                                    <input type="datetime-local" class="form-control" id="valid_until" name="valid_until"
+                                        value="<?= old('valid_until', isset($coupon['valid_until']) && $coupon['valid_until'] ? date('Y-m-d\TH:i', strtotime($coupon['valid_until'])) : '') ?>">
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" 
-                                       <?= old('is_active', $coupon['is_active'] ?? true) ? 'checked' : '' ?>>
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
+                                    <?= old('is_active', $coupon['is_active'] ?? true) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="is_active">
                                     Active (coupon can be used)
                                 </label>
@@ -206,67 +206,67 @@
 
 <?= $this->section('scripts') ?>
 <script>
-// Update preview when form changes
-function updatePreview() {
-    const code = document.getElementById('code').value || 'COUPON CODE';
-    const name = document.getElementById('name').value || 'Coupon Name';
-    const type = document.getElementById('type').value;
-    const value = document.getElementById('value').value || '0';
-    const minOrder = document.getElementById('minimum_order_amount').value || '0';
-    
-    document.getElementById('preview-code').textContent = code;
-    document.getElementById('preview-name').textContent = name;
-    
-    let valueText = '0% OFF';
-    if (type === 'percentage') {
-        valueText = value + '% OFF';
-    } else if (type === 'fixed_amount') {
-        valueText = '₹' + value + ' OFF';
-    } else if (type === 'free_shipping') {
-        valueText = 'FREE SHIPPING';
-    }
-    document.getElementById('preview-value').textContent = valueText;
-    
-    let conditions = 'No conditions';
-    if (parseFloat(minOrder) > 0) {
-        conditions = 'Min order: ₹' + minOrder;
-    }
-    document.getElementById('preview-conditions').textContent = conditions;
-}
+    // Update preview when form changes
+    function updatePreview() {
+        const code = document.getElementById('code').value || 'COUPON CODE';
+        const name = document.getElementById('name').value || 'Coupon Name';
+        const type = document.getElementById('type').value;
+        const value = document.getElementById('value').value || '0';
+        const minOrder = document.getElementById('minimum_order_amount').value || '0';
 
-// Update value help text based on type
-function updateValueHelp() {
-    const type = document.getElementById('type').value;
-    const helpText = document.getElementById('value-help');
-    
-    if (type === 'percentage') {
-        helpText.textContent = 'Enter percentage (e.g., 10 for 10%)';
-    } else if (type === 'fixed_amount') {
-        helpText.textContent = 'Enter amount in rupees';
-    } else if (type === 'free_shipping') {
-        helpText.textContent = 'Enter shipping amount to waive';
-    } else {
-        helpText.textContent = 'Enter percentage or amount';
-    }
-}
+        document.getElementById('preview-code').textContent = code;
+        document.getElementById('preview-name').textContent = name;
 
-// Add event listeners
-document.getElementById('code').addEventListener('input', updatePreview);
-document.getElementById('name').addEventListener('input', updatePreview);
-document.getElementById('type').addEventListener('change', function() {
+        let valueText = '0% OFF';
+        if (type === 'percentage') {
+            valueText = value + '% OFF';
+        } else if (type === 'fixed_amount') {
+            valueText = '₹' + value + ' OFF';
+        } else if (type === 'free_shipping') {
+            valueText = 'FREE SHIPPING';
+        }
+        document.getElementById('preview-value').textContent = valueText;
+
+        let conditions = 'No conditions';
+        if (parseFloat(minOrder) > 0) {
+            conditions = 'Min order: ₹' + minOrder;
+        }
+        document.getElementById('preview-conditions').textContent = conditions;
+    }
+
+    // Update value help text based on type
+    function updateValueHelp() {
+        const type = document.getElementById('type').value;
+        const helpText = document.getElementById('value-help');
+
+        if (type === 'percentage') {
+            helpText.textContent = 'Enter percentage (e.g., 10 for 10%)';
+        } else if (type === 'fixed_amount') {
+            helpText.textContent = 'Enter amount in rupees';
+        } else if (type === 'free_shipping') {
+            helpText.textContent = 'Enter shipping amount to waive';
+        } else {
+            helpText.textContent = 'Enter percentage or amount';
+        }
+    }
+
+    // Add event listeners
+    document.getElementById('code').addEventListener('input', updatePreview);
+    document.getElementById('name').addEventListener('input', updatePreview);
+    document.getElementById('type').addEventListener('change', function() {
+        updateValueHelp();
+        updatePreview();
+    });
+    document.getElementById('value').addEventListener('input', updatePreview);
+    document.getElementById('minimum_order_amount').addEventListener('input', updatePreview);
+
+    // Initialize
     updateValueHelp();
     updatePreview();
-});
-document.getElementById('value').addEventListener('input', updatePreview);
-document.getElementById('minimum_order_amount').addEventListener('input', updatePreview);
 
-// Initialize
-updateValueHelp();
-updatePreview();
-
-// Auto-uppercase coupon code
-document.getElementById('code').addEventListener('input', function() {
-    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-});
+    // Auto-uppercase coupon code
+    document.getElementById('code').addEventListener('input', function() {
+        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
 </script>
 <?= $this->endSection() ?>

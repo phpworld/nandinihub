@@ -168,16 +168,45 @@
                     </div>
                     <div class="card-body">
                         <?php if (!empty($order['shipping_address'])): ?>
-                            <?php $shippingAddress = json_decode($order['shipping_address'], true); ?>
-                            <address class="mb-0">
-                                <?= esc($shippingAddress['name'] ?? '') ?><br>
-                                <?= esc($shippingAddress['address'] ?? '') ?><br>
-                                <?= esc($shippingAddress['city'] ?? '') ?>, <?= esc($shippingAddress['state'] ?? '') ?><br>
-                                <?= esc($shippingAddress['pincode'] ?? '') ?><br>
-                                <?php if (!empty($shippingAddress['phone'])): ?>
-                                    Phone: <?= esc($shippingAddress['phone']) ?>
-                                <?php endif; ?>
-                            </address>
+                            <?php
+                            // Try to decode as JSON first, if that fails, treat as plain text
+                            $shippingAddress = json_decode($order['shipping_address'], true);
+                            if (json_last_error() !== JSON_ERROR_NONE) {
+                                // It's a formatted string, display as is
+                            ?>
+                                <address class="mb-0">
+                                    <?= nl2br(esc($order['shipping_address'])) ?>
+                                </address>
+                            <?php
+                            } else {
+                                // It's JSON data, display structured
+                            ?>
+                                <address class="mb-0">
+                                    <?php if (!empty($shippingAddress['full_name'])): ?>
+                                        <?= esc($shippingAddress['full_name']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['address_line1'])): ?>
+                                        <?= esc($shippingAddress['address_line1']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['address_line2'])): ?>
+                                        <?= esc($shippingAddress['address_line2']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['landmark'])): ?>
+                                        Near <?= esc($shippingAddress['landmark']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['city']) || !empty($shippingAddress['state']) || !empty($shippingAddress['pincode'])): ?>
+                                        <?= esc($shippingAddress['city'] ?? '') ?><?= !empty($shippingAddress['city']) && (!empty($shippingAddress['state']) || !empty($shippingAddress['pincode'])) ? ', ' : '' ?><?= esc($shippingAddress['state'] ?? '') ?><?= !empty($shippingAddress['state']) && !empty($shippingAddress['pincode']) ? ' ' : '' ?><?= esc($shippingAddress['pincode'] ?? '') ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['country']) && $shippingAddress['country'] !== 'India'): ?>
+                                        <?= esc($shippingAddress['country']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($shippingAddress['phone'])): ?>
+                                        Phone: <?= esc($shippingAddress['phone']) ?>
+                                    <?php endif; ?>
+                                </address>
+                            <?php
+                            }
+                            ?>
                         <?php else: ?>
                             <p class="text-muted mb-0">No shipping address provided</p>
                         <?php endif; ?>
@@ -191,16 +220,45 @@
                     </div>
                     <div class="card-body">
                         <?php if (!empty($order['billing_address'])): ?>
-                            <?php $billingAddress = json_decode($order['billing_address'], true); ?>
-                            <address class="mb-0">
-                                <?= esc($billingAddress['name'] ?? '') ?><br>
-                                <?= esc($billingAddress['address'] ?? '') ?><br>
-                                <?= esc($billingAddress['city'] ?? '') ?>, <?= esc($billingAddress['state'] ?? '') ?><br>
-                                <?= esc($billingAddress['pincode'] ?? '') ?><br>
-                                <?php if (!empty($billingAddress['phone'])): ?>
-                                    Phone: <?= esc($billingAddress['phone']) ?>
-                                <?php endif; ?>
-                            </address>
+                            <?php
+                            // Try to decode as JSON first, if that fails, treat as plain text
+                            $billingAddress = json_decode($order['billing_address'], true);
+                            if (json_last_error() !== JSON_ERROR_NONE) {
+                                // It's a formatted string, display as is
+                            ?>
+                                <address class="mb-0">
+                                    <?= nl2br(esc($order['billing_address'])) ?>
+                                </address>
+                            <?php
+                            } else {
+                                // It's JSON data, display structured
+                            ?>
+                                <address class="mb-0">
+                                    <?php if (!empty($billingAddress['full_name'])): ?>
+                                        <?= esc($billingAddress['full_name']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['address_line1'])): ?>
+                                        <?= esc($billingAddress['address_line1']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['address_line2'])): ?>
+                                        <?= esc($billingAddress['address_line2']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['landmark'])): ?>
+                                        Near <?= esc($billingAddress['landmark']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['city']) || !empty($billingAddress['state']) || !empty($billingAddress['pincode'])): ?>
+                                        <?= esc($billingAddress['city'] ?? '') ?><?= !empty($billingAddress['city']) && (!empty($billingAddress['state']) || !empty($billingAddress['pincode'])) ? ', ' : '' ?><?= esc($billingAddress['state'] ?? '') ?><?= !empty($billingAddress['state']) && !empty($billingAddress['pincode']) ? ' ' : '' ?><?= esc($billingAddress['pincode'] ?? '') ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['country']) && $billingAddress['country'] !== 'India'): ?>
+                                        <?= esc($billingAddress['country']) ?><br>
+                                    <?php endif; ?>
+                                    <?php if (!empty($billingAddress['phone'])): ?>
+                                        Phone: <?= esc($billingAddress['phone']) ?>
+                                    <?php endif; ?>
+                                </address>
+                            <?php
+                            }
+                            ?>
                         <?php else: ?>
                             <p class="text-muted mb-0">Same as shipping address</p>
                         <?php endif; ?>

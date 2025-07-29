@@ -93,7 +93,7 @@
                             <div class="card product-card h-100">
                                 <div class="position-relative">
                                     <img src="<?= $product['image'] ? base_url('uploads/products/' . esc($product['image'])) : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']) ?>"
-                                         class="card-img-top product-image" alt="<?= esc($product['name']) ?>">
+                                        class="card-img-top product-image" alt="<?= esc($product['name']) ?>">
 
                                     <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
                                         <span class="position-absolute top-0 start-0 badge bg-danger m-2">
@@ -105,6 +105,20 @@
                                         <span class="position-absolute top-0 end-0 badge bg-warning m-2">
                                             <i class="fas fa-star"></i> Featured
                                         </span>
+                                    <?php endif; ?>
+
+                                    <!-- Wishlist Button -->
+                                    <?php if (session()->get('is_logged_in')): ?>
+                                        <?php
+                                        $wishlistModel = new \App\Models\WishlistModel();
+                                        $inWishlist = $wishlistModel->isInWishlist(session()->get('user_id'), $product['id']);
+                                        ?>
+                                        <button class="btn btn-sm position-absolute wishlist-btn <?= $inWishlist ? 'btn-danger' : 'btn-outline-danger' ?>"
+                                            style="bottom: 10px; right: 10px; z-index: 10;"
+                                            onclick="toggleWishlist(<?= $product['id'] ?>, $(this))"
+                                            title="<?= $inWishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>">
+                                            <i class="<?= $inWishlist ? 'fas' : 'far' ?> fa-heart"></i>
+                                        </button>
                                     <?php endif; ?>
                                 </div>
 

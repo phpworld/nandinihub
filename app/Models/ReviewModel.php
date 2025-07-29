@@ -160,4 +160,17 @@ class ReviewModel extends Model
         }
         return false;
     }
+
+    /**
+     * Get average rating for a product
+     */
+    public function getAverageRating($productId)
+    {
+        $result = $this->select('AVG(rating) as average_rating')
+            ->where('product_id', $productId)
+            ->where('is_approved', 1)
+            ->first();
+
+        return $result ? round((float) $result['average_rating'], 1) : 0;
+    }
 }

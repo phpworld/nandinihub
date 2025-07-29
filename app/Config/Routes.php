@@ -20,8 +20,19 @@ $routes->get('/cart', 'CartController::index');
 $routes->post('/cart/add', 'CartController::add');
 $routes->post('/cart/update', 'CartController::update');
 $routes->post('/cart/remove', 'CartController::remove');
+$routes->get('/cart/clear', 'CartController::clear');
 $routes->post('/cart/clear', 'CartController::clear');
 $routes->get('/cart/count', 'CartController::getCartCount');
+
+// Wishlist routes
+$routes->get('/wishlist', 'WishlistController::index');
+$routes->post('/wishlist/add', 'WishlistController::add');
+$routes->post('/wishlist/remove', 'WishlistController::remove');
+$routes->post('/wishlist/toggle', 'WishlistController::toggle');
+$routes->get('/wishlist/clear', 'WishlistController::clear');
+$routes->post('/wishlist/clear', 'WishlistController::clear');
+$routes->get('/wishlist/count', 'WishlistController::getCount');
+$routes->post('/wishlist/check', 'WishlistController::check');
 
 // Authentication routes
 $routes->get('/login', 'AuthController::login');
@@ -81,6 +92,13 @@ $routes->group('admin', function ($routes) {
     $routes->post('products/(:num)', 'AdminController::updateProduct/$1');
     $routes->delete('products/(:num)', 'AdminController::deleteProduct/$1');
 
+    // Product import
+    $routes->get('products/import', 'AdminController::importProducts');
+    $routes->post('products/import', 'AdminController::processImport');
+    $routes->get('products/import/preview', 'AdminController::importPreview');
+    $routes->post('products/import/execute', 'AdminController::executeImport');
+    $routes->get('products/import/sample', 'AdminController::downloadSampleCsv');
+
     // AJAX Product endpoints
     $routes->post('products/(:num)/toggle-status', 'AdminController::toggleProductStatus/$1');
     $routes->post('products/(:num)/toggle-featured', 'AdminController::toggleProductFeatured/$1');
@@ -108,6 +126,7 @@ $routes->group('admin', function ($routes) {
     $routes->get('orders', 'AdminController::orders');
     $routes->get('orders/(:num)', 'AdminController::viewOrder/$1');
     $routes->get('orders/(:num)/print', 'AdminController::printOrder/$1');
+    $routes->get('orders/(:num)/pdf', 'AdminController::downloadOrderPdf/$1');
     $routes->post('orders/(:num)/status', 'AdminController::updateOrderStatus/$1');
     $routes->post('orders/(:num)/payment-status', 'AdminController::updatePaymentStatus/$1');
 
@@ -137,7 +156,112 @@ $routes->group('admin', function ($routes) {
     $routes->post('coupons/(:num)/toggle', 'Admin\CouponController::toggle/$1');
     $routes->get('coupons/(:num)/stats', 'Admin\CouponController::stats/$1');
 
+    // Shipping management
+    $routes->get('shipping', 'Admin\ShippingController::index');
+    $routes->get('shipping/create', 'Admin\ShippingController::create');
+    $routes->post('shipping/store', 'Admin\ShippingController::store');
+    $routes->get('shipping/(:num)/edit', 'Admin\ShippingController::edit/$1');
+    $routes->post('shipping/(:num)/update', 'Admin\ShippingController::update/$1');
+    $routes->post('shipping/(:num)/delete', 'Admin\ShippingController::delete/$1');
+    $routes->post('shipping/(:num)/toggle', 'Admin\ShippingController::toggle/$1');
+    $routes->post('shipping/update-sort-order', 'Admin\ShippingController::updateSortOrder');
+
+    // Page management
+    $routes->get('pages', 'Admin\PagesController::index');
+    $routes->get('pages/create', 'Admin\PagesController::create');
+    $routes->post('pages/store', 'Admin\PagesController::store');
+    $routes->get('pages/(:num)/edit', 'Admin\PagesController::edit/$1');
+    $routes->post('pages/(:num)/update', 'Admin\PagesController::update/$1');
+    $routes->delete('pages/(:num)/delete', 'Admin\PagesController::delete/$1');
+    $routes->post('pages/(:num)/toggle-status', 'Admin\PagesController::toggleStatus/$1');
+    $routes->post('pages/update-header-order', 'Admin\PagesController::updateHeaderOrder');
+    $routes->post('pages/update-footer-order', 'Admin\PagesController::updateFooterOrder');
+
     // Settings
     $routes->get('settings', 'AdminController::settings');
     $routes->post('settings', 'AdminController::updateSettings');
+});
+
+// Page routes (public)
+$routes->get('pages/(:segment)', 'PagesController::show/$1');
+$routes->post('pages/contact/submit', 'PagesController::submitContact');
+
+// API Routes
+$routes->group('api/v1', function ($routes) {
+    // Public API routes (no authentication required)
+
+    // Authentication routes
+    $routes->post('auth/register', 'Api\AuthApiController::register');
+    $routes->post('auth/login', 'Api\AuthApiController::login');
+    $routes->post('auth/refresh', 'Api\AuthApiController::refresh');
+
+    // Public product routes
+    $routes->get('products', 'Api\ProductApiController::index');
+    $routes->get('products/featured', 'Api\ProductApiController::featured');
+    $routes->get('products/search', 'Api\ProductApiController::search');
+    $routes->get('products/(:segment)', 'Api\ProductApiController::show/$1');
+    $routes->get('products/category/(:num)', 'Api\ProductApiController::byCategory/$1');
+
+    // Public category routes
+    $routes->get('categories', 'Api\CategoryApiController::index');
+    $routes->get('categories/tree', 'Api\CategoryApiController::tree');
+    $routes->get('categories/popular', 'Api\CategoryApiController::popular');
+    $routes->get('categories/search', 'Api\CategoryApiController::search');
+    $routes->get('categories/(:segment)', 'Api\CategoryApiController::show/$1');
+});
+
+// Protected API routes (require JWT authentication)
+$routes->group('api/v1', ['filter' => 'jwtauth'], function ($routes) {
+    // User profile routes
+    $routes->get('auth/profile', 'Api\AuthApiController::profile');
+    $routes->put('auth/profile', 'Api\AuthApiController::updateProfile');
+    $routes->post('auth/change-password', 'Api\AuthApiController::changePassword');
+    $routes->post('auth/logout', 'Api\AuthApiController::logout');
+
+    // Cart routes
+    $routes->get('cart', 'Api\CartApiController::index');
+    $routes->post('cart/add', 'Api\CartApiController::add');
+    $routes->put('cart/(:num)', 'Api\CartApiController::update/$1');
+    $routes->delete('cart/(:num)', 'Api\CartApiController::remove/$1');
+    $routes->delete('cart', 'Api\CartApiController::clear');
+    $routes->get('cart/count', 'Api\CartApiController::count');
+
+    // Order routes
+    $routes->get('orders', 'Api\OrderApiController::index');
+    $routes->get('orders/(:num)', 'Api\OrderApiController::show/$1');
+    $routes->post('orders', 'Api\OrderApiController::create');
+    $routes->put('orders/(:num)/cancel', 'Api\OrderApiController::cancel/$1');
+
+    // Address routes
+    $routes->get('addresses', 'Api\AddressApiController::index');
+    $routes->get('addresses/(:num)', 'Api\AddressApiController::show/$1');
+    $routes->post('addresses', 'Api\AddressApiController::create');
+    $routes->put('addresses/(:num)', 'Api\AddressApiController::update/$1');
+    $routes->delete('addresses/(:num)', 'Api\AddressApiController::delete/$1');
+    $routes->put('addresses/(:num)/default', 'Api\AddressApiController::setDefault/$1');
+
+    // Payment routes
+    $routes->post('payment/initiate', 'Api\PaymentApiController::initiate');
+    $routes->get('payment/verify/(:segment)', 'Api\PaymentApiController::verify/$1');
+    $routes->get('payment/methods', 'Api\PaymentApiController::methods');
+    $routes->post('payment/callback', 'Api\PaymentApiController::callback');
+
+    // Notification routes
+    $routes->post('notifications/register-token', 'Api\NotificationApiController::registerToken');
+    $routes->get('notifications', 'Api\NotificationApiController::getNotifications');
+    $routes->get('notifications/unread-count', 'Api\NotificationApiController::getUnreadCount');
+    $routes->put('notifications/(:num)/read', 'Api\NotificationApiController::markAsRead/$1');
+    $routes->put('notifications/mark-all-read', 'Api\NotificationApiController::markAllAsRead');
+    $routes->delete('notifications/(:num)', 'Api\NotificationApiController::deleteNotification/$1');
+    $routes->get('notifications/preferences', 'Api\NotificationApiController::getPreferences');
+    $routes->put('notifications/preferences', 'Api\NotificationApiController::updatePreferences');
+});
+
+$routes->group('', ['filter' => 'auth'], function ($routes) {
+    $routes->get('addresses', 'UserAddressController::index');
+    $routes->get('addresses/add', 'UserAddressController::add');
+    $routes->post('addresses/add', 'UserAddressController::add');
+    $routes->get('addresses/edit/(:num)', 'UserAddressController::edit/$1');
+    $routes->post('addresses/edit/(:num)', 'UserAddressController::edit/$1');
+    $routes->get('addresses/delete/(:num)', 'UserAddressController::delete/$1');
 });

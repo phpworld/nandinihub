@@ -4,7 +4,10 @@
 
 <div class="container py-4">
     <div class="row">
-        <div class="col-12">
+        <div class="col-md-3">
+            <?= $this->include('user/sidebar') ?>
+        </div>
+        <div class="col-md-9">
             <!-- Flash Messages -->
             <?php if (session()->getFlashdata('success')): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -25,10 +28,62 @@
                 <div>
                     <h1 class="h2 mb-1">My Orders</h1>
                     <p class="text-muted mb-0">Track and manage your orders</p>
+                    <?php if (isset($orderStats) && $orderStats['total_orders'] > 0): ?>
+                        <small class="text-muted">
+                            Total Orders: <?= $orderStats['total_orders'] ?> |
+                            Total Spent: ₹<?= number_format($orderStats['total_spent'], 2) ?>
+                        </small>
+                    <?php endif; ?>
                 </div>
                 <a href="<?= base_url('/') ?>" class="btn btn-primary">
                     <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
                 </a>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" action="<?= base_url('orders') ?>" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Order Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="confirmed" <?= ($filters['status'] ?? '') === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                                <option value="processing" <?= ($filters['status'] ?? '') === 'processing' ? 'selected' : '' ?>>Processing</option>
+                                <option value="shipped" <?= ($filters['status'] ?? '') === 'shipped' ? 'selected' : '' ?>>Shipped</option>
+                                <option value="delivered" <?= ($filters['status'] ?? '') === 'delivered' ? 'selected' : '' ?>>Delivered</option>
+                                <option value="cancelled" <?= ($filters['status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search"
+                                placeholder="Order number or notes..." value="<?= esc($filters['search'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_from" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from"
+                                value="<?= esc($filters['date_from'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_to" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to"
+                                value="<?= esc($filters['date_to'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Filter
+                                </button>
+                                <a href="<?= base_url('orders') ?>" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <?php if (empty($orders)): ?>
@@ -58,9 +113,26 @@
                                             </small>
                                         </div>
                                         <div class="col-md-2">
-                                            <span class="badge bg-<?= getStatusColor($order['status']) ?> fs-6">
+                                            <span class="badge bg-<?= getStatusColor($order['status']) ?> fs-6 mb-1">
                                                 <?= ucfirst($order['status']) ?>
                                             </span>
+                                            <?php if ($order['status'] === 'shipped'): ?>
+                                                <br><small class="text-info">
+                                                    <i class="fas fa-truck me-1"></i>In Transit
+                                                </small>
+                                            <?php elseif ($order['status'] === 'processing'): ?>
+                                                <br><small class="text-warning">
+                                                    <i class="fas fa-cogs me-1"></i>Preparing
+                                                </small>
+                                            <?php elseif ($order['status'] === 'delivered'): ?>
+                                                <br><small class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Completed
+                                                </small>
+                                            <?php elseif ($order['status'] === 'pending'): ?>
+                                                <br><small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>Awaiting Confirmation
+                                                </small>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="col-md-2">
                                             <strong>₹<?= number_format($order['total_amount'], 2) ?></strong>
@@ -265,6 +337,59 @@
             }
         });
     }, 5000);
+    // Auto-submit form when filters change
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusFilter = document.getElementById('status');
+        const dateFromFilter = document.getElementById('date_from');
+        const dateToFilter = document.getElementById('date_to');
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
+                // Auto-submit when status changes
+                this.form.submit();
+            });
+        }
+
+        if (dateFromFilter) {
+            dateFromFilter.addEventListener('change', function() {
+                // Auto-submit when date changes
+                this.form.submit();
+            });
+        }
+
+        if (dateToFilter) {
+            dateToFilter.addEventListener('change', function() {
+                // Auto-submit when date changes
+                this.form.submit();
+            });
+        }
+
+        // Add search functionality with debounce
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (this.value.length >= 3 || this.value.length === 0) {
+                        this.form.submit();
+                    }
+                }, 500); // 500ms debounce
+            });
+        }
+
+        // Add loading state to filter form
+        const filterForm = document.querySelector('form[action*="orders"]');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Filtering...';
+                    submitBtn.disabled = true;
+                }
+            });
+        }
+    });
 </script>
 
 <?php

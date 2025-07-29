@@ -19,6 +19,9 @@
         <p class="text-muted mb-0">Manage your product catalog</p>
     </div>
     <div>
+        <a href="<?= base_url('admin/products/import') ?>" class="btn btn-success me-2">
+            <i class="fas fa-upload me-2"></i>Import Products
+        </a>
         <a href="<?= base_url('admin/products/create') ?>" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Add New Product
         </a>
@@ -50,8 +53,8 @@
             </div>
             <div class="col-md-4">
                 <label for="search" class="form-label">Search</label>
-                <input type="text" class="form-control" id="search" name="search" 
-                       placeholder="Search by name, SKU..." value="<?= esc(request()->getGet('search')) ?>">
+                <input type="text" class="form-control" id="search" name="search"
+                    placeholder="Search by name, SKU..." value="<?= esc(request()->getGet('search')) ?>">
             </div>
             <div class="col-md-2">
                 <label class="form-label">&nbsp;</label>
@@ -79,15 +82,17 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#" onclick="bulkAction('activate')">
-                        <i class="fas fa-check me-2"></i>Bulk Activate
-                    </a></li>
+                            <i class="fas fa-check me-2"></i>Bulk Activate
+                        </a></li>
                     <li><a class="dropdown-item" href="#" onclick="bulkAction('deactivate')">
-                        <i class="fas fa-times me-2"></i>Bulk Deactivate
-                    </a></li>
-                    <li><hr class="dropdown-divider"></li>
+                            <i class="fas fa-times me-2"></i>Bulk Deactivate
+                        </a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item text-danger" href="#" onclick="bulkAction('delete')">
-                        <i class="fas fa-trash me-2"></i>Bulk Delete
-                    </a></li>
+                            <i class="fas fa-trash me-2"></i>Bulk Delete
+                        </a></li>
                 </ul>
             </div>
         </div>
@@ -125,17 +130,17 @@
                         <?php foreach ($products as $product): ?>
                             <tr>
                                 <td>
-                                    <input type="checkbox" class="form-check-input product-checkbox" 
-                                           value="<?= $product['id'] ?>">
+                                    <input type="checkbox" class="form-check-input product-checkbox"
+                                        value="<?= $product['id'] ?>">
                                 </td>
                                 <td>
                                     <?php if (!empty($product['image'])): ?>
-                                        <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
-                                             alt="<?= esc($product['name']) ?>" 
-                                             class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="<?= base_url('uploads/products/' . $product['image']) ?>"
+                                            alt="<?= esc($product['name']) ?>"
+                                            class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                                     <?php else: ?>
-                                        <div class="bg-light d-flex align-items-center justify-content-center" 
-                                             style="width: 50px; height: 50px;">
+                                        <div class="bg-light d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;">
                                             <i class="fas fa-image text-muted"></i>
                                         </div>
                                     <?php endif; ?>
@@ -171,31 +176,31 @@
                                 </td>
                                 <td>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input status-toggle" type="checkbox" 
-                                               data-id="<?= $product['id'] ?>" 
-                                               <?= $product['is_active'] ? 'checked' : '' ?>>
+                                        <input class="form-check-input status-toggle" type="checkbox"
+                                            data-id="<?= $product['id'] ?>"
+                                            <?= $product['is_active'] ? 'checked' : '' ?>>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input featured-toggle" type="checkbox" 
-                                               data-id="<?= $product['id'] ?>" 
-                                               <?= $product['is_featured'] ? 'checked' : '' ?>>
+                                        <input class="form-check-input featured-toggle" type="checkbox"
+                                            data-id="<?= $product['id'] ?>"
+                                            <?= $product['is_featured'] ? 'checked' : '' ?>>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= base_url('admin/products/' . $product['id'] . '/edit') ?>" 
-                                           class="btn btn-outline-primary" title="Edit">
+                                        <a href="<?= base_url('admin/products/' . $product['id'] . '/edit') ?>"
+                                            class="btn btn-outline-primary" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="<?= base_url('product/' . $product['slug']) ?>" 
-                                           class="btn btn-outline-info" title="View" target="_blank">
+                                        <a href="<?= base_url('product/' . $product['slug']) ?>"
+                                            class="btn btn-outline-info" title="View" target="_blank">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <button class="btn btn-outline-danger" 
-                                                onclick="deleteProduct(<?= $product['id'] ?>, '<?= esc($product['name']) ?>')" 
-                                                title="Delete">
+                                        <button class="btn btn-outline-danger"
+                                            onclick="deleteProduct(<?= $product['id'] ?>, '<?= esc($product['name']) ?>')"
+                                            title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -226,31 +231,33 @@
         toggle.addEventListener('change', function() {
             const productId = this.dataset.id;
             const isActive = this.checked ? 1 : 0;
-            
+
             fetch(`<?= base_url('admin/products/') ?>${productId}/toggle-status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ is_active: isActive })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    showAlert('success', 'Product status updated successfully');
-                } else {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        is_active: isActive
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        showAlert('success', 'Product status updated successfully');
+                    } else {
+                        // Revert toggle
+                        this.checked = !this.checked;
+                        showAlert('error', 'Failed to update product status');
+                    }
+                })
+                .catch(error => {
                     // Revert toggle
                     this.checked = !this.checked;
-                    showAlert('error', 'Failed to update product status');
-                }
-            })
-            .catch(error => {
-                // Revert toggle
-                this.checked = !this.checked;
-                showAlert('error', 'An error occurred');
-            });
+                    showAlert('error', 'An error occurred');
+                });
         });
     });
 
@@ -259,28 +266,30 @@
         toggle.addEventListener('change', function() {
             const productId = this.dataset.id;
             const isFeatured = this.checked ? 1 : 0;
-            
+
             fetch(`<?= base_url('admin/products/') ?>${productId}/toggle-featured`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ is_featured: isFeatured })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', 'Product featured status updated successfully');
-                } else {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        is_featured: isFeatured
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', 'Product featured status updated successfully');
+                    } else {
+                        this.checked = !this.checked;
+                        showAlert('error', 'Failed to update featured status');
+                    }
+                })
+                .catch(error => {
                     this.checked = !this.checked;
-                    showAlert('error', 'Failed to update featured status');
-                }
-            })
-            .catch(error => {
-                this.checked = !this.checked;
-                showAlert('error', 'An error occurred');
-            });
+                    showAlert('error', 'An error occurred');
+                });
         });
     });
 
@@ -288,30 +297,30 @@
     function deleteProduct(id, name) {
         if (confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
             fetch(`<?= base_url('admin/products/') ?>${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    showAlert('error', 'Failed to delete product');
-                }
-            })
-            .catch(error => {
-                showAlert('error', 'An error occurred');
-            });
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showAlert('error', 'Failed to delete product');
+                    }
+                })
+                .catch(error => {
+                    showAlert('error', 'An error occurred');
+                });
         }
     }
 
     // Bulk actions
     function bulkAction(action) {
         const selectedProducts = Array.from(document.querySelectorAll('.product-checkbox:checked'))
-                                     .map(cb => cb.value);
-        
+            .map(cb => cb.value);
+
         if (selectedProducts.length === 0) {
             showAlert('warning', 'Please select at least one product');
             return;
@@ -332,27 +341,27 @@
 
         if (confirm(confirmMessage)) {
             fetch(`<?= base_url('admin/products/bulk-action') ?>`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    action: action,
-                    products: selectedProducts
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        products: selectedProducts
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    showAlert('error', 'Failed to perform bulk action');
-                }
-            })
-            .catch(error => {
-                showAlert('error', 'An error occurred');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showAlert('error', 'Failed to perform bulk action');
+                    }
+                })
+                .catch(error => {
+                    showAlert('error', 'An error occurred');
+                });
         }
     }
 
@@ -369,10 +378,10 @@
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         const container = document.querySelector('.content-wrapper');
         container.insertBefore(alertDiv, container.firstChild);
-        
+
         setTimeout(() => {
             alertDiv.remove();
         }, 5000);

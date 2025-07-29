@@ -83,8 +83,8 @@ class CouponUsageModel extends Model
             AVG(discount_amount) as avg_discount,
             AVG(order_amount) as avg_order_value
         ')
-        ->where('coupon_id', $couponId)
-        ->first();
+            ->where('coupon_id', $couponId)
+            ->first();
 
         return $stats ?: [
             'total_uses' => 0,
@@ -102,12 +102,12 @@ class CouponUsageModel extends Model
     public function getUserUsageHistory(int $userId, int $limit = 10): array
     {
         return $this->select('coupon_usage.*, coupons.code, coupons.name, orders.order_number')
-                   ->join('coupons', 'coupons.id = coupon_usage.coupon_id')
-                   ->join('orders', 'orders.id = coupon_usage.order_id')
-                   ->where('coupon_usage.user_id', $userId)
-                   ->orderBy('coupon_usage.used_at', 'DESC')
-                   ->limit($limit)
-                   ->findAll();
+            ->join('coupons', 'coupons.id = coupon_usage.coupon_id')
+            ->join('orders', 'orders.id = coupon_usage.order_id')
+            ->where('coupon_usage.user_id', $userId)
+            ->orderBy('coupon_usage.used_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
     }
 
     /**
@@ -117,15 +117,15 @@ class CouponUsageModel extends Model
     {
         return $this->select('
             coupon_usage.*,
-            users.name as user_name,
+            CONCAT(users.first_name, " ", users.last_name) as user_name,
             users.email as user_email,
             orders.order_number
         ')
-        ->join('users', 'users.id = coupon_usage.user_id')
-        ->join('orders', 'orders.id = coupon_usage.order_id')
-        ->where('coupon_usage.coupon_id', $couponId)
-        ->orderBy('coupon_usage.used_at', 'DESC')
-        ->limit($limit)
-        ->findAll();
+            ->join('users', 'users.id = coupon_usage.user_id')
+            ->join('orders', 'orders.id = coupon_usage.order_id')
+            ->where('coupon_usage.coupon_id', $couponId)
+            ->orderBy('coupon_usage.used_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
     }
 }

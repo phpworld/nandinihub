@@ -34,17 +34,43 @@ class OrderController extends BaseController
 
         $userId = session()->get('user_id');
 
-        // Get user's orders
-        $orders = $this->orderModel->getUserOrders($userId);
+        // Get filter parameters
+        $status = $this->request->getGet('status');
+        $search = $this->request->getGet('search');
+        $dateFrom = $this->request->getGet('date_from');
+        $dateTo = $this->request->getGet('date_to');
+        $page = $this->request->getGet('page') ?? 1;
+        $perPage = 10;
+
+        // Get user's orders with filters
+        $orders = $this->orderModel->getUserOrdersWithFilters($userId, [
+            'status' => $status,
+            'search' => $search,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'page' => $page,
+            'per_page' => $perPage
+        ]);
 
         // Get order items for each order (for preview)
-        foreach ($orders as &$order) {
+        foreach ($orders['data'] as &$order) {
             $order['items'] = $this->orderItemModel->getOrderItems($order['id']);
         }
 
+        // Get order statistics
+        $orderStats = $this->orderModel->getOrderStats($userId);
+
         $data = [
             'title' => 'My Orders - Nandini Hub',
-            'orders' => $orders
+            'orders' => $orders['data'],
+            'pager' => $orders['pager'],
+            'orderStats' => $orderStats,
+            'filters' => [
+                'status' => $status,
+                'search' => $search,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo
+            ]
         ];
 
         return view('orders/index', $data);
@@ -69,13 +95,95 @@ class OrderController extends BaseController
         // Get order items with product details
         $orderItems = $this->orderItemModel->getOrderItemsWithProducts($order['id']);
 
+        // Check if order can be cancelled
+        $canCancel = $this->orderModel->canBeCancelled($order);
+        $cancellationReason = $this->orderModel->getCancellationReason($order);
+
+        // Get order timeline/status history (if implemented)
+        $orderTimeline = $this->getOrderTimeline($order);
+
         $data = [
             'title' => 'Order #' . $orderNumber . ' - Nandini Hub',
             'order' => $order,
-            'orderItems' => $orderItems
+            'orderItems' => $orderItems,
+            'canCancel' => $canCancel,
+            'cancellationReason' => $cancellationReason,
+            'orderTimeline' => $orderTimeline
         ];
 
         return view('orders/show', $data);
+    }
+
+    private function getOrderTimeline($order)
+    {
+        // Create a basic timeline based on order status and dates
+        $timeline = [];
+
+        $timeline[] = [
+            'status' => 'Order Placed',
+            'date' => $order['created_at'],
+            'description' => 'Your order has been placed successfully.',
+            'icon' => 'fas fa-shopping-cart',
+            'color' => 'success',
+            'completed' => true
+        ];
+
+        if ($order['status'] !== 'pending') {
+            $timeline[] = [
+                'status' => 'Order Confirmed',
+                'date' => $order['updated_at'],
+                'description' => 'Your order has been confirmed and is being prepared.',
+                'icon' => 'fas fa-check-circle',
+                'color' => 'info',
+                'completed' => in_array($order['status'], ['confirmed', 'processing', 'shipped', 'delivered'])
+            ];
+        }
+
+        if (in_array($order['status'], ['processing', 'shipped', 'delivered'])) {
+            $timeline[] = [
+                'status' => 'Processing',
+                'date' => $order['updated_at'],
+                'description' => 'Your order is being processed and prepared for shipment.',
+                'icon' => 'fas fa-cogs',
+                'color' => 'warning',
+                'completed' => in_array($order['status'], ['processing', 'shipped', 'delivered'])
+            ];
+        }
+
+        if (in_array($order['status'], ['shipped', 'delivered'])) {
+            $timeline[] = [
+                'status' => 'Shipped',
+                'date' => $order['updated_at'],
+                'description' => 'Your order has been shipped and is on its way.',
+                'icon' => 'fas fa-truck',
+                'color' => 'primary',
+                'completed' => in_array($order['status'], ['shipped', 'delivered'])
+            ];
+        }
+
+        if ($order['status'] === 'delivered') {
+            $timeline[] = [
+                'status' => 'Delivered',
+                'date' => $order['updated_at'],
+                'description' => 'Your order has been delivered successfully.',
+                'icon' => 'fas fa-check-double',
+                'color' => 'success',
+                'completed' => true
+            ];
+        }
+
+        if ($order['status'] === 'cancelled') {
+            $timeline[] = [
+                'status' => 'Cancelled',
+                'date' => $order['updated_at'],
+                'description' => 'Your order has been cancelled.',
+                'icon' => 'fas fa-times-circle',
+                'color' => 'danger',
+                'completed' => true
+            ];
+        }
+
+        return $timeline;
     }
 
     public function checkout()
@@ -97,11 +205,21 @@ class OrderController extends BaseController
         $cartTotal = $this->cartModel->getCartTotal($userId, $sessionId);
         $user = $this->userModel->find($userId);
 
+        // Load shipping service and get available shipping methods
+        $shippingService = new \App\Libraries\ShippingService();
+        $shippingMethods = $shippingService->getShippingMethodsForCheckout($cartTotal);
+
+        // Load user addresses
+        $addressModel = new \App\Models\UserAddressModel();
+        $userAddresses = $addressModel->getUserAddresses($userId);
+
         $data = [
             'title' => 'Checkout - Nandini Hub',
             'cartItems' => $cartItems,
             'cartTotal' => $cartTotal,
-            'user' => $user
+            'user' => $user,
+            'shippingMethods' => $shippingMethods,
+            'userAddresses' => $userAddresses
         ];
 
         return view('orders/checkout', $data);
@@ -129,8 +247,9 @@ class OrderController extends BaseController
 
         // Validate form data
         $rules = [
-            'shipping_address' => 'required|min_length[10]|max_length[500]',
-            'payment_method' => 'required|in_list[cod,online]'
+            'delivery_address_id' => 'required|integer',
+            'payment_method' => 'required|in_list[cod,online]',
+            'shipping_method_id' => 'required|integer'
         ];
 
         if (!$this->validate($rules)) {
@@ -138,10 +257,23 @@ class OrderController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Get selected delivery address
+        $deliveryAddressId = (int) $this->request->getPost('delivery_address_id');
+        $addressModel = new \App\Models\UserAddressModel();
+        $deliveryAddress = $addressModel->where(['id' => $deliveryAddressId, 'user_id' => $userId])->first();
+
+        if (!$deliveryAddress) {
+            session()->setFlashdata('error', 'Invalid delivery address selected.');
+            return redirect()->back()->withInput();
+        }
+
+        // Format the delivery address
+        $shippingAddress = $addressModel->formatAddress($deliveryAddress);
+
         // Get billing address (either from form or same as shipping)
         $billingAddress = $this->request->getPost('billing_address');
         if (empty($billingAddress)) {
-            $billingAddress = $this->request->getPost('shipping_address');
+            $billingAddress = $shippingAddress;
         }
 
         // Calculate totals
@@ -165,7 +297,25 @@ class OrderController extends BaseController
             }
         }
 
-        $shipping = $subtotal >= 500 ? 0 : 50;
+        // Calculate shipping using shipping service
+        $shippingService = new \App\Libraries\ShippingService();
+        $shippingMethodId = (int) $this->request->getPost('shipping_method_id');
+
+        // Validate shipping method
+        $shippingValidation = $shippingService->validateShippingMethod($shippingMethodId, $subtotal);
+        if (!$shippingValidation['valid']) {
+            session()->setFlashdata('error', $shippingValidation['message']);
+            return redirect()->back()->withInput();
+        }
+
+        // Calculate shipping cost
+        $shippingResult = $shippingService->calculateShippingCost($shippingMethodId, $subtotal, $couponCode);
+        if (!$shippingResult['success']) {
+            session()->setFlashdata('error', $shippingResult['message']);
+            return redirect()->back()->withInput();
+        }
+
+        $shipping = $shippingResult['cost'];
         $tax = ($subtotal - $discountAmount) * 0.18;
         $total = $subtotal - $discountAmount + $shipping + $tax;
 
@@ -179,9 +329,10 @@ class OrderController extends BaseController
             'discount_amount' => $discountAmount,
             'coupon_id' => $couponId,
             'coupon_code' => $couponCode,
+            'shipping_method_id' => $shippingMethodId,
             'payment_method' => $this->request->getPost('payment_method'),
             'payment_status' => 'pending',
-            'shipping_address' => trim($this->request->getPost('shipping_address')),
+            'shipping_address' => $shippingAddress,
             'billing_address' => trim($billingAddress),
             'notes' => trim($this->request->getPost('notes')),
             'status' => 'pending'

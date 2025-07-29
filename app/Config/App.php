@@ -19,6 +19,15 @@ class App extends BaseConfig
     public string $baseURL = 'http://localhost/nandinihub/';
 
     /**
+     * --------------------------------------------------------------------------
+     * JWT Configuration
+     * --------------------------------------------------------------------------
+     */
+    public string $jwtSecretKey = 'your-secret-key-change-this-in-production-2024-nandinihub';
+    public int $jwtExpirationTime = 86400; // 24 hours in seconds
+    public string $jwtAlgorithm = 'HS256';
+
+    /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
      * If you want to accept multiple Hostnames, set this.
      *

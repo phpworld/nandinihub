@@ -23,6 +23,12 @@
             <!-- Order Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="<?= base_url('orders') ?>">My Orders</a></li>
+                            <li class="breadcrumb-item active">Order #<?= esc($order['order_number']) ?></li>
+                        </ol>
+                    </nav>
                     <h1 class="h2 mb-1">Order Details</h1>
                     <p class="text-muted mb-0">Order #<?= esc($order['order_number']) ?></p>
                 </div>
@@ -34,6 +40,16 @@
                     <small class="text-muted">
                         Placed on <?= date('M d, Y \a\t h:i A', strtotime($order['created_at'])) ?>
                     </small>
+                    <br>
+                    <?php if (isset($canCancel) && $canCancel): ?>
+                        <button class="btn btn-outline-danger btn-sm mt-2" onclick="cancelOrder('<?= $order['order_number'] ?>')">
+                            <i class="fas fa-times me-1"></i>Cancel Order
+                        </button>
+                    <?php elseif (isset($cancellationReason) && !empty($cancellationReason)): ?>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-info-circle me-1"></i><?= esc($cancellationReason) ?>
+                        </small>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -101,53 +117,72 @@
                         </div>
                         <div class="card-body">
                             <div class="timeline">
-                                <div class="timeline-item <?= in_array($order['status'], ['pending', 'confirmed', 'processing', 'shipped', 'delivered']) ? 'active' : '' ?>">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6>Order Placed</h6>
-                                        <p class="text-muted mb-0"><?= date('M d, Y \a\t h:i A', strtotime($order['created_at'])) ?></p>
+                                <?php if (isset($orderTimeline) && !empty($orderTimeline)): ?>
+                                    <?php foreach ($orderTimeline as $timelineItem): ?>
+                                        <div class="timeline-item <?= $timelineItem['completed'] ? 'active' : '' ?>">
+                                            <div class="timeline-marker bg-<?= $timelineItem['color'] ?>">
+                                                <i class="<?= $timelineItem['icon'] ?> text-white" style="font-size: 8px;"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <h6 class="<?= $timelineItem['completed'] ? 'text-' . $timelineItem['color'] : '' ?>">
+                                                    <?= esc($timelineItem['status']) ?>
+                                                </h6>
+                                                <p class="text-muted mb-1"><?= esc($timelineItem['description']) ?></p>
+                                                <small class="text-muted">
+                                                    <?= date('M d, Y \a\t h:i A', strtotime($timelineItem['date'])) ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <!-- Fallback timeline if orderTimeline is not available -->
+                                    <div class="timeline-item active">
+                                        <div class="timeline-marker bg-success">
+                                            <i class="fas fa-shopping-cart text-white" style="font-size: 8px;"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="text-success">Order Placed</h6>
+                                            <p class="text-muted mb-1">Your order has been placed successfully.</p>
+                                            <small class="text-muted">
+                                                <?= date('M d, Y \a\t h:i A', strtotime($order['created_at'])) ?>
+                                            </small>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="timeline-item <?= in_array($order['status'], ['confirmed', 'processing', 'shipped', 'delivered']) ? 'active' : '' ?>">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6>Order Confirmed</h6>
-                                        <p class="text-muted mb-0">
-                                            <?= $order['status'] != 'pending' ? 'Confirmed' : 'Pending confirmation' ?>
-                                        </p>
+                                    <div class="timeline-item <?= $order['status'] !== 'pending' ? 'active' : '' ?>">
+                                        <div class="timeline-marker <?= $order['status'] !== 'pending' ? 'bg-info' : '' ?>">
+                                            <?php if ($order['status'] !== 'pending'): ?>
+                                                <i class="fas fa-check-circle text-white" style="font-size: 8px;"></i>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="<?= $order['status'] !== 'pending' ? 'text-info' : '' ?>">Order Confirmed</h6>
+                                            <p class="text-muted mb-1">
+                                                <?= $order['status'] !== 'pending' ? 'Your order has been confirmed.' : 'Waiting for confirmation.' ?>
+                                            </p>
+                                            <?php if ($order['status'] !== 'pending'): ?>
+                                                <small class="text-muted">
+                                                    <?= date('M d, Y \a\t h:i A', strtotime($order['updated_at'])) ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="timeline-item <?= in_array($order['status'], ['processing', 'shipped', 'delivered']) ? 'active' : '' ?>">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6>Processing</h6>
-                                        <p class="text-muted mb-0">
-                                            <?= in_array($order['status'], ['processing', 'shipped', 'delivered']) ? 'Order is being processed' : 'Waiting for processing' ?>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item <?= in_array($order['status'], ['shipped', 'delivered']) ? 'active' : '' ?>">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6>Shipped</h6>
-                                        <p class="text-muted mb-0">
-                                            <?= in_array($order['status'], ['shipped', 'delivered']) ? 'Order has been shipped' : 'Waiting for shipment' ?>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item <?= $order['status'] == 'delivered' ? 'active' : '' ?>">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6>Delivered</h6>
-                                        <p class="text-muted mb-0">
-                                            <?= $order['status'] == 'delivered' ? 'Order delivered successfully' : 'Pending delivery' ?>
-                                        </p>
-                                    </div>
-                                </div>
+                                    <?php if ($order['status'] === 'cancelled'): ?>
+                                        <div class="timeline-item active">
+                                            <div class="timeline-marker bg-danger">
+                                                <i class="fas fa-times-circle text-white" style="font-size: 8px;"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <h6 class="text-danger">Order Cancelled</h6>
+                                                <p class="text-muted mb-1">Your order has been cancelled.</p>
+                                                <small class="text-muted">
+                                                    <?= date('M d, Y \a\t h:i A', strtotime($order['updated_at'])) ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -242,7 +277,7 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="mb-0">
-                                <i class="fas fa-truck me-2"></i>Shipping Address
+                                <i class="fas fa-truck me-2"></i>Delivery Address
                             </h5>
                         </div>
                         <div class="card-body">
@@ -251,6 +286,32 @@
                             </address>
                         </div>
                     </div>
+
+                    <!-- Shipping Method -->
+                    <?php if (!empty($order['shipping_method_name'])): ?>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shipping-fast me-2"></i>Shipping Method
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Method:</strong> <?= esc($order['shipping_method_name']) ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Delivery Time:</strong> <?= esc($order['shipping_delivery_time']) ?>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <strong>Shipping Cost:</strong> ₹<?= number_format($order['shipping_amount'], 2) ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Billing Address -->
                     <?php if ($order['billing_address'] != $order['shipping_address']): ?>
@@ -434,30 +495,30 @@
 
         // Call payment initiation API
         fetch('<?= base_url('payment/initiate') ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: `order_id=${orderId}&<?= csrf_token() ?>=<?= csrf_hash() ?>`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to payment processing page
-                window.location.href = data.payment_url;
-            } else {
-                alert('Failed to initiate payment: ' + data.message);
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `order_id=${orderId}&<?= csrf_token() ?>=<?= csrf_hash() ?>`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to payment processing page
+                    window.location.href = data.payment_url;
+                } else {
+                    alert('Failed to initiate payment: ' + data.message);
+                    payBtn.innerHTML = originalText;
+                    payBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
                 payBtn.innerHTML = originalText;
                 payBtn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-            payBtn.innerHTML = originalText;
-            payBtn.disabled = false;
-        });
+            });
     }
 
     // Auto-hide flash messages after 5 seconds
@@ -478,7 +539,10 @@
         // Scroll to payment section
         const paymentCard = document.querySelector('.card:has(.btn-primary)');
         if (paymentCard) {
-            paymentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            paymentCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
             paymentCard.style.border = '2px solid #0d6efd';
             setTimeout(() => {
                 paymentCard.style.border = '';

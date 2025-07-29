@@ -110,6 +110,26 @@
                     </div>
                 </div>
 
+                <!-- Wishlist Section -->
+                <div class="wishlist-section mb-4">
+                    <?php if (session()->get('is_logged_in')): ?>
+                        <?php
+                        $wishlistModel = new \App\Models\WishlistModel();
+                        $inWishlist = $wishlistModel->isInWishlist(session()->get('user_id'), $product['id']);
+                        ?>
+                        <button class="btn btn-lg <?= $inWishlist ? 'btn-danger' : 'btn-outline-danger' ?> w-100"
+                            id="wishlistBtn"
+                            onclick="toggleWishlist(<?= $product['id'] ?>, $(this))"
+                            title="<?= $inWishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>">
+                            <i class="<?= $inWishlist ? 'fas' : 'far' ?> fa-heart me-2"></i><?= $inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' ?>
+                        </button>
+                    <?php else: ?>
+                        <a href="<?= base_url('login') ?>" class="btn btn-outline-danger btn-lg w-100">
+                            <i class="far fa-heart me-2"></i>Login to Add to Wishlist
+                        </a>
+                    <?php endif; ?>
+                </div>
+
                 <!-- Features -->
                 <div class="product-features">
                     <div class="row text-center">
@@ -212,6 +232,20 @@
                                 <div class="position-relative">
                                     <img src="<?= $relatedProduct['image'] ? base_url('uploads/products/' . esc($relatedProduct['image'])) : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($relatedProduct['name']) ?>"
                                         class="card-img-top product-image" alt="<?= esc($relatedProduct['name']) ?>">
+
+                                    <!-- Wishlist Button -->
+                                    <?php if (session()->get('is_logged_in')): ?>
+                                        <?php
+                                        $wishlistModel = new \App\Models\WishlistModel();
+                                        $inWishlist = $wishlistModel->isInWishlist(session()->get('user_id'), $relatedProduct['id']);
+                                        ?>
+                                        <button class="btn btn-sm position-absolute wishlist-btn <?= $inWishlist ? 'btn-danger' : 'btn-outline-danger' ?>"
+                                            style="top: 10px; right: 10px; z-index: 10;"
+                                            onclick="toggleWishlist(<?= $relatedProduct['id'] ?>, $(this))"
+                                            title="<?= $inWishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>">
+                                            <i class="<?= $inWishlist ? 'fas' : 'far' ?> fa-heart"></i>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="card-body d-flex flex-column">

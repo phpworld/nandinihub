@@ -1,3 +1,7 @@
+<?php
+$settingModel = new \App\Models\SettingModel();
+$siteLogo = $settingModel->getSetting('site_logo', '');
+?>
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
@@ -8,7 +12,11 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <i class="fas fa-om fa-3x text-primary mb-3"></i>
+                        <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
+                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:60px;max-width:180px;object-fit:contain;" class="mb-3">
+                        <?php else: ?>
+                            <i class="fas fa-om fa-3x text-primary mb-3"></i>
+                        <?php endif; ?>
                         <h2 class="h4">Join Nandini Hub</h2>
                         <p class="text-muted">Create your account to start shopping</p>
                     </div>
@@ -36,25 +44,25 @@
                             <div class="col-md-6 mb-3">
                                 <label for="first_name" class="form-label">First Name</label>
                                 <input type="text" class="form-control" id="first_name" name="first_name"
-                                       value="<?= old('first_name') ?>" required>
+                                    value="<?= old('first_name') ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="last_name" class="form-label">Last Name</label>
                                 <input type="text" class="form-control" id="last_name" name="last_name"
-                                       value="<?= old('last_name') ?>" required>
+                                    value="<?= old('last_name') ?>" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email"
-                                   value="<?= old('email') ?>" required>
+                                value="<?= old('email') ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone Number (Optional)</label>
                             <input type="tel" class="form-control" id="phone" name="phone"
-                                   value="<?= old('phone') ?>" placeholder="+91 12345 67890">
+                                value="<?= old('phone') ?>" placeholder="+91 12345 67890">
                         </div>
 
                         <div class="row">

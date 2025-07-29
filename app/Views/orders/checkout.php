@@ -50,52 +50,48 @@
         <div class="row">
             <!-- Checkout Form -->
             <div class="col-lg-8">
-                <!-- Shipping Address -->
+                <!-- Delivery Address -->
                 <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Shipping Address</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Delivery Address</h5>
+                        <a href="<?= base_url('addresses/add') ?>" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="fas fa-plus me-1"></i>Add New Address
+                        </a>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="first_name" value="<?= esc($user['first_name']) ?>" readonly>
+                        <?php if (!empty($userAddresses)): ?>
+                            <?php foreach ($userAddresses as $index => $address): ?>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input delivery-address"
+                                        type="radio"
+                                        name="delivery_address_id"
+                                        id="address_<?= $address['id'] ?>"
+                                        value="<?= $address['id'] ?>"
+                                        <?= ($address['is_default'] || $index === 0) ? 'checked' : '' ?>>
+                                    <label class="form-check-label w-100" for="address_<?= $address['id'] ?>">
+                                        <div class="border rounded p-3">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">
+                                                        <?= esc($address['name']) ?>
+                                                        <?php if ($address['is_default']): ?>
+                                                            <span class="badge bg-success ms-2">Default</span>
+                                                        <?php endif; ?>
+                                                    </h6>
+                                                    <p class="mb-1 text-muted"><?= esc($address['phone']) ?></p>
+                                                    <p class="mb-0"><?= esc($address['full_address']) ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No delivery addresses found. Please <a href="<?= base_url('addresses/add') ?>" target="_blank">add a delivery address</a> first.
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" value="<?= esc($user['last_name']) ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="shipping_address" class="form-label">Complete Address *</label>
-                            <textarea class="form-control <?= isset($errors['shipping_address']) ? 'is-invalid' : '' ?>"
-                                id="shipping_address" name="shipping_address" rows="3" required
-                                placeholder="Enter your complete shipping address..."><?= old('shipping_address', $user['address']) ?></textarea>
-                            <?php if (isset($errors['shipping_address'])): ?>
-                                <div class="invalid-feedback"><?= $errors['shipping_address'] ?></div>
-                            <?php endif; ?>
-                            <div class="form-text">Include house/flat number, street name, locality, and landmark if any.</div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" value="<?= esc($user['city']) ?>" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="state" class="form-label">State</label>
-                                <input type="text" class="form-control" id="state" value="<?= esc($user['state']) ?>" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="pincode" class="form-label">Pincode</label>
-                                <input type="text" class="form-control" id="pincode" value="<?= esc($user['pincode']) ?>" readonly>
-                            </div>
-                        </div>
-
-                        <small class="text-muted">
-                            <a href="<?= base_url('profile') ?>">Update your profile</a> to change personal details.
-                        </small>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -114,6 +110,49 @@
                             <label for="billing_address_text" class="form-label">Billing Address</label>
                             <textarea class="form-control" id="billing_address_text" rows="3"><?= old('billing_address') ?></textarea>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Method -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Shipping Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($shippingMethods)): ?>
+                            <?php foreach ($shippingMethods as $index => $method): ?>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input shipping-method"
+                                        type="radio"
+                                        name="shipping_method_id"
+                                        id="shipping_<?= $method['id'] ?>"
+                                        value="<?= $method['id'] ?>"
+                                        data-cost="<?= $method['cost'] ?>"
+                                        <?= $index === 0 ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="shipping_<?= $method['id'] ?>">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong><?= esc($method['name']) ?></strong>
+                                                <small class="d-block text-muted"><?= esc($method['delivery_time']) ?></small>
+                                                <?php if (!empty($method['description'])): ?>
+                                                    <small class="d-block text-muted"><?= esc($method['description']) ?></small>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge <?= $method['is_free'] ? 'bg-success' : 'bg-primary' ?>">
+                                                    <?= $method['cost_formatted'] ?>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No shipping methods available. Please contact support.
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -337,61 +376,61 @@
         button.disabled = true;
 
         fetch('<?= base_url('coupon/apply') ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: 'code=' + encodeURIComponent(code)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                appliedCoupon = {
-                    code: code,
-                    discount_amount: data.discount_amount,
-                    coupon_data: data.coupon
-                };
-                showAppliedCoupon(appliedCoupon);
-                updateTotals(data.discount_amount);
-                showCouponMessage(data.message, 'success');
-                document.getElementById('coupon_code').value = '';
-            } else {
-                showCouponMessage(data.message, 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showCouponMessage('An error occurred. Please try again.', 'danger');
-        })
-        .finally(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'code=' + encodeURIComponent(code)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    appliedCoupon = {
+                        code: code,
+                        discount_amount: data.discount_amount,
+                        coupon_data: data.coupon
+                    };
+                    showAppliedCoupon(appliedCoupon);
+                    updateTotals(data.discount_amount);
+                    showCouponMessage(data.message, 'success');
+                    document.getElementById('coupon_code').value = '';
+                } else {
+                    showCouponMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCouponMessage('An error occurred. Please try again.', 'danger');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
     });
 
     // Remove coupon
     document.getElementById('remove_coupon').addEventListener('click', function() {
         fetch('<?= base_url('coupon/remove') ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                hideAppliedCoupon();
-                updateTotals(0);
-                showCouponMessage(data.message, 'success');
-                appliedCoupon = null;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showCouponMessage('An error occurred. Please try again.', 'danger');
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    hideAppliedCoupon();
+                    updateTotals(0);
+                    showCouponMessage(data.message, 'success');
+                    appliedCoupon = null;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCouponMessage('An error occurred. Please try again.', 'danger');
+            });
     });
 
     // Enter key support for coupon input
@@ -434,8 +473,9 @@
             discountRow.style.display = 'none';
         }
 
-        // Calculate shipping
-        const shipping = subtotalAfterDiscount >= 500 ? 0 : 50;
+        // Calculate shipping based on selected method
+        const selectedShippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
+        const shipping = selectedShippingMethod ? parseFloat(selectedShippingMethod.dataset.cost) : 0;
         const shippingSpan = document.getElementById('shipping_amount');
         shippingSpan.textContent = shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`;
 
@@ -498,6 +538,13 @@
         billingAddressField.value = this.value;
     });
 
+    // Handle shipping method selection
+    document.querySelectorAll('input[name="shipping_method_id"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            updateTotals(currentDiscount);
+        });
+    });
+
     // Handle payment method selection
     document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
@@ -516,13 +563,19 @@
 
     // Form validation before submission
     document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        const shippingAddress = document.getElementById('shipping_address').value.trim();
+        const deliveryAddress = document.querySelector('input[name="delivery_address_id"]:checked');
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        const shippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
 
-        if (shippingAddress.length < 10) {
+        if (!deliveryAddress) {
             e.preventDefault();
-            alert('Please enter a complete shipping address (at least 10 characters)');
-            document.getElementById('shipping_address').focus();
+            alert('Please select a delivery address');
+            return false;
+        }
+
+        if (!shippingMethod) {
+            e.preventDefault();
+            alert('Please select a shipping method');
             return false;
         }
 
@@ -550,4 +603,40 @@
         }, 10000);
     });
 </script>
+<?= $this->endSection() ?>
+
+<?= $this->section('styles') ?>
+<style>
+    .delivery-address:checked+label .border {
+        border-color: #007bff !important;
+        background-color: #f8f9fa;
+    }
+
+    .delivery-address+label {
+        cursor: pointer;
+    }
+
+    .delivery-address+label .border {
+        transition: all 0.2s ease;
+    }
+
+    .delivery-address+label:hover .border {
+        border-color: #007bff !important;
+        background-color: #f8f9fa;
+    }
+
+    .shipping-method:checked+label {
+        background-color: #f8f9fa;
+        border-color: #007bff;
+    }
+
+    .shipping-method+label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .shipping-method+label:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 <?= $this->endSection() ?>

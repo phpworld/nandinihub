@@ -28,7 +28,7 @@
                 <h5 class="mb-0">General Settings</h5>
             </div>
             <div class="card-body">
-                <form action="<?= base_url('admin/settings') ?>" method="POST">
+                <form action="<?= base_url('admin/settings') ?>" method="POST" enctype="multipart/form-data">
                     <?= csrf_field() ?>
 
                     <div class="row">
@@ -68,7 +68,7 @@
                     <div class="mb-3">
                         <label for="address" class="form-label">Business Address</label>
                         <textarea class="form-control" id="address" name="address"
-                            rows="2">123 Business Street, City, State - 123456</textarea>
+                            rows="2"><?= esc($settings['business_address'] ?? '123 Business Street, City, State - 123456') ?></textarea>
                     </div>
 
                     <div class="row">
@@ -97,6 +97,27 @@
                                 <option value="m/d/Y">MM/DD/YYYY</option>
                                 <option value="Y-m-d">YYYY-MM-DD</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="site_logo" class="form-label">Site Logo</label>
+                            <input type="file" class="form-control" id="site_logo" name="site_logo" accept="image/*">
+                            <?php if (!empty($settings['site_logo'])): ?>
+                                <div class="mt-2">
+                                    <img src="<?= base_url($settings['site_logo']) ?>" alt="Site Logo" style="max-height:60px;">
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="site_favicon" class="form-label">Favicon</label>
+                            <input type="file" class="form-control" id="site_favicon" name="site_favicon" accept="image/x-icon,image/png">
+                            <?php if (!empty($settings['site_favicon'])): ?>
+                                <div class="mt-2">
+                                    <img src="<?= base_url($settings['site_favicon']) ?>" alt="Favicon" style="max-height:32px;">
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 

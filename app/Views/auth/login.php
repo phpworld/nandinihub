@@ -1,3 +1,7 @@
+<?php
+$settingModel = new \App\Models\SettingModel();
+$siteLogo = $settingModel->getSetting('site_logo', '');
+?>
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
@@ -8,7 +12,11 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <i class="fas fa-om fa-3x text-primary mb-3"></i>
+                        <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
+                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:60px;max-width:180px;object-fit:contain;" class="mb-3">
+                        <?php else: ?>
+                            <i class="fas fa-om fa-3x text-primary mb-3"></i>
+                        <?php endif; ?>
                         <h2 class="h4">Welcome Back</h2>
                         <p class="text-muted">Sign in to your Nandini Hub account</p>
                     </div>
@@ -35,7 +43,7 @@
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email"
-                                   value="<?= old('email') ?>" required>
+                                value="<?= old('email') ?>" required>
                         </div>
 
                         <div class="mb-3">

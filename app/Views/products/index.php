@@ -35,13 +35,13 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="number" name="min_price" class="form-control form-control-sm"
-                                           placeholder="Min ₹" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
-                                           min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
+                                        placeholder="Min ₹" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
+                                        min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
                                 </div>
                                 <div class="col-6">
                                     <input type="number" name="max_price" class="form-control form-control-sm"
-                                           placeholder="Max ₹" value="<?= esc($currentFilters['max_price'] ?? '') ?>"
-                                           min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
+                                        placeholder="Max ₹" value="<?= esc($currentFilters['max_price'] ?? '') ?>"
+                                        min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
                                 </div>
                             </div>
                             <small class="text-muted">Range: ₹<?= $priceRange['min'] ?> - ₹<?= $priceRange['max'] ?></small>
@@ -54,7 +54,7 @@
                                 <option value="">All Categories</option>
                                 <?php foreach ($categories as $category): ?>
                                     <option value="<?= $category['id'] ?>"
-                                            <?= ($currentFilters['category_id'] ?? '') == $category['id'] ? 'selected' : '' ?>>
+                                        <?= ($currentFilters['category_id'] ?? '') == $category['id'] ? 'selected' : '' ?>>
                                         <?= esc($category['name']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -98,8 +98,8 @@
                                 <a href="<?= base_url('category/' . esc($category['slug'])) ?>" class="text-decoration-none d-flex align-items-center">
                                     <?php if (!empty($category['image'])): ?>
                                         <img src="<?= base_url('uploads/categories/' . esc($category['image'])) ?>"
-                                             alt="<?= esc($category['name']) ?>"
-                                             class="rounded me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                            alt="<?= esc($category['name']) ?>"
+                                            class="rounded me-2" style="width: 24px; height: 24px; object-fit: cover;">
                                     <?php else: ?>
                                         <?php
                                         $icons = [
@@ -176,7 +176,7 @@
                             <div class="card product-card h-100">
                                 <div class="position-relative">
                                     <img src="<?= $product['image'] ? base_url('uploads/products/' . esc($product['image'])) : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']) ?>"
-                                         class="card-img-top product-image" alt="<?= esc($product['name']) ?>">
+                                        class="card-img-top product-image" alt="<?= esc($product['name']) ?>">
 
                                     <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
                                         <span class="position-absolute top-0 start-0 badge bg-danger m-2">
@@ -188,6 +188,20 @@
                                         <span class="position-absolute top-0 end-0 badge bg-warning m-2">
                                             <i class="fas fa-star"></i> Featured
                                         </span>
+                                    <?php endif; ?>
+
+                                    <!-- Wishlist Button -->
+                                    <?php if (session()->get('is_logged_in')): ?>
+                                        <?php
+                                        $wishlistModel = new \App\Models\WishlistModel();
+                                        $inWishlist = $wishlistModel->isInWishlist(session()->get('user_id'), $product['id']);
+                                        ?>
+                                        <button class="btn btn-sm position-absolute wishlist-btn <?= $inWishlist ? 'btn-danger' : 'btn-outline-danger' ?>"
+                                            style="top: 10px; right: 10px; z-index: 10;"
+                                            onclick="toggleWishlist(<?= $product['id'] ?>, $(this))"
+                                            title="<?= $inWishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>">
+                                            <i class="<?= $inWishlist ? 'fas' : 'far' ?> fa-heart"></i>
+                                        </button>
                                     <?php endif; ?>
                                 </div>
 
