@@ -89,6 +89,96 @@
                     </div>
                 </div>
 
+                <!-- Product Variations -->
+                <?php if (!empty($product['variants']) && !empty($variationTypes)): ?>
+                    <div class="product-variations mb-4">
+                        <h5>Select Options:</h5>
+                        <?php foreach ($variationTypes as $type): ?>
+                            <div class="variation-group mb-3">
+                                <label class="form-label fw-bold">
+                                    <?= esc($type['display_name']) ?>
+                                    <?php if ($type['is_required']): ?>
+                                        <span class="text-danger">*</span>
+                                    <?php endif; ?>
+                                </label>
+
+                                <?php
+                                // Get options for this type from variants
+                                $typeOptions = [];
+                                foreach ($product['variants'] as $variant) {
+                                    foreach ($variant['options'] as $option) {
+                                        if ($option['variation_type_id'] == $type['id']) {
+                                            $typeOptions[$option['variation_option_id']] = $option;
+                                        }
+                                    }
+                                }
+                                $typeOptions = array_values($typeOptions); // Remove duplicate keys
+                                ?>
+
+                                <div class="variation-options" data-type-id="<?= $type['id'] ?>" data-required="<?= $type['is_required'] ?>">
+                                    <?php if ($type['type'] === 'color'): ?>
+                                        <!-- Color swatches -->
+                                        <?php foreach ($typeOptions as $option): ?>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input variation-option"
+                                                       type="radio"
+                                                       name="variation_<?= $type['id'] ?>"
+                                                       id="option_<?= $option['variation_option_id'] ?>"
+                                                       value="<?= $option['variation_option_id'] ?>"
+                                                       data-type-id="<?= $type['id'] ?>">
+                                                <label class="form-check-label color-swatch"
+                                                       for="option_<?= $option['variation_option_id'] ?>"
+                                                       style="background-color: <?= esc($option['color_code']) ?>; width: 30px; height: 30px; border-radius: 50%; display: inline-block; border: 2px solid #ddd; cursor: pointer;"
+                                                       title="<?= esc($option['option_name']) ?>">
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+
+                                    <?php elseif ($type['type'] === 'button'): ?>
+                                        <!-- Button options -->
+                                        <?php foreach ($typeOptions as $option): ?>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input variation-option d-none"
+                                                       type="radio"
+                                                       name="variation_<?= $type['id'] ?>"
+                                                       id="option_<?= $option['variation_option_id'] ?>"
+                                                       value="<?= $option['variation_option_id'] ?>"
+                                                       data-type-id="<?= $type['id'] ?>">
+                                                <label class="btn btn-outline-primary variation-btn"
+                                                       for="option_<?= $option['variation_option_id'] ?>">
+                                                    <?= esc($option['option_name']) ?>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+
+                                    <?php else: ?>
+                                        <!-- Text/Select options -->
+                                        <select class="form-select variation-option"
+                                                name="variation_<?= $type['id'] ?>"
+                                                data-type-id="<?= $type['id'] ?>">
+                                            <option value="">Choose <?= esc($type['display_name']) ?></option>
+                                            <?php foreach ($typeOptions as $option): ?>
+                                                <option value="<?= $option['variation_option_id'] ?>">
+                                                    <?= esc($option['option_name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <!-- Selected variant info -->
+                        <div id="selected-variant-info" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>Selected:</strong> <span id="variant-details"></span><br>
+                                <strong>Price:</strong> ₹<span id="variant-price"></span><br>
+                                <strong>Stock:</strong> <span id="variant-stock"></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Add to Cart Section -->
                 <div class="add-to-cart-section mb-4">
                     <div class="row align-items-center">
@@ -419,5 +509,274 @@
             }
         });
     }
+
+    // Product Variations Handling
+    <?php if (!empty($product['variants'])): ?>
+    const productVariants = <?= json_encode($product['variants']) ?>;
+    let selectedVariant = null;
+
+    // Handle variation option changes
+    $(document).on('change', '.variation-option', function() {
+        updateSelectedVariant();
+    });
+
+    // Handle color swatch clicks
+    $(document).on('click', '.color-swatch', function() {
+        const input = $(this).prev('input');
+        input.prop('checked', true).trigger('change');
+    });
+
+    // Handle button variation clicks
+    $(document).on('click', '.variation-btn', function() {
+        const input = $(this).prev('input');
+        const typeId = input.data('type-id');
+
+        // Uncheck all other options in this type
+        $(`input[name="variation_${typeId}"]`).prop('checked', false);
+        $('.variation-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+
+        // Check this option and update button style
+        input.prop('checked', true);
+        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+
+        updateSelectedVariant();
+    });
+
+    function updateSelectedVariant() {
+        const selectedOptions = [];
+
+        // Get selected options from radio buttons and checkboxes
+        $('.variation-option:checked').each(function() {
+            const value = $(this).val();
+            if (value) {
+                selectedOptions.push(parseInt(value));
+            }
+        });
+
+        // Get selected options from select dropdowns
+        $('.variation-option').each(function() {
+            if ($(this).is('select')) {
+                const value = $(this).val();
+                if (value) {
+                    selectedOptions.push(parseInt(value));
+                }
+            }
+        });
+
+        // Find matching variant
+        selectedVariant = null;
+        for (const variant of productVariants) {
+            const variantOptionIds = variant.options.map(opt => parseInt(opt.variation_option_id));
+
+            if (arraysEqual(selectedOptions.sort(), variantOptionIds.sort())) {
+                selectedVariant = variant;
+                break;
+            }
+        }
+
+        updateVariantDisplay();
+    }
+
+    function updateVariantDisplay() {
+        const infoDiv = $('#selected-variant-info');
+
+        if (selectedVariant) {
+            const optionNames = selectedVariant.options.map(opt => opt.option_name).join(', ');
+            let price = selectedVariant.sale_price || selectedVariant.price || <?= $product['sale_price'] ?? $product['price'] ?>;
+            const stock = selectedVariant.stock_quantity;
+
+            // Calculate price with option modifiers
+            const basePrice = parseFloat(<?= $product['sale_price'] ?? $product['price'] ?>);
+            let totalPriceModifier = 0;
+
+            selectedVariant.options.forEach(option => {
+                if (option.price_modifier && option.price_modifier != 0) {
+                    if (option.price_type === 'percentage') {
+                        totalPriceModifier += (basePrice * parseFloat(option.price_modifier) / 100);
+                    } else {
+                        totalPriceModifier += parseFloat(option.price_modifier);
+                    }
+                }
+            });
+
+            const finalPrice = Math.max(0, basePrice + totalPriceModifier);
+
+            $('#variant-details').text(optionNames);
+            $('#variant-price').text(finalPrice.toFixed(2));
+            $('#variant-stock').text(stock > 0 ? stock + ' in stock' : 'Out of stock');
+
+            infoDiv.show();
+
+            // Update add to cart button
+            const addToCartBtn = $('button[onclick*="addToCartWithQuantity"]');
+            if (stock > 0) {
+                addToCartBtn.prop('disabled', false)
+                           .removeClass('btn-secondary')
+                           .addClass('btn-primary')
+                           .html('<i class="fas fa-cart-plus"></i> Add to Cart');
+            } else {
+                addToCartBtn.prop('disabled', true)
+                           .removeClass('btn-primary')
+                           .addClass('btn-secondary')
+                           .html('<i class="fas fa-times"></i> Out of Stock');
+            }
+
+            // Update quantity max
+            $('#quantity').attr('max', stock);
+        } else {
+            // Show price calculation even without variant match
+            const selectedOptions = [];
+            $('.variation-option:checked').each(function() {
+                const value = $(this).val();
+                if (value) {
+                    selectedOptions.push(parseInt(value));
+                }
+            });
+            $('.variation-option').each(function() {
+                if ($(this).is('select')) {
+                    const value = $(this).val();
+                    if (value) {
+                        selectedOptions.push(parseInt(value));
+                    }
+                }
+            });
+
+            if (selectedOptions.length > 0) {
+                // Calculate price with selected options
+                const basePrice = parseFloat(<?= $product['sale_price'] ?? $product['price'] ?>);
+                let totalPriceModifier = 0;
+
+                // Get option data from productVariants
+                const allOptions = [];
+                productVariants.forEach(variant => {
+                    variant.options.forEach(option => {
+                        if (!allOptions.find(opt => opt.variation_option_id === option.variation_option_id)) {
+                            allOptions.push(option);
+                        }
+                    });
+                });
+
+                selectedOptions.forEach(optionId => {
+                    const option = allOptions.find(opt => opt.variation_option_id == optionId);
+                    if (option && option.price_modifier && option.price_modifier != 0) {
+                        if (option.price_type === 'percentage') {
+                            totalPriceModifier += (basePrice * parseFloat(option.price_modifier) / 100);
+                        } else {
+                            totalPriceModifier += parseFloat(option.price_modifier);
+                        }
+                    }
+                });
+
+                const finalPrice = Math.max(0, basePrice + totalPriceModifier);
+
+                // Update main product price display
+                $('.product-price .price').text('₹' + finalPrice.toFixed(2));
+                if (totalPriceModifier !== 0) {
+                    $('.product-price .original-price').text('₹' + basePrice.toFixed(2)).show();
+                } else {
+                    $('.product-price .original-price').hide();
+                }
+            } else {
+                // Reset to original price
+                const basePrice = parseFloat(<?= $product['sale_price'] ?? $product['price'] ?>);
+                $('.product-price .price').text('₹' + basePrice.toFixed(2));
+                $('.product-price .original-price').hide();
+            }
+
+            infoDiv.hide();
+        }
+    }
+
+    function arraysEqual(a, b) {
+        return a.length === b.length && a.every((val, i) => val === b[i]);
+    }
+
+    // Override addToCartWithQuantity for variants
+    window.addToCartWithQuantity = function(productId) {
+        let quantity = parseInt($('#quantity').val());
+        let data = {};
+
+        <?php if (!empty($product['variants'])): ?>
+        // Check if all required options are selected
+        let allRequiredSelected = true;
+        let missingTypes = [];
+
+        $('.variation-options[data-required="1"]').each(function() {
+            const typeId = $(this).data('type-id');
+            const typeName = $(this).closest('.variation-group').find('label').text().replace('*', '').trim();
+            let hasSelection = false;
+
+            // Check radio buttons and checkboxes
+            if ($(this).find('.variation-option:checked').length > 0) {
+                hasSelection = true;
+            }
+
+            // Check select dropdowns
+            $(this).find('select.variation-option').each(function() {
+                if ($(this).val()) {
+                    hasSelection = true;
+                }
+            });
+
+            if (!hasSelection) {
+                allRequiredSelected = false;
+                missingTypes.push(typeName);
+            }
+        });
+
+        if (!allRequiredSelected) {
+            showAlert('warning', 'Please select: ' + missingTypes.join(', '));
+            return;
+        }
+
+        if (!selectedVariant) {
+            showAlert('warning', 'Please select a valid combination of options');
+            return;
+        }
+
+        if (quantity > selectedVariant.stock_quantity) {
+            showAlert('error', 'Not enough stock available');
+            return;
+        }
+
+        // Get selected option IDs
+        let selectedOptionIds = [];
+        $('.variation-option:checked').each(function() {
+            selectedOptionIds.push(parseInt($(this).val()));
+        });
+        $('.variation-option option:selected').each(function() {
+            if ($(this).val()) {
+                selectedOptionIds.push(parseInt($(this).val()));
+            }
+        });
+
+        data = {
+            product_id: productId,
+            variant_id: selectedVariant.id,
+            variant_options: selectedOptionIds,
+            quantity: quantity
+        };
+        <?php else: ?>
+        data = {
+            product_id: productId,
+            quantity: quantity
+        };
+        <?php endif; ?>
+
+        $.post('<?= base_url('cart/add') ?>', data, function(response) {
+            if (response.success) {
+                showAlert('success', 'Product added to cart successfully!');
+                updateCartCount();
+            } else {
+                showAlert('error', response.message || 'Failed to add product to cart');
+            }
+        }).fail(function() {
+            showAlert('error', 'An error occurred while adding to cart');
+        });
+    };
+
+    // Initialize variant selection on page load
+    updateSelectedVariant();
+    <?php endif; ?>
 </script>
 <?= $this->endSection() ?>

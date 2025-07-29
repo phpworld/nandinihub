@@ -105,6 +105,31 @@ $routes->group('admin', function ($routes) {
     $routes->post('products/bulk-action', 'AdminController::bulkProductAction');
     $routes->get('products/export', 'AdminController::exportProducts');
 
+    // Product Variations
+    $routes->get('product-variations', 'AdminController::productVariations');
+    $routes->get('variation-types/create', 'AdminController::createVariationType');
+    $routes->post('variation-types', 'AdminController::storeVariationType');
+    $routes->get('variation-options/create/(:num)', 'AdminController::createVariationOption/$1');
+    $routes->get('variation-options/create', 'AdminController::createVariationOption');
+    $routes->post('variation-options', 'AdminController::storeVariationOption');
+    $routes->get('products/(:num)/variants', 'AdminController::manageProductVariants/$1');
+    $routes->post('products/generate-variants', 'AdminController::generateProductVariants');
+
+    // AJAX Variation Management
+    $routes->get('variation-types/(:num)/edit', 'AdminController::editVariationType/$1');
+    $routes->post('variation-types/(:num)/update', 'AdminController::updateVariationType/$1');
+    $routes->delete('variation-types/(:num)', 'AdminController::deleteVariationType/$1');
+    $routes->get('variation-options/(:num)/edit', 'AdminController::editVariationOption/$1');
+    $routes->post('variation-options/(:num)/update', 'AdminController::updateVariationOption/$1');
+    $routes->delete('variation-options/(:num)', 'AdminController::deleteVariationOption/$1');
+    $routes->get('product-variants/(:num)/edit', 'AdminController::editProductVariant/$1');
+    $routes->post('product-variants/(:num)/update', 'AdminController::updateProductVariant/$1');
+    $routes->delete('product-variants/(:num)', 'AdminController::deleteProductVariant/$1');
+    $routes->post('product-variants/(:num)/duplicate', 'AdminController::duplicateProductVariant/$1');
+    $routes->post('product-variants/(:num)/set-default', 'AdminController::setDefaultVariant/$1');
+    $routes->post('product-variants/(:num)/merge-stock', 'AdminController::mergeVariantStock/$1');
+    $routes->post('product-variants/(:num)/quick-stock', 'AdminController::quickStockUpdate/$1');
+
     // Category management
     $routes->get('categories', 'AdminController::categories');
     $routes->get('categories/create', 'AdminController::createCategory');
@@ -199,6 +224,7 @@ $routes->group('api/v1', function ($routes) {
     $routes->get('products', 'Api\ProductApiController::index');
     $routes->get('products/featured', 'Api\ProductApiController::featured');
     $routes->get('products/search', 'Api\ProductApiController::search');
+    $routes->get('products/(:num)/variant', 'Api\ProductApiController::getVariantByOptions/$1');
     $routes->get('products/(:segment)', 'Api\ProductApiController::show/$1');
     $routes->get('products/category/(:num)', 'Api\ProductApiController::byCategory/$1');
 

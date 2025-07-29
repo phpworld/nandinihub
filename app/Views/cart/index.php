@@ -58,31 +58,57 @@
                                                         class="rounded me-3" style="width: 80px; height: 60px; object-fit: cover;" alt="<?= esc($item['name']) ?>">
                                                     <div>
                                                         <h6 class="mb-1"><?= esc($item['name']) ?></h6>
+                                                        <?php if (!empty($item['variant_options_details'])): ?>
+                                                            <div class="mb-1">
+                                                                <?php foreach ($item['variant_options_details'] as $option): ?>
+                                                                    <small class="badge bg-light text-dark me-1">
+                                                                        <?= esc($option['type_display_name']) ?>: <?= esc($option['option_name']) ?>
+                                                                    </small>
+                                                                <?php endforeach; ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <small class="text-muted">
-                                                            Stock: <?= $item['stock_quantity'] ?> available
+                                                            <?php if ($item['variant_id']): ?>
+                                                                SKU: <?= esc($item['variant_sku']) ?> | Stock: <?= $item['variant_stock'] ?> available
+                                                            <?php else: ?>
+                                                                Stock: <?= $item['stock_quantity'] ?> available
+                                                            <?php endif; ?>
                                                         </small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="align-middle">
                                                 <?php
-                                                $displayPrice = $item['sale_price'] ? $item['sale_price'] : $item['price'];
+                                                $displayPrice = $item['final_price'];
+                                                $originalPrice = $item['variant_sale_price'] ?? $item['variant_price'] ?? $item['sale_price'] ?? $item['price'];
                                                 ?>
-                                                <span class="fw-bold">₹<?= number_format($displayPrice, 2) ?></span>
+                                                <span class="fw-bold item-price" data-price="<?= $displayPrice ?>">₹<?= number_format($displayPrice, 2) ?></span>
+                                                <?php if ($item['price_modifier'] != 0): ?>
+                                                    <br><small class="text-muted">
+                                                        <del>₹<?= number_format($originalPrice, 2) ?></del>
+                                                        <span class="badge <?= $item['price_modifier'] > 0 ? 'bg-warning' : 'bg-success' ?> ms-1">
+                                                            <?= $item['price_modifier'] > 0 ? '+' : '' ?>₹<?= number_format(abs($item['price_modifier']), 2) ?>
+                                                        </span>
+                                                    </small>
+                                                <?php endif; ?>
                                             </td>
                                             <td class="align-middle">
+                                                <?php
+                                                $maxQuantity = $item['variant_id'] ? $item['variant_stock'] : $item['stock_quantity'];
+                                                ?>
                                                 <div class="input-group" style="width: 120px;">
                                                     <button class="btn btn-outline-secondary btn-sm" type="button"
                                                         onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] - 1 ?>)">-</button>
                                                     <input type="number" class="form-control form-control-sm text-center"
-                                                        value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock_quantity'] ?>"
+                                                        value="<?= $item['quantity'] ?>" min="1" max="<?= $maxQuantity ?>"
+                                                        data-cart-id="<?= $item['id'] ?>"
                                                         onchange="updateQuantity(<?= $item['id'] ?>, this.value)">
                                                     <button class="btn btn-outline-secondary btn-sm" type="button"
                                                         onclick="updateQuantity(<?= $item['id'] ?>, <?= $item['quantity'] + 1 ?>)">+</button>
                                                 </div>
                                             </td>
                                             <td class="align-middle">
-                                                <span class="fw-bold item-total">₹<?= number_format($displayPrice * $item['quantity'], 2) ?></span>
+                                                <span class="fw-bold item-total" data-cart-id="<?= $item['id'] ?>">₹<?= number_format($displayPrice * $item['quantity'], 2) ?></span>
                                             </td>
                                             <td class="align-middle">
                                                 <button class="btn btn-outline-danger btn-sm"
@@ -201,18 +227,42 @@
             return;
         }
 
+        // Update quantity display immediately for better UX
+        const quantityInput = $(`input[data-cart-id="${cartId}"]`);
+        const oldQuantity = parseInt(quantityInput.val());
+        quantityInput.val(newQuantity);
+
+        // Update item total immediately
+        const itemPrice = parseFloat($(`tr:has(input[data-cart-id="${cartId}"]) .item-price`).data('price'));
+        const itemTotal = $(`tr:has(input[data-cart-id="${cartId}"]) .item-total`);
+        const newItemTotal = itemPrice * newQuantity;
+        itemTotal.text('₹' + newItemTotal.toFixed(2));
+
+        // Update cart totals immediately
+        updateCartTotalsFromDOM();
+
         $.post('<?= base_url('cart/update') ?>', {
             cart_id: cartId,
             quantity: newQuantity
         }, function(response) {
             if (response.success) {
-                // Update the cart total display
+                // Update with server response to ensure accuracy
                 updateCartTotals(response.cartTotal);
                 showAlert('success', response.message);
             } else {
+                // Revert changes if server update failed
+                quantityInput.val(oldQuantity);
+                const revertedTotal = itemPrice * oldQuantity;
+                itemTotal.text('₹' + revertedTotal.toFixed(2));
+                updateCartTotalsFromDOM();
                 showAlert('danger', response.message);
             }
         }).fail(function() {
+            // Revert changes if request failed
+            quantityInput.val(oldQuantity);
+            const revertedTotal = itemPrice * oldQuantity;
+            itemTotal.text('₹' + revertedTotal.toFixed(2));
+            updateCartTotalsFromDOM();
             showAlert('danger', 'Failed to update cart');
         });
     }
@@ -274,6 +324,18 @@
         $('#cart-subtotal').text('₹' + subtotal.toFixed(2));
         $('#cart-tax').text('₹' + tax.toFixed(2));
         $('#cart-total').text('₹' + total.toFixed(2));
+    }
+
+    function updateCartTotalsFromDOM() {
+        let subtotal = 0;
+
+        // Calculate subtotal from all item totals
+        $('.item-total').each(function() {
+            const itemTotalText = $(this).text().replace('₹', '').replace(',', '');
+            subtotal += parseFloat(itemTotalText);
+        });
+
+        updateCartTotals(subtotal);
     }
 </script>
 <?= $this->endSection() ?>

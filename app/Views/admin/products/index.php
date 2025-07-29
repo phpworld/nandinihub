@@ -194,6 +194,10 @@
                                             class="btn btn-outline-primary" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <a href="<?= base_url('admin/products/' . $product['id'] . '/variants') ?>"
+                                            class="btn btn-outline-secondary" title="Manage Variants">
+                                            <i class="fas fa-boxes"></i>
+                                        </a>
                                         <a href="<?= base_url('product/' . $product['slug']) ?>"
                                             class="btn btn-outline-info" title="View" target="_blank">
                                             <i class="fas fa-eye"></i>

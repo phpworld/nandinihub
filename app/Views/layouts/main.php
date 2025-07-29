@@ -323,9 +323,9 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
 
         .category-card {
             transition: all 0.3s ease;
-            border-radius: 15px;
             overflow: hidden;
             border: none;
+            border-radius:0px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 

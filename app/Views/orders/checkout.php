@@ -234,7 +234,7 @@
                                         <small class="text-muted">Qty: <?= $item['quantity'] ?></small>
                                     </div>
                                     <div>
-                                        <?php $price = $item['sale_price'] ?? $item['price']; ?>
+                                        <?php $price = $item['final_price'] ?? ($item['sale_price'] ?? $item['price']); ?>
                                         <span>₹<?= number_format($price * $item['quantity'], 2) ?></span>
                                     </div>
                                 </div>

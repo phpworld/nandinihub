@@ -195,7 +195,7 @@ class OrderController extends BaseController
 
         $userId = session()->get('user_id');
         $sessionId = session()->session_id;
-        $cartItems = $this->cartModel->getCartItems($userId, $sessionId);
+        $cartItems = $this->cartModel->getCartItemsWithDetails($userId, $sessionId);
 
         if (empty($cartItems)) {
             session()->setFlashdata('error', 'Your cart is empty');
@@ -238,7 +238,7 @@ class OrderController extends BaseController
         log_message('info', 'Order processing attempt for user ID: ' . $userId);
         log_message('info', 'POST data: ' . json_encode($this->request->getPost()));
 
-        $cartItems = $this->cartModel->getCartItems($userId, $sessionId);
+        $cartItems = $this->cartModel->getCartItemsWithDetails($userId, $sessionId);
 
         if (empty($cartItems)) {
             session()->setFlashdata('error', 'Your cart is empty');
@@ -278,6 +278,9 @@ class OrderController extends BaseController
 
         // Calculate totals
         $subtotal = $this->cartModel->getCartTotal($userId, $sessionId);
+
+        // Validate cart items and prices
+        $this->validateCartPrices($cartItems);
 
         // Handle coupon discount
         $appliedCoupon = session()->get('applied_coupon');
@@ -440,6 +443,41 @@ class OrderController extends BaseController
     }
 
 
+
+    private function validateCartPrices($cartItems)
+    {
+        foreach ($cartItems as $item) {
+            // Validate that final_price is calculated correctly
+            if (isset($item['variant_id']) && $item['variant_id']) {
+                // For variants, check that final_price includes option modifiers
+                $basePrice = $item['variant_sale_price'] ?? $item['variant_price'] ?? $item['sale_price'] ?? $item['price'];
+                $expectedFinalPrice = $basePrice + ($item['price_modifier'] ?? 0);
+
+                if (abs($item['final_price'] - $expectedFinalPrice) > 0.01) {
+                    log_message('error', "Price mismatch for variant {$item['variant_id']}: expected {$expectedFinalPrice}, got {$item['final_price']}");
+                    throw new \Exception('Price calculation error. Please refresh your cart and try again.');
+                }
+            } else {
+                // For regular products, final_price should match sale_price or price
+                $expectedPrice = $item['sale_price'] ?? $item['price'];
+                if (abs($item['final_price'] - $expectedPrice) > 0.01) {
+                    log_message('error', "Price mismatch for product {$item['product_id']}: expected {$expectedPrice}, got {$item['final_price']}");
+                    throw new \Exception('Price calculation error. Please refresh your cart and try again.');
+                }
+            }
+
+            // Validate stock availability
+            if (isset($item['variant_id']) && $item['variant_id']) {
+                $availableStock = $item['variant_stock'] ?? 0;
+            } else {
+                $availableStock = $item['stock_quantity'] ?? 0;
+            }
+
+            if ($item['quantity'] > $availableStock) {
+                throw new \Exception("Insufficient stock for {$item['name']}. Available: {$availableStock}, Requested: {$item['quantity']}");
+            }
+        }
+    }
 
     private function sendOrderConfirmationEmail($order, $orderItems)
     {

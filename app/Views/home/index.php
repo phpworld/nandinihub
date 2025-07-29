@@ -121,6 +121,222 @@
     <?php endif; ?>
 </section>
 
+<!-- CTA Section -->
+
+  <style>
+       :root {
+            --bg-cream: #f5f3f0;
+            --text-dark: #2d2d2d;
+            --text-muted: #6b7280;
+            --accent-brown: #b8956a;
+            --accent-orange: #d97706;
+        }
+
+    body {
+      background-color: #e8ebdd;
+      font-family: "Georgia", serif;
+      color: #1c1c1c;
+    }
+    .container-custom {
+      max-width: 1200px;
+      margin-top: 4rem;
+      margin-bottom: 4rem;
+    }
+    .title-sm {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: #5a5a5a;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    h1.display-5 {
+      font-weight: 700;
+      font-family: "Georgia", serif;
+      margin-bottom: 1rem;
+      letter-spacing: 0.02em;
+    }
+    p.desc {
+      font-size: 1rem;
+      color: #5b5b5b;
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+      line-height: 1.4;
+    }
+
+    img.mushroom-img {
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.15));
+    }
+
+            .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .shop-button {
+            background-color: var(--accent-brown);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: .8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .shop-button:hover {
+            background-color: var(--accent-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-brown);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .contact-details h6 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-details p {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+
+        @media (max-width: 768px) {
+            .main-heading {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .illustration-container {
+                height: 50vh;
+            }
+        }
+
+
+  </style>
+
+  <section class="container container-custom d-flex flex-lg-row flex-column align-items-center justify-content-center gap-lg-5 gap-4">
+    <div class="mushroom-image col-lg-6 col-12 d-flex justify-content-center align-items-center order-lg-1 order-2">
+      <img class="mushroom-img"
+           src="<?= base_url('uploads/cta/mushroom.png') ?>"
+           alt="Bright psychedelic colorful mushrooms artwork with vibrant patterns and stars around on soft peach brush stroke background"
+           onerror="this.style.display='none'" />
+    </div>
+    <div class="content-section col-lg-6 col-12 order-lg-2 order-1">
+      <div class="title-sm">Carefully Formulated Products</div>
+      <h1 class="display-5">Shop USA's Best Magic Mushrooms</h1>
+      <p class="desc">
+        Explore a vast selection of premium magic mushrooms from the USA's top suppliers.
+        Elevate your experience with our high-quality products.
+      </p>
+
+        <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">🌿</div>
+                            <div class="feature-text">Lightweight</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🚫</div>
+                            <div class="feature-text">Fragrance-Free</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div class="feature-text">Certified Product</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-text">Repairs Skin Damage</div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <button class="shop-button ">Shop All</button>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">📞</div>
+                            <div class="contact-details">
+                                <h6>Call Us Anytime</h6>
+                                <p>+1 (720) 619-1262</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">✉️</div>
+                            <div class="contact-details">
+                                <h6>Email Us Anytime</h6>
+                                <p>contact@shroomwonders.com</p>
+                            </div>
+                        </div>
+                    </div>
+    </div>
+    </section>
+
+
 <!-- Categories Section -->
 <section class="py-5">
     <div class="container">

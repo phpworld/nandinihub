@@ -21,7 +21,7 @@ class CartController extends BaseController
         $userId = session()->get('user_id');
         $sessionId = session()->session_id;
         
-        $cartItems = $this->cartModel->getCartItems($userId, $sessionId);
+        $cartItems = $this->cartModel->getCartItemsWithDetails($userId, $sessionId);
         $cartTotal = $this->cartModel->getCartTotal($userId, $sessionId);
 
         $data = [
@@ -40,6 +40,8 @@ class CartController extends BaseController
         }
 
         $productId = $this->request->getPost('product_id');
+        $variantId = $this->request->getPost('variant_id');
+        $variantOptions = $this->request->getPost('variant_options');
         $quantity = $this->request->getPost('quantity') ?? 1;
 
         // Validate product exists and is active
@@ -51,8 +53,28 @@ class CartController extends BaseController
             ]);
         }
 
+        $price = $product['sale_price'] ?? $product['price'];
+        $stockQuantity = $product['stock_quantity'];
+
+        // Handle variant if specified
+        if ($variantId) {
+            $variantModel = new \App\Models\ProductVariantModel();
+            $variant = $variantModel->find($variantId);
+
+            if (!$variant || !$variant['is_active'] || $variant['product_id'] != $productId) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Product variant not found or unavailable'
+                ]);
+            }
+
+            // Use variant price and stock
+            $price = $variant['sale_price'] ?? $variant['price'] ?? $price;
+            $stockQuantity = $variant['stock_quantity'];
+        }
+
         // Check stock
-        if ($product['stock_quantity'] < $quantity) {
+        if ($stockQuantity < $quantity) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Insufficient stock available'
@@ -61,10 +83,11 @@ class CartController extends BaseController
 
         $userId = session()->get('user_id');
         $sessionId = session()->session_id;
-        $price = $product['sale_price'] ?? $product['price'];
 
         $cartData = [
             'product_id' => $productId,
+            'variant_id' => $variantId,
+            'variant_options' => $variantOptions ? json_encode($variantOptions) : null,
             'quantity' => $quantity,
             'price' => $price
         ];

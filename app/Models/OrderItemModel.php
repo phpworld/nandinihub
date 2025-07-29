@@ -15,6 +15,9 @@ class OrderItemModel extends Model
     protected $allowedFields    = [
         'order_id',
         'product_id',
+        'variant_id',
+        'variant_sku',
+        'variant_options',
         'product_name',
         'product_sku',
         'quantity',
@@ -61,14 +64,25 @@ class OrderItemModel extends Model
         $orderItems = [];
 
         foreach ($cartItems as $item) {
-            $price = $item['sale_price'] ?? $item['price'];
+            // Use final_price which includes variation option modifiers
+            $price = $item['final_price'] ?? ($item['variant_sale_price'] ?? $item['variant_price'] ?? $item['sale_price'] ?? $item['price']);
+
+            if ($item['variant_id']) {
+                $sku = $item['variant_sku'] ?? $item['sku'] ?? 'N/A';
+            } else {
+                $sku = $item['sku'] ?? 'N/A';
+            }
+
             $total = $price * $item['quantity'];
 
             $orderItems[] = [
                 'order_id' => $orderId,
                 'product_id' => $item['product_id'],
+                'variant_id' => $item['variant_id'] ?? null,
+                'variant_sku' => $item['variant_sku'] ?? null,
+                'variant_options' => $item['variant_options'] ?? null,
                 'product_name' => $item['name'],
-                'product_sku' => $item['sku'] ?? 'N/A',
+                'product_sku' => $sku,
                 'quantity' => $item['quantity'],
                 'price' => $price,
                 'total' => $total

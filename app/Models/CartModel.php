@@ -16,6 +16,8 @@ class CartModel extends Model
         'user_id',
         'session_id',
         'product_id',
+        'variant_id',
+        'variant_options',
         'quantity',
         'price'
     ];
@@ -38,8 +40,12 @@ class CartModel extends Model
 
     public function getCartItems($userId = null, $sessionId = null)
     {
-        $builder = $this->select('cart.*, products.name, products.slug, products.image, products.stock_quantity, products.sale_price')
+        $builder = $this->select('cart.*, products.name, products.slug, products.image, products.stock_quantity, products.sale_price,
+                                 product_variants.sku as variant_sku, product_variants.price as variant_price,
+                                 product_variants.sale_price as variant_sale_price, product_variants.stock_quantity as variant_stock,
+                                 product_variants.image as variant_image')
             ->join('products', 'products.id = cart.product_id')
+            ->join('product_variants', 'product_variants.id = cart.variant_id', 'left')
             ->where('products.is_active', 1);
 
         if ($userId) {
@@ -48,13 +54,49 @@ class CartModel extends Model
             $builder->where('cart.session_id', $sessionId);
         }
 
-        return $builder->orderBy('cart.created_at', 'DESC')->findAll();
+        $items = $builder->orderBy('cart.created_at', 'DESC')->findAll();
+
+        // Add variant options and calculate final prices
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+        foreach ($items as &$item) {
+            if ($item['variant_id']) {
+                $variantOptionModel = new ProductVariantOptionModel();
+                $item['variant_options_details'] = $variantOptionModel->getOptionsByVariant($item['variant_id']);
+
+                // Calculate final price with option modifiers
+                $optionIds = array_column($item['variant_options_details'], 'variation_option_id');
+                $basePrice = $item['variant_sale_price'] ?: $item['variant_price'] ?: $item['sale_price'] ?: $item['price'];
+
+                $item['final_price'] = $variationOptionModel->getFinalPrice($optionIds, $basePrice);
+                $item['price_modifier'] = $variationOptionModel->calculatePriceModifier($optionIds, $basePrice);
+            } else {
+                $item['variant_options_details'] = [];
+                $item['final_price'] = $item['sale_price'] ?: $item['price'];
+                $item['price_modifier'] = 0;
+            }
+        }
+
+        return $items;
     }
 
     public function addToCart($data)
     {
-        // Check if item already exists in cart
+        // Check if item already exists in cart (including variant and variant_options)
         $builder = $this->where('product_id', $data['product_id']);
+
+        if (isset($data['variant_id'])) {
+            $builder->where('variant_id', $data['variant_id']);
+
+            // Also check variant_options for exact match
+            if (isset($data['variant_options'])) {
+                $builder->where('variant_options', $data['variant_options']);
+            } else {
+                $builder->where('variant_options IS NULL');
+            }
+        } else {
+            $builder->where('variant_id IS NULL');
+        }
 
         if (isset($data['user_id'])) {
             $builder->where('user_id', $data['user_id']);
@@ -84,13 +126,55 @@ class CartModel extends Model
         return $this->delete($cartId);
     }
 
-    public function getCartTotal($userId = null, $sessionId = null)
+    public function getCartItemsWithDetails($userId = null, $sessionId = null)
     {
         $items = $this->getCartItems($userId, $sessionId);
+
+        // Add final_price calculation with variation option modifiers
+        foreach ($items as &$item) {
+            // Start with base price
+            if ($item['variant_id']) {
+                $basePrice = $item['variant_sale_price'] ?? $item['variant_price'] ?? $item['sale_price'] ?? $item['price'];
+            } else {
+                $basePrice = $item['sale_price'] ?? $item['price'];
+            }
+
+            // Calculate price modifier from variation options
+            $priceModifier = 0;
+            if ($item['variant_id'] && !empty($item['variant_options'])) {
+                $variantOptions = json_decode($item['variant_options'], true);
+                if (is_array($variantOptions)) {
+                    $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+                    foreach ($variantOptions as $optionId) {
+                        $option = $variationOptionModel->find($optionId);
+                        if ($option && $option['price_modifier']) {
+                            if ($option['price_type'] === 'percentage') {
+                                $priceModifier += $basePrice * ($option['price_modifier'] / 100);
+                            } else {
+                                $priceModifier += $option['price_modifier'];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Set final price and price modifier
+            $item['price_modifier'] = $priceModifier;
+            $item['final_price'] = $basePrice + $priceModifier;
+        }
+
+        return $items;
+    }
+
+    public function getCartTotal($userId = null, $sessionId = null)
+    {
+        $items = $this->getCartItemsWithDetails($userId, $sessionId);
         $total = 0;
 
         foreach ($items as $item) {
-            $price = $item['sale_price'] ? $item['sale_price'] : $item['price'];
+            // Use final_price which includes variation option modifiers
+            $price = $item['final_price'];
             $total += $price * $item['quantity'];
         }
 

@@ -97,7 +97,8 @@ class AdminController extends BaseController
                 'submenu' => [
                     ['title' => 'All Products', 'url' => base_url('admin/products')],
                     ['title' => 'Add Product', 'url' => base_url('admin/products/create')],
-                    ['title' => 'Categories', 'url' => base_url('admin/categories')]
+                    ['title' => 'Categories', 'url' => base_url('admin/categories')],
+                    ['title' => 'Variations', 'url' => base_url('admin/product-variations')]
                 ]
             ],
             [
@@ -1356,6 +1357,780 @@ class AdminController extends BaseController
         }
 
         return redirect()->to('/admin/products');
+    }
+
+    // Product Variation Management
+    public function productVariations()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Product Variations - Admin',
+            'variationTypes' => $variationTypeModel->getTypesWithOptions(),
+            'allOptions' => $variationOptionModel->getOptionsWithTypes()
+        ]);
+
+        return view('admin/variations/index', $data);
+    }
+
+    public function createVariationType()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Create Variation Type - Admin'
+        ]);
+
+        return view('admin/variations/create_type', $data);
+    }
+
+    public function storeVariationType()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $rules = [
+            'name' => 'required|min_length[2]|max_length[100]',
+            'display_name' => 'required|min_length[2]|max_length[100]',
+            'type' => 'required|in_list[text,color,image,button]',
+            'is_required' => 'permit_empty|in_list[0,1]',
+            'sort_order' => 'permit_empty|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+
+        $name = $this->request->getPost('name');
+        $slug = url_title($name, '-', true);
+
+        // Ensure slug uniqueness
+        $counter = 1;
+        $originalSlug = $slug;
+        while ($variationTypeModel->where('slug', $slug)->first()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $data = [
+            'name' => $name,
+            'slug' => $slug,
+            'display_name' => $this->request->getPost('display_name'),
+            'type' => $this->request->getPost('type'),
+            'is_required' => $this->request->getPost('is_required') ?? 0,
+            'sort_order' => $this->request->getPost('sort_order') ?? 0,
+            'is_active' => 1
+        ];
+
+        try {
+            if ($variationTypeModel->insert($data)) {
+                return redirect()->to('/admin/product-variations')->with('success', 'Variation type created successfully');
+            } else {
+                $errors = $variationTypeModel->errors();
+                return redirect()->back()->withInput()->with('errors', $errors);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to create variation type: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to create variation type: ' . $e->getMessage());
+        }
+    }
+
+    public function manageProductVariants($productId)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $product = $this->productModel->find($productId);
+        if (!$product) {
+            return redirect()->to('/admin/products')->with('error', 'Product not found');
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Manage Product Variants - Admin',
+            'product' => $product,
+            'variants' => $variantModel->getVariantsWithOptionsByProduct($productId),
+            'variationTypes' => $variationTypeModel->getTypesWithOptions()
+        ]);
+
+        return view('admin/products/variants', $data);
+    }
+
+    public function createVariationOption($typeId = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+        $variationTypes = $variationTypeModel->getActiveTypes();
+
+        $data = array_merge($this->getAdminData('products'), [
+            'title' => 'Create Variation Option - Admin',
+            'variationTypes' => $variationTypes,
+            'selectedTypeId' => $typeId
+        ]);
+
+        return view('admin/variations/create_option', $data);
+    }
+
+    public function storeVariationOption()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $rules = [
+            'variation_type_id' => 'required|integer',
+            'name' => 'required|min_length[1]|max_length[100]',
+            'value' => 'required|min_length[1]|max_length[255]',
+            'color_code' => 'permit_empty|regex_match[/^#[0-9A-Fa-f]{6}$/]',
+            'price_modifier' => 'permit_empty|decimal',
+            'price_type' => 'in_list[fixed,percentage]',
+            'sort_order' => 'integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+        $data = [
+            'variation_type_id' => $this->request->getPost('variation_type_id'),
+            'name' => $this->request->getPost('name'),
+            'value' => $this->request->getPost('value'),
+            'color_code' => $this->request->getPost('color_code'),
+            'price_modifier' => $this->request->getPost('price_modifier') ?? 0,
+            'price_type' => $this->request->getPost('price_type') ?? 'fixed',
+            'sort_order' => $this->request->getPost('sort_order') ?? 0,
+            'is_active' => 1
+        ];
+
+        // Handle image upload if provided
+        $imageFile = $this->request->getFile('image');
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            $newName = $imageFile->getRandomName();
+            $imageFile->move(WRITEPATH . 'uploads/variations', $newName);
+            $data['image'] = $newName;
+        }
+
+        if ($variationOptionModel->insert($data)) {
+            return redirect()->to('/admin/product-variations')->with('success', 'Variation option created successfully');
+        }
+
+        return redirect()->back()->withInput()->with('error', 'Failed to create variation option');
+    }
+
+    public function generateProductVariants()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $productId = $this->request->getPost('product_id');
+        $selectedOptions = $this->request->getPost('options') ?? [];
+
+        if (empty($selectedOptions)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No options selected']);
+        }
+
+        // Get product
+        $product = $this->productModel->find($productId);
+        if (!$product) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Product not found']);
+        }
+
+        // Generate all combinations
+        $combinations = $this->generateOptionCombinations($selectedOptions);
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+        $createdCount = 0;
+
+        foreach ($combinations as $combination) {
+            // Check if variant already exists
+            $existingVariant = $variantOptionModel->getVariantByOptions($productId, $combination);
+            if ($existingVariant) {
+                continue; // Skip if already exists
+            }
+
+            // Generate SKU
+            $optionModel = new \App\Models\ProductVariationOptionModel();
+            $options = $optionModel->getOptionsByIds($combination);
+            $skuSuffix = implode('-', array_column($options, 'value'));
+            $sku = $product['sku'] . '-' . strtoupper($skuSuffix);
+
+            // Create variant
+            $variantData = [
+                'product_id' => $productId,
+                'sku' => $sku,
+                'price' => null, // Will use product price
+                'stock_quantity' => 0,
+                'is_default' => $createdCount === 0 ? 1 : 0,
+                'is_active' => 1
+            ];
+
+            $variantId = $variantModel->insert($variantData);
+            if ($variantId) {
+                // Create variant options
+                $variantOptionModel->createVariantOptions($variantId, $combination);
+                $createdCount++;
+            }
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Created {$createdCount} variants successfully"
+        ]);
+    }
+
+    private function generateOptionCombinations($selectedOptions)
+    {
+        $combinations = [[]];
+
+        foreach ($selectedOptions as $typeId => $options) {
+            $newCombinations = [];
+            foreach ($combinations as $combination) {
+                foreach ($options as $option) {
+                    $newCombinations[] = array_merge($combination, [$option]);
+                }
+            }
+            $combinations = $newCombinations;
+        }
+
+        return $combinations;
+    }
+
+    // AJAX Endpoints for Variation Management
+
+    public function editVariationType($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+        $type = $variationTypeModel->find($id);
+
+        if (!$type) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Variation type not found']);
+        }
+
+        return $this->response->setJSON(['success' => true, 'data' => $type]);
+    }
+
+    public function updateVariationType($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $rules = [
+            'name' => 'required|min_length[2]|max_length[100]',
+            'display_name' => 'required|min_length[2]|max_length[100]',
+            'type' => 'required|in_list[text,color,image,button]',
+            'is_required' => 'permit_empty|in_list[0,1]',
+            'sort_order' => 'permit_empty|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON(['success' => false, 'errors' => $this->validator->getErrors()]);
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+
+        $name = $this->request->getPost('name');
+        $slug = url_title($name, '-', true);
+
+        // Ensure slug uniqueness (excluding current record)
+        $counter = 1;
+        $originalSlug = $slug;
+        while ($variationTypeModel->where('slug', $slug)->where('id !=', $id)->first()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $data = [
+            'name' => $name,
+            'slug' => $slug,
+            'display_name' => $this->request->getPost('display_name'),
+            'type' => $this->request->getPost('type'),
+            'is_required' => $this->request->getPost('is_required') ?? 0,
+            'sort_order' => $this->request->getPost('sort_order') ?? 0,
+        ];
+
+        try {
+            if ($variationTypeModel->update($id, $data)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Variation type updated successfully']);
+            } else {
+                $errors = $variationTypeModel->errors();
+                return $this->response->setJSON(['success' => false, 'message' => 'Validation failed', 'errors' => $errors]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to update variation type: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update variation type: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteVariationType($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variationTypeModel = new \App\Models\ProductVariationTypeModel();
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+        // Check if type has options
+        $options = $variationOptionModel->where('variation_type_id', $id)->findAll();
+        if (!empty($options)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Cannot delete variation type. It has ' . count($options) . ' options. Delete options first.'
+            ]);
+        }
+
+        if ($variationTypeModel->delete($id)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Variation type deleted successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete variation type']);
+    }
+
+    public function editVariationOption($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+        $option = $variationOptionModel->getOptionWithType($id);
+
+        if (!$option) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Variation option not found']);
+        }
+
+        return $this->response->setJSON(['success' => true, 'data' => $option]);
+    }
+
+    public function updateVariationOption($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $rules = [
+            'name' => 'required|min_length[1]|max_length[100]',
+            'value' => 'required|min_length[1]|max_length[255]',
+            'color_code' => 'permit_empty|regex_match[/^#[0-9A-Fa-f]{6}$/]',
+            'price_modifier' => 'permit_empty|decimal',
+            'price_type' => 'in_list[fixed,percentage]',
+            'sort_order' => 'integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON(['success' => false, 'errors' => $this->validator->getErrors()]);
+        }
+
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'value' => $this->request->getPost('value'),
+            'color_code' => $this->request->getPost('color_code'),
+            'price_modifier' => $this->request->getPost('price_modifier') ?? 0,
+            'price_type' => $this->request->getPost('price_type') ?? 'fixed',
+            'sort_order' => $this->request->getPost('sort_order') ?? 0,
+        ];
+
+        if ($variationOptionModel->update($id, $data)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Variation option updated successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to update variation option']);
+    }
+
+    public function deleteVariationOption($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variationOptionModel = new \App\Models\ProductVariationOptionModel();
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+
+        // Check if option is used in variants
+        $usedInVariants = $variantOptionModel->where('variation_option_id', $id)->findAll();
+        if (!empty($usedInVariants)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Cannot delete option. It is used in ' . count($usedInVariants) . ' product variants.'
+            ]);
+        }
+
+        if ($variationOptionModel->delete($id)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Variation option deleted successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete variation option']);
+    }
+
+    public function editProductVariant($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        if (!$id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Variant ID is required']);
+        }
+
+        try {
+            $variantModel = new \App\Models\ProductVariantModel();
+            $variant = $variantModel->getVariantWithOptions($id);
+
+            if (!$variant) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Product variant not found']);
+            }
+
+            return $this->response->setJSON(['success' => true, 'data' => $variant]);
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to load variant for editing: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to load variant: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateProductVariant($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        // Get the variant to check its product_id
+        $variantModel = new \App\Models\ProductVariantModel();
+        $currentVariant = $variantModel->find($id);
+
+        if (!$currentVariant) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Variant not found']);
+        }
+
+        $rules = [
+            'sku' => 'required|min_length[1]|max_length[100]',
+            'price' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'sale_price' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'stock_quantity' => 'permit_empty|integer|greater_than_equal_to[0]',
+            'weight' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'dimensions' => 'permit_empty|max_length[255]'
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+            log_message('error', 'Variant validation failed: ' . json_encode($errors));
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $errors,
+                'submitted_data' => $this->request->getPost()
+            ]);
+        }
+
+        // Custom SKU validation - only check for duplicates if SKU is being changed
+        $sku = trim($this->request->getPost('sku'));
+        $allowDuplicateSku = $this->request->getPost('allow_duplicate_sku');
+
+        // Only check for duplicates if the SKU is actually being changed
+        if (!$allowDuplicateSku && $sku !== $currentVariant['sku']) {
+            $existingVariant = $variantModel->where('sku', $sku)
+                                           ->where('product_id', $currentVariant['product_id'])
+                                           ->where('id !=', $id)
+                                           ->first();
+
+            if ($existingVariant) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'SKU already exists for this product',
+                    'action' => 'merge_stock',
+                    'existing_variant' => $existingVariant,
+                    'errors' => ['sku' => 'This SKU already exists for this product. Would you like to merge the stock quantities?']
+                ]);
+            }
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+
+        // Clean and prepare data
+        $sku = trim($this->request->getPost('sku'));
+        $price = $this->request->getPost('price');
+        $salePrice = $this->request->getPost('sale_price');
+        $stockQuantity = $this->request->getPost('stock_quantity');
+        $weight = $this->request->getPost('weight');
+        $dimensions = trim($this->request->getPost('dimensions'));
+
+        $data = [
+            'sku' => $sku,
+            'price' => !empty($price) ? floatval($price) : null,
+            'sale_price' => !empty($salePrice) ? floatval($salePrice) : null,
+            'stock_quantity' => !empty($stockQuantity) ? intval($stockQuantity) : 0,
+            'weight' => !empty($weight) ? floatval($weight) : null,
+            'dimensions' => !empty($dimensions) ? $dimensions : null,
+        ];
+
+        try {
+            if ($variantModel->update($id, $data)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Product variant updated successfully']);
+            } else {
+                $errors = $variantModel->errors();
+                return $this->response->setJSON(['success' => false, 'message' => 'Validation failed', 'errors' => $errors]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to update product variant: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update product variant: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteProductVariant($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+
+        // Delete variant options first
+        $variantOptionModel->deleteVariantOptions($id);
+
+        // Delete the variant
+        if ($variantModel->delete($id)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Product variant deleted successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete product variant']);
+    }
+
+    public function duplicateProductVariant($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+
+        $originalVariant = $variantModel->getVariantWithOptions($id);
+        if (!$originalVariant) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Original variant not found']);
+        }
+
+        // Create new variant data
+        $newVariantData = [
+            'product_id' => $originalVariant['product_id'],
+            'sku' => $originalVariant['sku'] . '-COPY',
+            'price' => $originalVariant['price'],
+            'sale_price' => $originalVariant['sale_price'],
+            'stock_quantity' => 0, // Start with 0 stock
+            'weight' => $originalVariant['weight'],
+            'dimensions' => $originalVariant['dimensions'],
+            'is_default' => 0,
+            'is_active' => 1
+        ];
+
+        $newVariantId = $variantModel->insert($newVariantData);
+        if ($newVariantId) {
+            // Copy variant options
+            $optionIds = array_column($originalVariant['options'], 'variation_option_id');
+            $variantOptionModel->createVariantOptions($newVariantId, $optionIds);
+
+            return $this->response->setJSON(['success' => true, 'message' => 'Product variant duplicated successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to duplicate product variant']);
+    }
+
+    public function setDefaultVariant($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variant = $variantModel->find($id);
+
+        if (!$variant) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Variant not found']);
+        }
+
+        // Remove default from all variants of this product
+        $variantModel->where('product_id', $variant['product_id'])->set(['is_default' => 0])->update();
+
+        // Set this variant as default
+        if ($variantModel->update($id, ['is_default' => 1])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Default variant updated successfully']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Failed to set default variant']);
+    }
+
+    public function mergeVariantStock($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+
+        $targetVariantId = $this->request->getPost('target_variant_id');
+        $sourceVariantId = $id;
+        $newStockQuantity = intval($this->request->getPost('stock_quantity'));
+
+        try {
+            $targetVariant = $variantModel->find($targetVariantId);
+            $sourceVariant = $variantModel->find($sourceVariantId);
+
+            if (!$targetVariant || !$sourceVariant) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Variant not found']);
+            }
+
+            // Merge stock quantities
+            $totalStock = $targetVariant['stock_quantity'] + $newStockQuantity;
+
+            // Update target variant with merged stock
+            $variantModel->update($targetVariantId, ['stock_quantity' => $totalStock]);
+
+            // Delete the source variant and its options
+            $variantOptionModel->deleteVariantOptions($sourceVariantId);
+            $variantModel->delete($sourceVariantId);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Stock merged successfully. Total stock: {$totalStock}",
+                'merged_stock' => $totalStock
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to merge variant stock: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to merge stock: ' . $e->getMessage()]);
+        }
+    }
+
+    public function quickStockUpdate($id = null)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $variantModel = new \App\Models\ProductVariantModel();
+        $stockQuantity = intval($this->request->getPost('stock_quantity'));
+
+        if ($stockQuantity < 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Stock quantity cannot be negative']);
+        }
+
+        try {
+            if ($variantModel->update($id, ['stock_quantity' => $stockQuantity])) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Stock updated successfully',
+                    'new_stock' => $stockQuantity
+                ]);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update stock']);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to update variant stock: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update stock: ' . $e->getMessage()]);
+        }
     }
 
     // Order Management

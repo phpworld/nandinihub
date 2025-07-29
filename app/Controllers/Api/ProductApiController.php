@@ -129,6 +129,15 @@ class ProductApiController extends BaseApiController
             'slug' => $category['slug']
         ] : null;
 
+        // Add variation information
+        $variantModel = new \App\Models\ProductVariantModel();
+        $product['variants'] = $variantModel->getVariantsWithOptionsByProduct($product['id']);
+        $product['has_variants'] = !empty($product['variants']);
+
+        // Add variation types
+        $productModel = new \App\Models\ProductModel();
+        $product['variation_types'] = $productModel->getProductVariationTypes($product['id']);
+
         // Format price
         $product['price'] = (float) $product['price'];
         $product['sale_price'] = $product['sale_price'] ? (float) $product['sale_price'] : null;
@@ -150,6 +159,40 @@ class ProductApiController extends BaseApiController
         $product['total_reviews'] = count($reviews);
 
         return $this->successResponse($product, 'Product retrieved successfully');
+    }
+
+    /**
+     * Get product variant by selected options
+     */
+    public function getVariantByOptions($productId = null)
+    {
+        if (!$productId) {
+            return $this->errorResponse('Product ID is required', 400);
+        }
+
+        $optionIds = $this->request->getGet('options');
+        if (empty($optionIds)) {
+            return $this->errorResponse('Variation options are required', 400);
+        }
+
+        // Convert comma-separated string to array
+        if (is_string($optionIds)) {
+            $optionIds = explode(',', $optionIds);
+        }
+        $optionIds = array_map('intval', $optionIds);
+
+        $variantOptionModel = new \App\Models\ProductVariantOptionModel();
+        $variant = $variantOptionModel->getVariantByOptions($productId, $optionIds);
+
+        if (!$variant) {
+            return $this->errorResponse('No variant found for selected options', 404);
+        }
+
+        // Get variant with options
+        $variantModel = new \App\Models\ProductVariantModel();
+        $variantWithOptions = $variantModel->getVariantWithOptions($variant['id']);
+
+        return $this->successResponse($variantWithOptions);
     }
 
     /**

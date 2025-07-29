@@ -150,6 +150,107 @@ class ProductModel extends Model
         return $product['sale_price'] ? $product['sale_price'] : $product['price'];
     }
 
+    /**
+     * Get product with its variants
+     */
+    public function getProductWithVariants($id)
+    {
+        $product = $this->find($id);
+        if (!$product) {
+            return null;
+        }
+
+        $variantModel = new ProductVariantModel();
+        $product['variants'] = $variantModel->getVariantsWithOptionsByProduct($id);
+        $product['has_variants'] = !empty($product['variants']);
+
+        return $product;
+    }
+
+    /**
+     * Get product by slug with variants
+     */
+    public function getProductBySlugWithVariants($slug)
+    {
+        $product = $this->getProductBySlug($slug);
+        if (!$product) {
+            return null;
+        }
+
+        $variantModel = new ProductVariantModel();
+        $product['variants'] = $variantModel->getVariantsWithOptionsByProduct($product['id']);
+        $product['has_variants'] = !empty($product['variants']);
+
+        return $product;
+    }
+
+    /**
+     * Get product variation types for a product
+     */
+    public function getProductVariationTypes($productId)
+    {
+        $variantModel = new ProductVariantModel();
+        $variants = $variantModel->getVariantsByProduct($productId);
+
+        if (empty($variants)) {
+            return [];
+        }
+
+        $variantOptionModel = new ProductVariantOptionModel();
+        $typeModel = new ProductVariationTypeModel();
+
+        $typeIds = [];
+        foreach ($variants as $variant) {
+            $options = $variantOptionModel->getOptionsByVariant($variant['id']);
+            foreach ($options as $option) {
+                $typeIds[] = $option['variation_type_id'];
+            }
+        }
+
+        $typeIds = array_unique($typeIds);
+
+        if (empty($typeIds)) {
+            return [];
+        }
+
+        return $typeModel->whereIn('id', $typeIds)
+                        ->where('is_active', 1)
+                        ->orderBy('sort_order', 'ASC')
+                        ->findAll();
+    }
+
+    /**
+     * Check if product has variants
+     */
+    public function hasVariants($productId)
+    {
+        $variantModel = new ProductVariantModel();
+        $variants = $variantModel->getVariantsByProduct($productId);
+        return !empty($variants);
+    }
+
+    /**
+     * Get product stock quantity (sum of all variant stocks or product stock)
+     */
+    public function getProductStock($productId)
+    {
+        $variantModel = new ProductVariantModel();
+        $variants = $variantModel->getVariantsByProduct($productId);
+
+        if (!empty($variants)) {
+            // Sum variant stocks
+            $totalStock = 0;
+            foreach ($variants as $variant) {
+                $totalStock += $variant['stock_quantity'];
+            }
+            return $totalStock;
+        }
+
+        // Use product stock
+        $product = $this->find($productId);
+        return $product ? $product['stock_quantity'] : 0;
+    }
+
     public function hasDiscount($product)
     {
         return !empty($product['sale_price']) && $product['sale_price'] < $product['price'];

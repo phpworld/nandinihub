@@ -45,11 +45,14 @@ class ProductController extends BaseController
 
     public function show($slug)
     {
-        $product = $this->productModel->getProductBySlug($slug);
+        $product = $this->productModel->getProductBySlugWithVariants($slug);
 
         if (!$product) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Product not found');
         }
+
+        // Get variation types for this product
+        $variationTypes = $this->productModel->getProductVariationTypes($product['id']);
 
         // Get related products from same category
         $relatedProducts = $this->productModel->getProductsByCategory($product['category_id'], 4);
@@ -62,6 +65,7 @@ class ProductController extends BaseController
         $data = [
             'title' => $product['name'] . ' - Nandini Hub',
             'product' => $product,
+            'variationTypes' => $variationTypes,
             'relatedProducts' => array_slice($relatedProducts, 0, 3)
         ];
 
