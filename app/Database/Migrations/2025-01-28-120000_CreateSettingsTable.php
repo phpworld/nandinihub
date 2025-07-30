@@ -50,7 +50,7 @@ class CreateSettingsTable extends Migration
         $data = [
             [
                 'setting_key'   => 'site_name',
-                'setting_value' => 'Nandini Hub',
+                'setting_value' => 'Microdose Mushroom',
                 'setting_type'  => 'string',
                 'description'   => 'Website name displayed in header and title',
                 'created_at'    => date('Y-m-d H:i:s'),
@@ -58,7 +58,7 @@ class CreateSettingsTable extends Migration
             ],
             [
                 'setting_key'   => 'site_tagline',
-                'setting_value' => 'Your Trusted Shopping Destination',
+                'setting_value' => 'Your Trusted Microdose Destination',
                 'setting_type'  => 'string',
                 'description'   => 'Website tagline or slogan',
                 'created_at'    => date('Y-m-d H:i:s'),
@@ -66,7 +66,7 @@ class CreateSettingsTable extends Migration
             ],
             [
                 'setting_key'   => 'site_description',
-                'setting_value' => 'Nandini Hub is your one-stop destination for quality products at affordable prices.',
+                'setting_value' => 'Microdose Mushroom is your one-stop destination for quality microdose products at affordable prices.',
                 'setting_type'  => 'text',
                 'description'   => 'Website description for SEO',
                 'created_at'    => date('Y-m-d H:i:s'),
@@ -74,7 +74,7 @@ class CreateSettingsTable extends Migration
             ],
             [
                 'setting_key'   => 'contact_email',
-                'setting_value' => 'info@nandinihub.com',
+                'setting_value' => 'info@microdosemushroom.com',
                 'setting_type'  => 'string',
                 'description'   => 'Primary contact email address',
                 'created_at'    => date('Y-m-d H:i:s'),

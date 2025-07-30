@@ -97,20 +97,20 @@
         </div>
     <?php else: ?>
         <!-- Default Banner if no banners exist -->
-        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1582735689369-4fe89db7114c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        <div class="hero-slide" style="background-image: url('<?= base_url('uploads/banners/banner.jpg') ?>');">
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-8 text-center">
-                            <h1 class="hero-title display-3 fw-bold mb-4">Premium Puja Samagri Online</h1>
-                            <p class="hero-subtitle lead mb-5">Discover authentic and high-quality puja items including agarbatti, dhoop, diyas, and all essential spiritual accessories for your divine worship.</p>
+                            <h1 class="hero-title display-3 fw-bold mb-4">DISCOVER MAGIC MUSHROOMS PRODUCTS</h1>
+                            <p class="hero-subtitle lead mb-5"> Explore a vast selection of premium magic mushrooms from top suppliers.</p>
                             <div class="hero-buttons d-flex flex-column flex-sm-row gap-3 justify-content-center">
                                 <a href="<?= base_url('products') ?>" class="btn btn-primary btn-lg px-5 py-3">
                                     <i class="fas fa-shopping-bag me-2"></i>Shop Now
                                 </a>
-                                <a href="<?= base_url('category/agarbatti-incense') ?>" class="btn btn-outline-light btn-lg px-5 py-3">
-                                    <i class="fas fa-eye me-2"></i>View Agarbatti
+                                <a href="<?= base_url('category/microdose-mushrooms') ?>" class="btn btn-outline-light btn-lg px-5 py-3">
+                                    <i class="fas fa-eye me-2"></i>View MAGIC MUSHROOMS
                                 </a>
                             </div>
                         </div>
@@ -129,18 +129,18 @@
             --text-dark: #2d2d2d;
             --text-muted: #6b7280;
             --accent-brown: #b8956a;
-            --accent-orange: #d97706;
+            --accent-green: #86b85e;
         }
 
-    body {
+    .cta-section {
       background-color: #e8ebdd;
-      font-family: "Georgia", serif;
+      
       color: #1c1c1c;
     }
     .container-custom {
       max-width: 1200px;
-      margin-top: 4rem;
-      margin-bottom: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
     }
     .title-sm {
       font-size: 0.85rem;
@@ -214,7 +214,7 @@
         }
 
         .shop-button:hover {
-            background-color: var(--accent-orange);
+            background-color: var(--accent-green);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
@@ -278,7 +278,8 @@
 
   </style>
 
-  <section class="container container-custom d-flex flex-lg-row flex-column align-items-center justify-content-center gap-lg-5 gap-4">
+  <section class="cta-section">
+  <div class=" container container-custom d-flex flex-lg-row flex-column align-items-center justify-content-center gap-lg-5 gap-4">
     <div class="mushroom-image col-lg-6 col-12 d-flex justify-content-center align-items-center order-lg-1 order-2">
       <img class="mushroom-img"
            src="<?= base_url('uploads/cta/mushroom.png') ?>"
@@ -334,6 +335,7 @@
                         </div>
                     </div>
     </div>
+  </div>
     </section>
 
 
@@ -436,10 +438,10 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                            <span class="price-original small">₹<?= number_format($product['price'], 2) ?></span>
-                                            <span class="price-sale">₹<?= number_format($product['sale_price'], 2) ?></span>
+                                            <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
                                         <?php else: ?>
-                                            <span class="price-sale">₹<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>
@@ -507,10 +509,10 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                            <span class="price-original small">₹<?= number_format($product['price'], 2) ?></span>
-                                            <span class="price-sale">₹<?= number_format($product['sale_price'], 2) ?></span>
+                                            <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
                                         <?php else: ?>
-                                            <span class="price-sale">₹<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>

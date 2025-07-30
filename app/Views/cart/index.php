@@ -144,7 +144,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span id="cart-subtotal">₹<?= number_format($cartTotal, 2) ?></span>
+                            <span id="cart-subtotal">$<?= number_format($cartTotal, 2) ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping:</span>
@@ -152,13 +152,13 @@
                                 <?php if ($cartTotal >= 500): ?>
                                     Free
                                 <?php else: ?>
-                                    ₹50.00
+                                    $50.00
                                 <?php endif; ?>
                             </span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tax (18% GST):</span>
-                            <span id="cart-tax">₹<?= number_format($cartTotal * 0.18, 2) ?></span>
+                            <span id="cart-tax">$<?= number_format($cartTotal * 0.18, 2) ?></span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
@@ -321,9 +321,9 @@
         const tax = subtotal * 0.18;
         const total = subtotal + shipping + tax;
 
-        $('#cart-subtotal').text('₹' + subtotal.toFixed(2));
-        $('#cart-tax').text('₹' + tax.toFixed(2));
-        $('#cart-total').text('₹' + total.toFixed(2));
+        $('#cart-subtotal').text('$' + subtotal.toFixed(2));
+        $('#cart-tax').text('$' + tax.toFixed(2));
+        $('#cart-total').text('$' + total.toFixed(2));
     }
 
     function updateCartTotalsFromDOM() {
@@ -331,7 +331,7 @@
 
         // Calculate subtotal from all item totals
         $('.item-total').each(function() {
-            const itemTotalText = $(this).text().replace('₹', '').replace(',', '');
+            const itemTotalText = $(this).text().replace('$', '').replace(',', '');
             subtotal += parseFloat(itemTotalText);
         });
 

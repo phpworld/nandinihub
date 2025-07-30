@@ -9,8 +9,8 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Nandini Hub - Premium Puja Samagri Online' ?></title>
-    <meta name="description" content="<?= $meta_description ?? 'Premium quality puja samagri including agarbatti, dhoop, diyas, and all essential items for your spiritual needs.' ?>">
+    <title><?= $title ?? 'Microdose Mushroom' ?></title>
+    <meta name="description" content="<?= $meta_description ?? '' ?>">
 
     <?php
     // Load Google Analytics if enabled
@@ -42,10 +42,10 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #b8956a;
+            --secondary-color: #86b85e;
             --accent-color: #ffd23f;
-            --dark-color: #2c3e50;
+            --dark-color: #e2dfcc;
             --light-color: #ecf0f1;
         }
 
@@ -125,7 +125,7 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
 
         footer {
             background-color: var(--dark-color);
-            color: white;
+            color: black;
         }
 
         /* Hero Slider Styles */
@@ -369,9 +369,9 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="<?= base_url('/') ?>">
                 <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
-                    <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:40px;max-width:120px;object-fit:contain;" class="me-2">
+                    <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:50px;max-width:200px;object-fit:contain;" class="me-2">
                 <?php else: ?>
-                    <i class="fas fa-om me-2"></i>Nandini Hub
+                    <i class="fas fa-mushroom me-2"></i>Microdose Mushroom
                 <?php endif; ?>
             </a>
 
@@ -532,52 +532,52 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
                 <div class="col-md-4">
                     <h5>
                         <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
-                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:40px;max-width:120px;object-fit:contain;" class="me-2 mb-2">
+                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:90px;max-width:270px;object-fit:contain;" class="me-2 mb-2">
                         <?php else: ?>
-                            <i class="fas fa-om me-2"></i>Nandini Hub
+                            <i class="fas fa-mushroom me-2"></i>Microdose Mushroom
                         <?php endif; ?>
                     </h5>
-                    <p>Your trusted source for premium quality puja samagri and spiritual items. Bringing divine blessings to your doorstep.</p>
+                    <p>Your trusted source for premium quality microdose mushrooms and psychedelic products. Bringing natural wellness to your doorstep.</p>
                 </div>
                 <div class="col-md-2">
                     <h6>Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="<?= base_url('/') ?>" class="text-light text-decoration-none">Home</a></li>
-                        <li><a href="<?= base_url('products') ?>" class="text-light text-decoration-none">Products</a></li>
+                        <li><a href="<?= base_url('/') ?>" class="text-dark text-decoration-none">Home</a></li>
+                        <li><a href="<?= base_url('products') ?>" class="text-dark text-decoration-none">Products</a></li>
                         <?php
                         // Load pages for footer navigation
                         $pageModel = new \App\Models\PageModel();
                         $footerPages = $pageModel->getFooterPages();
                         ?>
                         <?php foreach ($footerPages as $page): ?>
-                            <li><a href="<?= base_url('pages/' . esc($page['slug'])) ?>" class="text-light text-decoration-none"><?= esc($page['title']) ?></a></li>
+                            <li><a href="<?= base_url('pages/' . esc($page['slug'])) ?>" class="text-dark text-decoration-none"><?= esc($page['title']) ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h6>Categories</h6>
                     <ul class="list-unstyled">
-                        <li><a href="<?= base_url('category/agarbatti-incense') ?>" class="text-light text-decoration-none">Agarbatti & Incense</a></li>
-                        <li><a href="<?= base_url('category/dhoop-sambrani') ?>" class="text-light text-decoration-none">Dhoop & Sambrani</a></li>
-                        <li><a href="<?= base_url('category/puja-thali-accessories') ?>" class="text-light text-decoration-none">Puja Thali</a></li>
-                        <li><a href="<?= base_url('category/diyas-candles') ?>" class="text-light text-decoration-none">Diyas & Candles</a></li>
+                        <li><a href="<?= base_url('category/microdose-capsules') ?>" class="text-dark text-decoration-none">Microdose Capsules</a></li>
+                        <li><a href="<?= base_url('category/dried-mushrooms') ?>" class="text-dark text-decoration-none">Dried Mushrooms</a></li>
+                        <li><a href="<?= base_url('category/puja-thali-accessories') ?>" class="text-dark text-decoration-none">Puja Thali</a></li>
+                        <li><a href="<?= base_url('category/diyas-candles') ?>" class="text-dark text-decoration-none">Diyas & Candles</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h6>Contact Info</h6>
-                    <p><i class="fas fa-phone me-2"></i>+91 12345 67890</p>
-                    <p><i class="fas fa-envelope me-2"></i>info@nandinihub.com</p>
+                    <p><i class="fas fa-phone me-2"></i>+1 (xxx)xxx xxxx</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@microdosemushroom.com</p>
                     <div class="mt-3">
-                        <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="text-dark me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-dark me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-dark me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-dark"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
             <hr class="my-4">
             <div class="text-center">
-                <p>&copy; 2024 Nandini Hub. All rights reserved.</p>
+                <p>&copy; 2025 Microdose Mushroom. All rights reserved.</p>
             </div>
         </div>
     </footer>

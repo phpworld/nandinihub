@@ -221,15 +221,15 @@
             
             // Calculate shipping
             const shipping = subtotalAfterDiscount >= 500 ? 0 : 50;
-            document.getElementById('shipping').textContent = shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`;
+            document.getElementById('shipping').textContent = shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`;
             
             // Calculate tax
             const tax = subtotalAfterDiscount * 0.18;
-            document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
             
             // Calculate final total
             const finalTotal = subtotalAfterDiscount + shipping + tax;
-            document.getElementById('final_total').textContent = `₹${finalTotal.toFixed(2)}`;
+            document.getElementById('final_total').textContent = `$${finalTotal.toFixed(2)}`;
         }
 
         function showMessage(message, type) {

@@ -235,7 +235,7 @@
                                     </div>
                                     <div>
                                         <?php $price = $item['final_price'] ?? ($item['sale_price'] ?? $item['price']); ?>
-                                        <span>₹<?= number_format($price * $item['quantity'], 2) ?></span>
+                                        <span>$<?= number_format($price * $item['quantity'], 2) ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -271,12 +271,12 @@
                         <!-- Totals -->
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span id="subtotal_amount">₹<?= number_format($cartTotal, 2) ?></span>
+                            <span id="subtotal_amount">$<?= number_format($cartTotal, 2) ?></span>
                         </div>
 
                         <div id="discount_row" class="d-flex justify-content-between mb-2 text-success" style="display: none;">
                             <span>Discount:</span>
-                            <span id="discount_amount">-₹0.00</span>
+                            <span id="discount_amount">-$0.00</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
@@ -285,14 +285,14 @@
                                 <?php if ($cartTotal >= 500): ?>
                                     Free
                                 <?php else: ?>
-                                    ₹50.00
+                                    $50.00
                                 <?php endif; ?>
                             </span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tax (18% GST):</span>
-                            <span id="tax_amount">₹<?= number_format($cartTotal * 0.18, 2) ?></span>
+                            <span id="tax_amount">$<?= number_format($cartTotal * 0.18, 2) ?></span>
                         </div>
 
                         <hr>
@@ -300,7 +300,7 @@
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
                             <strong class="text-primary" id="final_total">
-                                ₹<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
+                                $<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
                             </strong>
                         </div>
 
@@ -445,9 +445,9 @@
         const display = document.getElementById('applied_coupon_display');
         const text = document.getElementById('applied_coupon_text');
 
-        let couponText = `${coupon.code} - ₹${parseFloat(coupon.discount_amount).toFixed(2)} off`;
+        let couponText = `${coupon.code} - $${parseFloat(coupon.discount_amount).toFixed(2)} off`;
         if (coupon.coupon_data && coupon.coupon_data.type === 'percentage') {
-            couponText = `${coupon.code} - ${coupon.coupon_data.value}% off (₹${parseFloat(coupon.discount_amount).toFixed(2)})`;
+            couponText = `${coupon.code} - ${coupon.coupon_data.value}% off ($${parseFloat(coupon.discount_amount).toFixed(2)})`;
         }
 
         text.textContent = couponText;
@@ -468,7 +468,7 @@
 
         if (currentDiscount > 0) {
             discountRow.style.display = 'flex';
-            discountAmountSpan.textContent = `-₹${currentDiscount.toFixed(2)}`;
+            discountAmountSpan.textContent = `-$${currentDiscount.toFixed(2)}`;
         } else {
             discountRow.style.display = 'none';
         }
@@ -477,15 +477,15 @@
         const selectedShippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
         const shipping = selectedShippingMethod ? parseFloat(selectedShippingMethod.dataset.cost) : 0;
         const shippingSpan = document.getElementById('shipping_amount');
-        shippingSpan.textContent = shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`;
+        shippingSpan.textContent = shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`;
 
         // Calculate tax on discounted amount
         const tax = subtotalAfterDiscount * 0.18;
-        document.getElementById('tax_amount').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('tax_amount').textContent = `$${tax.toFixed(2)}`;
 
         // Calculate final total
         const finalTotal = subtotalAfterDiscount + shipping + tax;
-        document.getElementById('final_total').textContent = `₹${finalTotal.toFixed(2)}`;
+        document.getElementById('final_total').textContent = `$${finalTotal.toFixed(2)}`;
     }
 
     function showCouponMessage(message, type) {

@@ -166,7 +166,7 @@
                                             <small><?= date('M j, Y', strtotime($order['created_at'])) ?></small>
                                         </td>
                                         <td>
-                                            <strong>₹<?= number_format($order['total_amount'], 2) ?></strong>
+                                            <strong>$<?= number_format($order['total_amount'], 2) ?></strong>
                                         </td>
                                         <td>
                                             <span class="badge bg-light text-dark">

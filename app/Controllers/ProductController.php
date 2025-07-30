@@ -33,7 +33,7 @@ class ProductController extends BaseController
         });
 
         $data = [
-            'title' => 'All Products - Nandini Hub',
+            'title' => 'All Products - Microdose Mushroom',
             'products' => $this->productModel->getProductsWithFilters($filters),
             'categories' => $this->categoryModel->getActiveCategories(),
             'priceRange' => $this->productModel->getPriceRange(),
@@ -63,7 +63,7 @@ class ProductController extends BaseController
         });
 
         $data = [
-            'title' => $product['name'] . ' - Nandini Hub',
+            'title' => $product['name'] . ' - Microdose Mushroom',
             'product' => $product,
             'variationTypes' => $variationTypes,
             'relatedProducts' => array_slice($relatedProducts, 0, 3)
@@ -95,7 +95,7 @@ class ProductController extends BaseController
         }, ARRAY_FILTER_USE_BOTH);
 
         $data = [
-            'title' => $category['name'] . ' - Nandini Hub',
+            'title' => $category['name'] . ' - Microdose Mushroom',
             'category' => $category,
             'products' => $this->productModel->getProductsWithFilters($filters),
             'categories' => $this->categoryModel->getActiveCategories(),
@@ -129,7 +129,7 @@ class ProductController extends BaseController
         }, ARRAY_FILTER_USE_BOTH);
 
         $data = [
-            'title' => 'Search Results for "' . $keyword . '" - Nandini Hub',
+            'title' => 'Search Results for "' . $keyword . '" - Microdose Mushroom',
             'keyword' => $keyword,
             'products' => $this->productModel->getProductsWithFilters($filters),
             'categories' => $this->categoryModel->getActiveCategories(),

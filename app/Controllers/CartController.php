@@ -25,7 +25,7 @@ class CartController extends BaseController
         $cartTotal = $this->cartModel->getCartTotal($userId, $sessionId);
 
         $data = [
-            'title' => 'Shopping Cart - Nandini Hub',
+            'title' => 'Shopping Cart - Microdose Mushroom',
             'cartItems' => $cartItems,
             'cartTotal' => $cartTotal
         ];

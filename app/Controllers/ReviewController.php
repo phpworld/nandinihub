@@ -43,7 +43,7 @@ class ReviewController extends BaseController
         }
 
         $data = [
-            'title' => 'Write Review for ' . $product['name'] . ' - Nandini Hub',
+            'title' => 'Write Review for ' . $product['name'] . ' - Microdose Mushroom',
             'product' => $product
         ];
 

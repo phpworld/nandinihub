@@ -162,10 +162,10 @@
                                 <td>
                                     <div>
                                         <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                            <span class="text-decoration-line-through text-muted">₹<?= number_format($product['price'], 2) ?></span><br>
-                                            <strong class="text-success">₹<?= number_format($product['sale_price'], 2) ?></strong>
+                                            <span class="text-decoration-line-through text-muted">$<?= number_format($product['price'], 2) ?></span><br>
+                                            <strong class="text-success">$<?= number_format($product['sale_price'], 2) ?></strong>
                                         <?php else: ?>
-                                            <strong>₹<?= number_format($product['price'], 2) ?></strong>
+                                            <strong>$<?= number_format($product['price'], 2) ?></strong>
                                         <?php endif; ?>
                                     </div>
                                 </td>

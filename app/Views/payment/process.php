@@ -23,7 +23,7 @@
                                 <div class="card-body">
                                     <h6 class="card-title">Order Details</h6>
                                     <p class="mb-1"><strong>Order Number:</strong> <?= esc($order['order_number']) ?></p>
-                                    <p class="mb-1"><strong>Amount:</strong> ₹<?= number_format($transaction['amount'], 2) ?></p>
+                                    <p class="mb-1"><strong>Amount:</strong> $<?= number_format($transaction['amount'], 2) ?></p>
                                     <p class="mb-0"><strong>Transaction ID:</strong> <?= esc($transaction['transaction_id']) ?></p>
                                 </div>
                             </div>
@@ -33,7 +33,7 @@
                                 <div class="card-body">
                                     <h6 class="card-title">Payment Information</h6>
                                     <p class="mb-1"><strong>Gateway:</strong> HDFC Bank</p>
-                                    <p class="mb-1"><strong>Currency:</strong> INR</p>
+                                    <p class="mb-1"><strong>Currency:</strong> USD</p>
                                     <p class="mb-0"><strong>Status:</strong> <span class="badge bg-warning">Processing</span></p>
                                 </div>
                             </div>

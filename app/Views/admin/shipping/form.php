@@ -239,7 +239,7 @@ $(document).ready(function() {
         $('#preview-name').text(name);
         $('#preview-description').text(description);
         $('#preview-delivery').text(deliveryTime);
-        $('#preview-minimum').text(`Min: ₹${minimumAmount.toFixed(2)}`);
+        $('#preview-minimum').text(`Min: $${minimumAmount.toFixed(2)}`);
         
         if (cost === 0 || isFreeShipping) {
             $('#preview-cost').removeClass('bg-primary').addClass('bg-success').text('Free');

@@ -61,7 +61,7 @@ class OrderController extends BaseController
         $orderStats = $this->orderModel->getOrderStats($userId);
 
         $data = [
-            'title' => 'My Orders - Nandini Hub',
+            'title' => 'My Orders - Microdose Mushroom',
             'orders' => $orders['data'],
             'pager' => $orders['pager'],
             'orderStats' => $orderStats,
@@ -103,7 +103,7 @@ class OrderController extends BaseController
         $orderTimeline = $this->getOrderTimeline($order);
 
         $data = [
-            'title' => 'Order #' . $orderNumber . ' - Nandini Hub',
+            'title' => 'Order #' . $orderNumber . ' - Microdose Mushroom',
             'order' => $order,
             'orderItems' => $orderItems,
             'canCancel' => $canCancel,
@@ -214,7 +214,7 @@ class OrderController extends BaseController
         $userAddresses = $addressModel->getUserAddresses($userId);
 
         $data = [
-            'title' => 'Checkout - Nandini Hub',
+            'title' => 'Checkout - Microdose Mushroom',
             'cartItems' => $cartItems,
             'cartTotal' => $cartTotal,
             'user' => $user,

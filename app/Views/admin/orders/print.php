@@ -446,9 +446,9 @@
                                 <strong><?= esc($item['product_name']) ?></strong>
                             </td>
                             <td><?= esc($item['product_sku'] ?? 'N/A') ?></td>
-                            <td class="text-right">₹<?= number_format($item['price'], 2) ?></td>
+                            <td class="text-right">$<?= number_format($item['price'], 2) ?></td>
                             <td class="text-right"><?= $item['quantity'] ?></td>
-                            <td class="text-right">₹<?= number_format($item['total'], 2) ?></td>
+                            <td class="text-right">$<?= number_format($item['total'], 2) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -456,29 +456,29 @@
             <tfoot>
                 <tr>
                     <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right">₹<?= number_format(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0)), 2) ?></td>
+                    <td class="text-right">$<?= number_format(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0)), 2) ?></td>
                 </tr>
                 <?php if (!empty($order['discount_amount']) && $order['discount_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Discount:</strong></td>
-                        <td class="text-right">-₹<?= number_format($order['discount_amount'], 2) ?></td>
+                        <td class="text-right">-$<?= number_format($order['discount_amount'], 2) ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php if (!empty($order['tax_amount']) && $order['tax_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Tax:</strong></td>
-                        <td class="text-right">₹<?= number_format($order['tax_amount'], 2) ?></td>
+                        <td class="text-right">$<?= number_format($order['tax_amount'], 2) ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php if (!empty($order['shipping_amount']) && $order['shipping_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Shipping:</strong></td>
-                        <td class="text-right">₹<?= number_format($order['shipping_amount'], 2) ?></td>
+                        <td class="text-right">$<?= number_format($order['shipping_amount'], 2) ?></td>
                     </tr>
                 <?php endif; ?>
                 <tr class="invoice-total">
                     <td colspan="4" class="text-right"><strong>TOTAL AMOUNT:</strong></td>
-                    <td class="text-right"><strong>₹<?= number_format($order['total_amount'], 2) ?></strong></td>
+                    <td class="text-right"><strong>$<?= number_format($order['total_amount'], 2) ?></strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -523,7 +523,7 @@
             <p>
                 📧 <strong>Email:</strong> <?= esc($contactEmail) ?> |
                 📞 <strong>Phone:</strong> <?= esc($contactPhone) ?> |
-                🌐 <strong>Website:</strong> www.nandinihub.com
+                🌐 <strong>Website:</strong> www.microdosemushroom.com
             </p>
             <hr style="margin: 15px 0; border: 1px solid #ff6b35;">
             <p><strong><?= esc($siteName) ?></strong> - <em><?= esc($siteTagline) ?></em></p>

@@ -35,20 +35,20 @@
                         <div class="col-md-6 mb-3">
                             <label for="site_name" class="form-label">Site Name</label>
                             <input type="text" class="form-control" id="site_name" name="site_name"
-                                value="<?= esc($settings['site_name'] ?? 'Nandini Hub') ?>" required>
+                                value="<?= esc($settings['site_name'] ?? 'Microdose Mushroom') ?>" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="site_tagline" class="form-label">Site Tagline</label>
                             <input type="text" class="form-control" id="site_tagline" name="site_tagline"
-                                value="<?= esc($settings['site_tagline'] ?? 'Your Trusted Shopping Destination') ?>">
+                                value="<?= esc($settings['site_tagline'] ?? 'Your Trusted Microdose Destination') ?>">
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="site_description" class="form-label">Site Description</label>
                         <textarea class="form-control" id="site_description" name="site_description"
-                            rows="3"><?= esc($settings['site_description'] ?? 'Nandini Hub is your one-stop destination for quality products at affordable prices.') ?></textarea>
+                            rows="3"><?= esc($settings['site_description'] ?? 'Microdose Mushroom is your one-stop destination for quality microdose products at affordable prices.') ?></textarea>
                     </div>
 
                     <div class="row">
@@ -75,8 +75,8 @@
                         <div class="col-md-4 mb-3">
                             <label for="currency" class="form-label">Currency</label>
                             <select class="form-select" id="currency" name="currency">
-                                <option value="INR" selected>Indian Rupee (₹)</option>
-                                <option value="USD">US Dollar ($)</option>
+                                <option value="USD" selected>US Dollar ($)</option>
+                                <option value="INR">Indian Rupee (₹)</option>
                                 <option value="EUR">Euro (€)</option>
                             </select>
                         </div>

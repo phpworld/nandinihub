@@ -131,10 +131,10 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div>
                                                 <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                                    <span class="price-original small">₹<?= number_format($product['price'], 2) ?></span>
-                                                    <span class="price-sale">₹<?= number_format($product['sale_price'], 2) ?></span>
+                                                    <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
                                                 <?php else: ?>
-                                                    <span class="price-sale">₹<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>

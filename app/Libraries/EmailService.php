@@ -31,7 +31,7 @@ class EmailService
     public function sendOrderConfirmation($order, $orderItems, $user)
     {
         try {
-            $this->email->setFrom('noreply@nandinihub.com', 'Nandini Hub');
+            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
             $this->email->setTo($user['email']);
             $this->email->setSubject('Order Confirmation - Order #' . $order['order_number']);
 
@@ -54,7 +54,7 @@ class EmailService
     public function sendOrderStatusUpdate($order, $user, $oldStatus, $newStatus)
     {
         try {
-            $this->email->setFrom('noreply@nandinihub.com', 'Nandini Hub');
+            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
             $this->email->setTo($user['email']);
             $this->email->setSubject('Order Status Update - Order #' . $order['order_number']);
 
@@ -77,9 +77,9 @@ class EmailService
     public function sendWelcomeEmail($user)
     {
         try {
-            $this->email->setFrom('noreply@nandinihub.com', 'Nandini Hub');
+            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
             $this->email->setTo($user['email']);
-            $this->email->setSubject('Welcome to Nandini Hub - Your Spiritual Journey Begins');
+            $this->email->setSubject('Welcome to Microdose Mushroom - Your Wellness Journey Begins');
 
             $message = $this->generateWelcomeEmail($user);
             $this->email->setMessage($message);
@@ -155,12 +155,12 @@ class EmailService
                     </div>
                     
                     <p>We will send you another email when your order ships.</p>
-                    <p>Thank you for choosing Nandini Hub for your spiritual needs!</p>
+                    <p>Thank you for choosing Microdose Mushroom for your wellness needs!</p>
                 </div>
                 
                 <div class="footer">
-                    <p>Nandini Hub - Premium Puja Samagri Online</p>
-                    <p>For any queries, contact us at info@nandinihub.com</p>
+                    <p>Microdose Mushroom - Premium Microdose Products Online</p>
+                    <p>For any queries, contact us at info@microdosemushroom.com</p>
                 </div>
             </div>
         </body>
@@ -213,12 +213,12 @@ class EmailService
                     </div>
                     
                     <p>You can track your order anytime by visiting your account on our website.</p>
-                    <p>Thank you for choosing Nandini Hub!</p>
+                    <p>Thank you for choosing Microdose Mushroom!</p>
                 </div>
                 
                 <div class="footer">
-                    <p>Nandini Hub - Premium Puja Samagri Online</p>
-                    <p>For any queries, contact us at info@nandinihub.com</p>
+                    <p>Microdose Mushroom - Premium Microdose Products Online</p>
+                    <p>For any queries, contact us at info@microdosemushroom.com</p>
                 </div>
             </div>
         </body>
@@ -234,7 +234,7 @@ class EmailService
         <html>
         <head>
             <meta charset="utf-8">
-            <title>Welcome to Nandini Hub</title>
+            <title>Welcome to Microdose Mushroom</title>
             <style>
                 body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -249,21 +249,21 @@ class EmailService
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🕉️ Welcome to Nandini Hub</h1>
-                    <p>Your Spiritual Journey Begins Here</p>
+                    <h1>🍄 Welcome to Microdose Mushroom</h1>
+                    <p>Your Wellness Journey Begins Here</p>
                 </div>
                 
                 <div class="content">
                     <div class="welcome-box">
                         <h2>Namaste ' . esc($user['first_name']) . '!</h2>
-                        <p>Thank you for joining the Nandini Hub family. We are delighted to have you with us on your spiritual journey.</p>
+                        <p>Thank you for joining the Microdose Mushroom family. We are delighted to have you with us on your wellness journey.</p>
                     </div>
                     
-                    <h3>What makes Nandini Hub special?</h3>
+                    <h3>What makes Microdose Mushroom special?</h3>
                     <div class="features">
                         <div class="feature">
                             <h4>🔥 Premium Quality</h4>
-                            <p>Authentic puja samagri sourced from trusted suppliers</p>
+                            <p>Premium microdose products sourced from trusted suppliers</p>
                         </div>
                         <div class="feature">
                             <h4>🚚 Fast Delivery</h4>
@@ -277,10 +277,10 @@ class EmailService
                     
                     <p>Start exploring our wide range of:</p>
                     <ul>
-                        <li>Premium Agarbatti & Incense</li>
-                        <li>Traditional Dhoop & Sambrani</li>
-                        <li>Beautiful Puja Thali Sets</li>
-                        <li>Authentic Diyas & Candles</li>
+                        <li>Premium Microdose Capsules</li>
+                        <li>Dried Magic Mushrooms</li>
+                        <li>Mushroom Chocolates & Edibles</li>
+                        <li>Wellness & Therapeutic Products</li>
                         <li>And much more...</li>
                     </ul>
                     
@@ -291,8 +291,8 @@ class EmailService
                 </div>
                 
                 <div class="footer">
-                    <p>Nandini Hub - Premium Puja Samagri Online</p>
-                    <p>For any queries, contact us at info@nandinihub.com</p>
+                    <p>Microdose Mushroom - Premium Microdose Products Online</p>
+                    <p>For any queries, contact us at info@microdosemushroom.com</p>
                 </div>
             </div>
         </body>

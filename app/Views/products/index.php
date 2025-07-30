@@ -7,7 +7,7 @@
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="h2">All Products</h1>
-            <p class="text-muted">Discover our complete collection of premium puja samagri</p>
+            <p class="text-muted">Discover our complete collection of premium microdose products</p>
         </div>
         <div class="col-md-4">
             <form action="<?= base_url('products/search') ?>" method="GET" class="d-flex">
@@ -214,10 +214,10 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div>
                                                 <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                                    <span class="price-original small">₹<?= number_format($product['price'], 2) ?></span>
-                                                    <span class="price-sale">₹<?= number_format($product['sale_price'], 2) ?></span>
+                                                    <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
                                                 <?php else: ?>
-                                                    <span class="price-sale">₹<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>

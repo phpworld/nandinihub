@@ -182,7 +182,7 @@ class AdminController extends BaseController
         $pendingReviews = $this->reviewModel->getPendingReviews(5);
 
         $data = array_merge($this->getAdminData('dashboard'), [
-            'title' => 'Admin Dashboard - Nandini Hub',
+            'title' => 'Admin Dashboard - Microdose Mushroom',
             'totalProducts' => $totalProducts,
             'totalOrders' => $totalOrders,
             'totalUsers' => $totalUsers,
@@ -2239,10 +2239,10 @@ class AdminController extends BaseController
     private function generateInvoiceHtml($order, $orderItems)
     {
         $settingModel = new \App\Models\SettingModel();
-        $siteName = $settingModel->getSetting('site_name', 'NANDINI HUB');
-        $siteTagline = $settingModel->getSetting('site_tagline', 'Your Trusted Shopping Destination');
-        $contactEmail = $settingModel->getSetting('contact_email', 'info@nandinihub.com');
-        $contactPhone = $settingModel->getSetting('contact_phone', '+91 9876543210');
+        $siteName = $settingModel->getSetting('site_name', 'MICRODOSE MUSHROOM');
+        $siteTagline = $settingModel->getSetting('site_tagline', 'Your Trusted Microdose Destination');
+        $contactEmail = $settingModel->getSetting('contact_email', 'info@microdosemushroom.com');
+        $contactPhone = $settingModel->getSetting('contact_phone', '+1 (xxx)xxx xxxx');
         $siteLogo = $settingModel->getSetting('site_logo', '');
         $businessAddress = $settingModel->getSetting('business_address', '123 Business Street, City, State - 123456');
 

@@ -200,15 +200,15 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>₹<?= number_format($order['total_amount'] - $order['shipping_amount'] - $order['tax_amount'], 2) ?></span>
+                                <span>$<?= number_format($order['total_amount'] - $order['shipping_amount'] - $order['tax_amount'], 2) ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping:</span>
-                                <span>₹<?= number_format($order['shipping_amount'], 2) ?></span>
+                                <span>$<?= number_format($order['shipping_amount'], 2) ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Tax (18%):</span>
-                                <span>₹<?= number_format($order['tax_amount'], 2) ?></span>
+                                <span>$<?= number_format($order['tax_amount'], 2) ?></span>
                             </div>
                             <?php if ($order['discount_amount'] > 0): ?>
                                 <div class="d-flex justify-content-between mb-2 text-success">

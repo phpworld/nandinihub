@@ -299,7 +299,7 @@
                             <?php endif; ?>
                         </td>
                         <td><?= esc($item['product_sku'] ?? 'N/A') ?></td>
-                        <td class="text-right">₹<?= number_format($item['price'], 2) ?></td>
+                        <td class="text-right">$<?= number_format($item['price'], 2) ?></td>
                         <td class="text-right"><?= $item['quantity'] ?></td>
                         <td class="text-right">₹<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                     </tr>

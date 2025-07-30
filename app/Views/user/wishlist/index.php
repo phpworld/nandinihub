@@ -61,14 +61,14 @@
                                             <div class="price-section mt-auto">
                                                 <?php if (!empty($item['sale_price']) && $item['sale_price'] < $item['price']): ?>
                                                     <div class="d-flex align-items-center">
-                                                        <span class="h6 text-primary mb-0">₹<?= number_format($item['sale_price'], 2) ?></span>
-                                                        <span class="text-muted text-decoration-line-through ms-2">₹<?= number_format($item['price'], 2) ?></span>
+                                                        <span class="h6 text-primary mb-0">$<?= number_format($item['sale_price'], 2) ?></span>
+                                                        <span class="text-muted text-decoration-line-through ms-2">$<?= number_format($item['price'], 2) ?></span>
                                                     </div>
                                                     <small class="text-success">
-                                                        Save ₹<?= number_format($item['price'] - $item['sale_price'], 2) ?>
+                                                        Save $<?= number_format($item['price'] - $item['sale_price'], 2) ?>
                                                     </small>
                                                 <?php else: ?>
-                                                    <span class="h6 text-primary">₹<?= number_format($item['price'], 2) ?></span>
+                                                    <span class="h6 text-primary">$<?= number_format($item['price'], 2) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="mt-3">

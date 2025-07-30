@@ -24,9 +24,9 @@ class Payment extends BaseConfig
         'live_api_endpoint' => 'https://smartgateway.hdfcbank.com',
 
         // Common Settings
-        'currency' => 'INR',
+        'currency' => 'USD',
         'language' => 'en',
-        'country' => 'IN',
+        'country' => 'US',
 
         // Callback URLs (will be dynamically set based on base_url)
         'return_url' => '',

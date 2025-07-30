@@ -187,7 +187,7 @@ class PaymentController extends BaseController
         $this->paymentTransactionModel->updateStatus($transactionId, 'processing');
 
         $data = [
-            'title' => 'Processing Payment - Nandini Hub',
+            'title' => 'Processing Payment - Microdose Mushroom',
             'paymentRequest' => $paymentRequest,
             'order' => $order,
             'transaction' => $transaction
@@ -348,7 +348,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'title' => 'Payment Successful - Nandini Hub',
+            'title' => 'Payment Successful - Microdose Mushroom',
             'transaction' => $transaction,
             'order' => $order
         ];
@@ -398,7 +398,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
-            'title' => 'Payment Failed - Nandini Hub',
+            'title' => 'Payment Failed - Microdose Mushroom',
             'transaction' => $transaction,
             'order' => $order,
             'errorMessage' => $errorMessage

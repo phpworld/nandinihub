@@ -15,9 +15,9 @@ $siteLogo = $settingModel->getSetting('site_logo', '');
                         <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
                             <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:60px;max-width:180px;object-fit:contain;" class="mb-3">
                         <?php else: ?>
-                            <i class="fas fa-om fa-3x text-primary mb-3"></i>
+                            <i class="fas fa-mushroom fa-3x text-primary mb-3"></i>
                         <?php endif; ?>
-                        <h2 class="h4">Join Nandini Hub</h2>
+                        <h2 class="h4">Join Microdose Mushroom</h2>
                         <p class="text-muted">Create your account to start shopping</p>
                     </div>
 

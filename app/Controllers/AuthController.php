@@ -23,7 +23,7 @@ class AuthController extends BaseController
         }
 
         $data = [
-            'title' => 'Login - Nandini Hub'
+            'title' => 'Login - Microdose Mushroom'
         ];
 
         return view('auth/login', $data);
@@ -36,7 +36,7 @@ class AuthController extends BaseController
         }
 
         $data = [
-            'title' => 'Register - Nandini Hub'
+            'title' => 'Register - Microdose Mushroom'
         ];
 
         return view('auth/register', $data);
@@ -115,7 +115,7 @@ class AuthController extends BaseController
             $sessionId = session()->session_id;
             $this->cartModel->transferCartToUser($sessionId, $userId);
 
-            session()->setFlashdata('success', 'Registration successful! Welcome to Nandini Hub.');
+            session()->setFlashdata('success', 'Registration successful! Welcome to Microdose Mushroom.');
             return redirect()->to('/');
         } else {
             session()->setFlashdata('error', 'Registration failed. Please try again.');
@@ -140,7 +140,7 @@ class AuthController extends BaseController
         $user = $this->userModel->find(session()->get('user_id'));
 
         $data = [
-            'title' => 'My Profile - Nandini Hub',
+            'title' => 'My Profile - Microdose Mushroom',
             'user' => $user
         ];
 
@@ -226,7 +226,7 @@ class AuthController extends BaseController
         }
 
         $data = [
-            'title' => 'Change Password - Nandini Hub'
+            'title' => 'Change Password - Microdose Mushroom'
         ];
 
         return view('auth/change_password', $data);

@@ -75,10 +75,10 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h5 class="card-title text-muted">Total Revenue</h5>
-                        <h2 class="text-warning">₹<?= number_format($totalRevenue, 2) ?></h2>
+                        <h2 class="text-warning">$<?= number_format($totalRevenue, 2) ?></h2>
                     </div>
                     <div class="align-self-center">
-                        <i class="fas fa-rupee-sign fa-2x text-warning"></i>
+                        <i class="fas fa-dollar-sign fa-2x text-warning"></i>
                     </div>
                 </div>
             </div>
@@ -118,7 +118,7 @@
                                             </a>
                                         </td>
                                         <td><?= esc($order['first_name'] . ' ' . $order['last_name']) ?></td>
-                                        <td>₹<?= number_format($order['total_amount'], 2) ?></td>
+                                        <td>$<?= number_format($order['total_amount'], 2) ?></td>
                                         <td>
                                             <span class="badge bg-<?= $order['status'] === 'delivered' ? 'success' : ($order['status'] === 'cancelled' ? 'danger' : 'warning') ?>">
                                                 <?= ucfirst($order['status']) ?>
@@ -152,7 +152,7 @@
                                 <h6 class="mb-0"><?= esc($product['product_name']) ?></h6>
                                 <small class="text-muted"><?= $product['total_sold'] ?> sold</small>
                             </div>
-                            <span class="text-success">₹<?= number_format($product['total_revenue'], 2) ?></span>
+                            <span class="text-success">$<?= number_format($product['total_revenue'], 2) ?></span>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>

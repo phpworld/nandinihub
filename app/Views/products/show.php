@@ -47,13 +47,13 @@
                 <!-- Price -->
                 <div class="price-section mb-3">
                     <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                        <span class="h4 text-muted text-decoration-line-through me-2">₹<?= number_format($product['price'], 2) ?></span>
-                        <span class="h3 text-primary">₹<?= number_format($product['sale_price'], 2) ?></span>
+                        <span class="h4 text-muted text-decoration-line-through me-2">$<?= number_format($product['price'], 2) ?></span>
+                        <span class="h3 text-primary">$<?= number_format($product['sale_price'], 2) ?></span>
                         <span class="badge bg-danger ms-2">
                             <?= round((($product['price'] - $product['sale_price']) / $product['price']) * 100) ?>% OFF
                         </span>
                     <?php else: ?>
-                        <span class="h3 text-primary">₹<?= number_format($product['price'], 2) ?></span>
+                        <span class="h3 text-primary">$<?= number_format($product['price'], 2) ?></span>
                     <?php endif; ?>
                 </div>
 
@@ -670,16 +670,16 @@
                 const finalPrice = Math.max(0, basePrice + totalPriceModifier);
 
                 // Update main product price display
-                $('.product-price .price').text('₹' + finalPrice.toFixed(2));
+                $('.product-price .price').text('$' + finalPrice.toFixed(2));
                 if (totalPriceModifier !== 0) {
-                    $('.product-price .original-price').text('₹' + basePrice.toFixed(2)).show();
+                    $('.product-price .original-price').text('$' + basePrice.toFixed(2)).show();
                 } else {
                     $('.product-price .original-price').hide();
                 }
             } else {
                 // Reset to original price
                 const basePrice = parseFloat(<?= $product['sale_price'] ?? $product['price'] ?>);
-                $('.product-price .price').text('₹' + basePrice.toFixed(2));
+                $('.product-price .price').text('$' + basePrice.toFixed(2));
                 $('.product-price .original-price').hide();
             }
 

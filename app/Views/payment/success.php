@@ -35,7 +35,7 @@
                                         </tr>
                                         <tr>
                                             <td><strong>Total Amount:</strong></td>
-                                            <td><strong>₹<?= number_format($order['total_amount'], 2) ?></strong></td>
+                                            <td><strong>$<?= number_format($order['total_amount'], 2) ?></strong></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Payment Status:</strong></td>

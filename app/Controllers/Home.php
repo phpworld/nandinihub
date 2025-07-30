@@ -22,7 +22,7 @@ class Home extends BaseController
     public function index(): string
     {
         $data = [
-            'title' => 'Nandini Hub - Premium Puja Samagri Online',
+            'title' => 'Microdose Mushroom - Premium Microdose Products Online',
             'banners' => $this->bannerModel->getSliderBanners(5),
             'featuredProducts' => $this->productModel->getFeaturedProducts(8),
             'categories' => $this->categoryModel->getActiveCategories(),

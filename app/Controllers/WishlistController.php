@@ -30,7 +30,7 @@ class WishlistController extends BaseController
         $wishlistItems = $this->wishlistModel->getWishlistItems($userId);
 
         $data = [
-            'title' => 'My Wishlist - Nandini Hub',
+            'title' => 'My Wishlist - Microdose Mushroom',
             'wishlistItems' => $wishlistItems,
             'wishlistCount' => count($wishlistItems)
         ];

@@ -44,16 +44,16 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="number" name="min_price" class="form-control form-control-sm"
-                                           placeholder="Min ₹" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
+                                           placeholder="Min $" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
                                            min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
                                 </div>
                                 <div class="col-6">
                                     <input type="number" name="max_price" class="form-control form-control-sm"
-                                           placeholder="Max ₹" value="<?= esc($currentFilters['max_price'] ?? '') ?>"
+                                           placeholder="Max $" value="<?= esc($currentFilters['max_price'] ?? '') ?>"
                                            min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
                                 </div>
                             </div>
-                            <small class="text-muted">Range: ₹<?= $priceRange['min'] ?> - ₹<?= $priceRange['max'] ?></small>
+                            <small class="text-muted">Range: $<?= $priceRange['min'] ?> - $<?= $priceRange['max'] ?></small>
                         </div>
 
                         <!-- Sort Filter -->
@@ -142,9 +142,9 @@
                             <?php if ($key === 'search'): ?>
                                 <span class="badge bg-primary">Search: "<?= esc($value) ?>"</span>
                             <?php elseif ($key === 'min_price'): ?>
-                                <span class="badge bg-success">Min: ₹<?= esc($value) ?></span>
+                                <span class="badge bg-success">Min: $<?= esc($value) ?></span>
                             <?php elseif ($key === 'max_price'): ?>
-                                <span class="badge bg-success">Max: ₹<?= esc($value) ?></span>
+                                <span class="badge bg-success">Max: $<?= esc($value) ?></span>
                             <?php elseif ($key === 'sort'): ?>
                                 <span class="badge bg-warning">Sort: <?= esc(ucfirst(str_replace('_', ' ', $value))) ?></span>
                             <?php endif; ?>
@@ -190,10 +190,10 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div>
                                                 <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                                    <span class="price-original small">₹<?= number_format($product['price'], 2) ?></span>
-                                                    <span class="price-sale">₹<?= number_format($product['sale_price'], 2) ?></span>
+                                                    <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
                                                 <?php else: ?>
-                                                    <span class="price-sale">₹<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>
