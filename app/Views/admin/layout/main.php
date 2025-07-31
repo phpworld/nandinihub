@@ -1,3 +1,7 @@
+<?php
+$settingModel = new \App\Models\SettingModel();
+$siteLogo = $settingModel->getSetting('site_logo', '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,8 +22,9 @@
 
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #b8956a;
+            --secondary-color: #86b85e;
+            --accent-color: #ffd23f;
             --dark-color: #2c3e50;
             --light-color: #ecf0f1;
             --success-color: #27ae60;
@@ -150,6 +155,17 @@
             border-color: var(--secondary-color);
         }
 
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
         .table th {
             background: var(--dark-color);
             color: white;
@@ -219,7 +235,7 @@
 
             <div class="d-flex align-items-center">
                 <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-user me-2"></i><?= esc($user['first_name'] ?? 'Admin') ?>
                     </button>
                     <ul class="dropdown-menu">

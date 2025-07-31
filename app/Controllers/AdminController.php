@@ -10,6 +10,7 @@ use App\Models\UserModel;
 use App\Models\BannerModel;
 use App\Models\ReviewModel;
 use App\Models\SettingModel;
+use App\Models\TestimonialModel;
 
 class AdminController extends BaseController
 {
@@ -21,6 +22,7 @@ class AdminController extends BaseController
     protected $reviewModel;
     protected $bannerModel;
     protected $settingModel;
+    protected $testimonialModel;
 
     public function __construct()
     {
@@ -32,6 +34,7 @@ class AdminController extends BaseController
         $this->reviewModel = new ReviewModel();
         $this->bannerModel = new BannerModel();
         $this->settingModel = new SettingModel();
+        $this->testimonialModel = new TestimonialModel();
     }
 
     private function checkAdminAccess()
@@ -153,6 +156,16 @@ class AdminController extends BaseController
                 'submenu' => [
                     ['title' => 'All Pages', 'url' => base_url('admin/pages')],
                     ['title' => 'Add Page', 'url' => base_url('admin/pages/create')]
+                ]
+            ],
+            [
+                'title' => 'Testimonials',
+                'url' => base_url('admin/testimonials'),
+                'icon' => 'fas fa-comments',
+                'key' => 'testimonials',
+                'submenu' => [
+                    ['title' => 'All Testimonials', 'url' => base_url('admin/testimonials')],
+                    ['title' => 'Add Testimonial', 'url' => base_url('admin/testimonials/create')]
                 ]
             ],
             [
@@ -2858,6 +2871,244 @@ class AdminController extends BaseController
     {
         if ($imageName && file_exists(ROOTPATH . 'uploads/banners/' . $imageName)) {
             return unlink(ROOTPATH . 'uploads/banners/' . $imageName);
+        }
+        return true;
+    }
+
+    // Testimonial Management
+    public function testimonials()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $testimonials = $this->testimonialModel->orderBy('sort_order', 'ASC')
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        $stats = $this->testimonialModel->getTestimonialStats();
+
+        $data = array_merge($this->getAdminData('testimonials'), [
+            'title' => 'Manage Testimonials - Admin',
+            'testimonials' => $testimonials,
+            'stats' => $stats
+        ]);
+
+        return view('admin/testimonials/index', $data);
+    }
+
+    public function createTestimonial()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $data = array_merge($this->getAdminData('testimonials'), [
+            'title' => 'Add New Testimonial - Admin'
+        ]);
+
+        return view('admin/testimonials/create', $data);
+    }
+
+    public function storeTestimonial()
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'name' => 'required|min_length[2]|max_length[255]',
+            'testimonial' => 'required|min_length[10]',
+            'rating' => 'required|integer|greater_than[0]|less_than[6]',
+            'email' => 'permit_empty|valid_email',
+            'image' => 'permit_empty|uploaded[image]|max_size[image,2048]|is_image[image]'
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'position' => $this->request->getPost('position'),
+            'company' => $this->request->getPost('company'),
+            'testimonial' => $this->request->getPost('testimonial'),
+            'rating' => (int) $this->request->getPost('rating'),
+            'location' => $this->request->getPost('location'),
+            'is_featured' => $this->request->getPost('is_featured') ? 1 : 0,
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+            'sort_order' => (int) ($this->request->getPost('sort_order') ?? 0)
+        ];
+
+        // Handle image upload
+        $image = $this->request->getFile('image');
+        if ($image && $image->isValid() && !$image->hasMoved()) {
+            $newName = 'testimonial_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $image->getExtension();
+            if ($image->move(ROOTPATH . 'uploads/testimonials', $newName)) {
+                $data['image'] = $newName;
+            }
+        }
+
+        if ($this->testimonialModel->insert($data)) {
+            session()->setFlashdata('success', 'Testimonial created successfully!');
+            return redirect()->to('/admin/testimonials');
+        } else {
+            session()->setFlashdata('error', 'Failed to create testimonial. Please try again.');
+            return redirect()->back()->withInput();
+        }
+    }
+
+    public function editTestimonial($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $testimonial = $this->testimonialModel->find($id);
+        if (!$testimonial) {
+            session()->setFlashdata('error', 'Testimonial not found.');
+            return redirect()->to('/admin/testimonials');
+        }
+
+        $data = array_merge($this->getAdminData('testimonials'), [
+            'title' => 'Edit Testimonial - Admin',
+            'testimonial' => $testimonial
+        ]);
+
+        return view('admin/testimonials/edit', $data);
+    }
+
+    public function updateTestimonial($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $testimonial = $this->testimonialModel->find($id);
+        if (!$testimonial) {
+            session()->setFlashdata('error', 'Testimonial not found.');
+            return redirect()->to('/admin/testimonials');
+        }
+
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'name' => 'required|min_length[2]|max_length[255]',
+            'testimonial' => 'required|min_length[10]',
+            'rating' => 'required|integer|greater_than[0]|less_than[6]',
+            'email' => 'permit_empty|valid_email',
+            'image' => 'permit_empty|uploaded[image]|max_size[image,2048]|is_image[image]'
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'position' => $this->request->getPost('position'),
+            'company' => $this->request->getPost('company'),
+            'testimonial' => $this->request->getPost('testimonial'),
+            'rating' => (int) $this->request->getPost('rating'),
+            'location' => $this->request->getPost('location'),
+            'is_featured' => $this->request->getPost('is_featured') ? 1 : 0,
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+            'sort_order' => (int) ($this->request->getPost('sort_order') ?? 0)
+        ];
+
+        // Handle image upload
+        $image = $this->request->getFile('image');
+        if ($image && $image->isValid() && !$image->hasMoved()) {
+            // Delete old image
+            if ($testimonial['image']) {
+                $this->deleteTestimonialImage($testimonial['image']);
+            }
+
+            $newName = 'testimonial_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $image->getExtension();
+            if ($image->move(ROOTPATH . 'uploads/testimonials', $newName)) {
+                $data['image'] = $newName;
+            }
+        }
+
+        if ($this->testimonialModel->update($id, $data)) {
+            session()->setFlashdata('success', 'Testimonial updated successfully!');
+            return redirect()->to('/admin/testimonials');
+        } else {
+            session()->setFlashdata('error', 'Failed to update testimonial. Please try again.');
+            return redirect()->back()->withInput();
+        }
+    }
+
+    public function deleteTestimonial($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        $testimonial = $this->testimonialModel->find($id);
+        if (!$testimonial) {
+            session()->setFlashdata('error', 'Testimonial not found.');
+            return redirect()->to('/admin/testimonials');
+        }
+
+        // Delete image if exists
+        if ($testimonial['image']) {
+            $this->deleteTestimonialImage($testimonial['image']);
+        }
+
+        if ($this->testimonialModel->delete($id)) {
+            session()->setFlashdata('success', 'Testimonial deleted successfully!');
+        } else {
+            session()->setFlashdata('error', 'Failed to delete testimonial.');
+        }
+
+        return redirect()->to('/admin/testimonials');
+    }
+
+    public function toggleTestimonialFeatured($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        if ($this->testimonialModel->toggleFeatured($id)) {
+            session()->setFlashdata('success', 'Testimonial featured status updated!');
+        } else {
+            session()->setFlashdata('error', 'Failed to update testimonial status.');
+        }
+
+        return redirect()->to('/admin/testimonials');
+    }
+
+    public function toggleTestimonialActive($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            return $accessCheck;
+        }
+
+        if ($this->testimonialModel->toggleActive($id)) {
+            session()->setFlashdata('success', 'Testimonial status updated!');
+        } else {
+            session()->setFlashdata('error', 'Failed to update testimonial status.');
+        }
+
+        return redirect()->to('/admin/testimonials');
+    }
+
+    private function deleteTestimonialImage($imageName)
+    {
+        if ($imageName && file_exists(ROOTPATH . 'uploads/testimonials/' . $imageName)) {
+            return unlink(ROOTPATH . 'uploads/testimonials/' . $imageName);
         }
         return true;
     }

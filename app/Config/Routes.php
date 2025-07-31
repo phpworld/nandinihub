@@ -202,6 +202,16 @@ $routes->group('admin', function ($routes) {
     $routes->post('pages/update-header-order', 'Admin\PagesController::updateHeaderOrder');
     $routes->post('pages/update-footer-order', 'Admin\PagesController::updateFooterOrder');
 
+    // Testimonial management
+    $routes->get('testimonials', 'AdminController::testimonials');
+    $routes->get('testimonials/create', 'AdminController::createTestimonial');
+    $routes->post('testimonials/store', 'AdminController::storeTestimonial');
+    $routes->get('testimonials/edit/(:num)', 'AdminController::editTestimonial/$1');
+    $routes->post('testimonials/update/(:num)', 'AdminController::updateTestimonial/$1');
+    $routes->get('testimonials/delete/(:num)', 'AdminController::deleteTestimonial/$1');
+    $routes->get('testimonials/toggle-featured/(:num)', 'AdminController::toggleTestimonialFeatured/$1');
+    $routes->get('testimonials/toggle-active/(:num)', 'AdminController::toggleTestimonialActive/$1');
+
     // Settings
     $routes->get('settings', 'AdminController::settings');
     $routes->post('settings', 'AdminController::updateSettings');

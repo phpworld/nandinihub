@@ -1,9 +1,20 @@
+<?php
+$settingModel = new \App\Models\SettingModel();
+$siteLogo = $settingModel->getSetting('site_logo', '');
+?>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h4>
-            <i class="fas fa-om me-2"></i>
-            <span class="sidebar-text">Admin Panel</span>
-        </h4>
+        <div class="admin-logo">
+            <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
+                <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" class="sidebar-logo">
+                <span class="sidebar-text admin-text">Admin Panel</span>
+            <?php else: ?>
+                <h4>
+                    <i class="fas fa-mushroom me-2"></i>
+                    <span class="sidebar-text">Admin Panel</span>
+                </h4>
+            <?php endif; ?>
+        </div>
     </div>
 
     <nav class="nav flex-column">
@@ -59,31 +70,56 @@
 </div>
 
 <style>
+    .admin-logo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sidebar-logo {
+        height: 40px;
+        max-width: 150px;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+    }
+
+    .admin-text {
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
     .submenu-arrow {
         transition: transform 0.3s ease;
     }
-    
+
     .nav-link[aria-expanded="true"] .submenu-arrow {
         transform: rotate(180deg);
     }
-    
+
     .sidebar.collapsed .sidebar-text {
         display: none;
     }
-    
+
+    .sidebar.collapsed .admin-text {
+        display: none;
+    }
+
     .sidebar.collapsed .submenu-arrow {
         display: none;
     }
-    
+
     .sidebar.collapsed .submenu {
         display: none !important;
     }
-    
+
     .sidebar.collapsed .nav-link {
         text-align: center;
         padding: 12px 10px;
     }
-    
+
     .sidebar.collapsed .sidebar-header h4 .sidebar-text {
         display: none;
     }
