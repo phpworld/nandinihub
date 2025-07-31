@@ -1146,6 +1146,11 @@ class AdminController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Handle sale_price - set to null if empty to avoid setting it to 0
+        // But preserve '0' as a valid sale price (free item)
+        $salePrice = $this->request->getPost('sale_price');
+        $salePrice = ($salePrice !== '' && $salePrice !== null) ? $salePrice : null;
+
         $productData = [
             'category_id' => $this->request->getPost('category_id'),
             'name' => $this->request->getPost('name'),
@@ -1153,7 +1158,7 @@ class AdminController extends BaseController
             'description' => $this->request->getPost('description'),
             'short_description' => $this->request->getPost('short_description'),
             'price' => $this->request->getPost('price'),
-            'sale_price' => $this->request->getPost('sale_price'),
+            'sale_price' => $salePrice,
             'sku' => $this->request->getPost('sku'),
             'stock_quantity' => $this->request->getPost('stock_quantity'),
             'weight' => $this->request->getPost('weight'),
@@ -1253,6 +1258,11 @@ class AdminController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Handle sale_price - set to null if empty to avoid setting it to 0
+        // But preserve '0' as a valid sale price (free item)
+        $salePrice = $this->request->getPost('sale_price');
+        $salePrice = ($salePrice !== '' && $salePrice !== null) ? $salePrice : null;
+
         $productData = [
             'category_id' => $this->request->getPost('category_id'),
             'name' => $this->request->getPost('name'),
@@ -1260,7 +1270,7 @@ class AdminController extends BaseController
             'description' => $this->request->getPost('description'),
             'short_description' => $this->request->getPost('short_description'),
             'price' => $this->request->getPost('price'),
-            'sale_price' => $this->request->getPost('sale_price'),
+            'sale_price' => $salePrice,
             'sku' => $this->request->getPost('sku'),
             'stock_quantity' => $this->request->getPost('stock_quantity'),
             'weight' => $this->request->getPost('weight'),

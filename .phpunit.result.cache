@@ -1,0 +1,1 @@
+{"version":1,"defects":{"ProductSalePriceTest::testProductCreationWithEmptySalePrice":8,"ProductSalePriceTest::testProductCreationWithValidSalePrice":8,"ProductSalePriceTest::testProductUpdateWithEmptySalePrice":8},"times":[]}
