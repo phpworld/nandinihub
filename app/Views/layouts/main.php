@@ -84,7 +84,7 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
         }
 
         .product-image {
-            height: 200px;
+            height: auto;
             object-fit: cover;
         }
 
@@ -709,6 +709,17 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
     </script>
 
     <?= $this->renderSection('scripts') ?>
-</body>
 
+    <?php
+    // Dynamic JavaScript injection from admin settings
+    $settingModel = new \App\Models\SettingModel();
+    $customJsEnabled = $settingModel->getSetting('custom_js_enabled', false);
+    $customJsFooter = $settingModel->getSetting('custom_js_footer', '');
+
+    if ($customJsEnabled && !empty($customJsFooter)) {
+        echo "\n    <!-- Custom JavaScript - Footer -->\n";
+        echo "    " . $customJsFooter . "\n";
+    }
+    ?>
+</body>
 </html>

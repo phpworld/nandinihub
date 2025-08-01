@@ -2549,30 +2549,80 @@ class AdminController extends BaseController
             return $accessCheck;
         }
 
-        $rules = [
-            'site_name' => 'required|min_length[2]|max_length[255]',
-            'site_tagline' => 'permit_empty|max_length[255]',
-            'site_description' => 'permit_empty|max_length[1000]',
-            'contact_email' => 'permit_empty|valid_email',
-            'contact_phone' => 'permit_empty|max_length[20]',
-            'google_analytics_id' => 'permit_empty|max_length[50]',
-        ];
+        // Build validation rules based on submitted fields
+        $rules = [];
 
-        if (!$this->validate($rules)) {
+        // Only validate fields that are actually submitted
+        if ($this->request->getPost('site_name') !== null) {
+            $rules['site_name'] = 'required|min_length[2]|max_length[255]';
+        }
+        if ($this->request->getPost('site_tagline') !== null) {
+            $rules['site_tagline'] = 'permit_empty|max_length[255]';
+        }
+        if ($this->request->getPost('site_description') !== null) {
+            $rules['site_description'] = 'permit_empty|max_length[1000]';
+        }
+        if ($this->request->getPost('contact_email') !== null) {
+            $rules['contact_email'] = 'permit_empty|valid_email';
+        }
+        if ($this->request->getPost('contact_phone') !== null) {
+            $rules['contact_phone'] = 'permit_empty|max_length[20]';
+        }
+        if ($this->request->getPost('google_analytics_id') !== null) {
+            $rules['google_analytics_id'] = 'permit_empty|max_length[50]';
+        }
+        if ($this->request->getPost('custom_js_footer') !== null) {
+            $rules['custom_js_footer'] = 'permit_empty';
+        }
+        if ($this->request->getPost('custom_js_form_submitted') !== null) {
+            $rules['custom_js_form_submitted'] = 'permit_empty';
+        }
+
+        // Only validate if there are rules to validate
+        if (!empty($rules) && !$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Get form data
-        $settingsData = [
-            'site_name' => $this->request->getPost('site_name'),
-            'site_tagline' => $this->request->getPost('site_tagline'),
-            'site_description' => $this->request->getPost('site_description'),
-            'contact_email' => $this->request->getPost('contact_email'),
-            'contact_phone' => $this->request->getPost('contact_phone'),
-            'business_address' => $this->request->getPost('address'),
-            'google_analytics_id' => $this->request->getPost('google_analytics_id'),
-            'google_analytics_enabled' => $this->request->getPost('google_analytics_enabled') ? true : false,
-        ];
+        // Get form data - only process fields that are actually submitted
+        $settingsData = [];
+
+        // General settings
+        if ($this->request->getPost('site_name') !== null) {
+            $settingsData['site_name'] = $this->request->getPost('site_name');
+        }
+        if ($this->request->getPost('site_tagline') !== null) {
+            $settingsData['site_tagline'] = $this->request->getPost('site_tagline');
+        }
+        if ($this->request->getPost('site_description') !== null) {
+            $settingsData['site_description'] = $this->request->getPost('site_description');
+        }
+        if ($this->request->getPost('contact_email') !== null) {
+            $settingsData['contact_email'] = $this->request->getPost('contact_email');
+        }
+        if ($this->request->getPost('contact_phone') !== null) {
+            $settingsData['contact_phone'] = $this->request->getPost('contact_phone');
+        }
+        if ($this->request->getPost('address') !== null) {
+            $settingsData['business_address'] = $this->request->getPost('address');
+        }
+
+        // Google Analytics settings
+        if ($this->request->getPost('google_analytics_id') !== null) {
+            $settingsData['google_analytics_id'] = $this->request->getPost('google_analytics_id');
+        }
+        if ($this->request->getPost('google_analytics_enabled') !== null || $this->request->getPost('google_analytics_id') !== null) {
+            $settingsData['google_analytics_enabled'] = $this->request->getPost('google_analytics_enabled') ? true : false;
+        }
+
+        // Custom JavaScript settings - check for the hidden field to know if this form was submitted
+        if ($this->request->getPost('custom_js_form_submitted') !== null) {
+            // For checkboxes: if checked, value is sent; if unchecked, no value is sent
+            $settingsData['custom_js_enabled'] = $this->request->getPost('custom_js_enabled') ? true : false;
+            $settingsData['custom_js_footer'] = $this->request->getPost('custom_js_footer') ?? '';
+
+            // Debug log
+            log_message('info', 'Custom JS settings update: enabled=' . ($settingsData['custom_js_enabled'] ? '1' : '0') . ', footer_length=' . strlen($settingsData['custom_js_footer']));
+        }
 
         // Handle logo upload (save to uploads/logo/)
         $logoFile = $this->request->getFile('site_logo');
@@ -2591,11 +2641,18 @@ class AdminController extends BaseController
             $settingsData['site_favicon'] = $faviconPath;
         }
 
+        // Debug: Log the settings data
+        log_message('debug', 'Settings data to update: ' . json_encode($settingsData));
+
         // Update settings in database
-        if ($this->settingModel->updateSettings($settingsData)) {
-            session()->setFlashdata('success', 'Settings updated successfully');
+        if (!empty($settingsData)) {
+            if ($this->settingModel->updateSettings($settingsData)) {
+                session()->setFlashdata('success', 'Settings updated successfully');
+            } else {
+                session()->setFlashdata('error', 'Failed to update settings');
+            }
         } else {
-            session()->setFlashdata('error', 'Failed to update settings');
+            session()->setFlashdata('error', 'No settings data to update');
         }
 
         return redirect()->back();

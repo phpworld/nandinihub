@@ -190,6 +190,78 @@
             </div>
         </div>
 
+        <!-- Custom JavaScript Injection -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-code me-2"></i>Custom JavaScript Injection
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="<?= base_url('admin/settings') ?>" method="POST">
+                    <?= csrf_field() ?>
+                    <!-- Hidden field to ensure form always sends custom JS data -->
+                    <input type="hidden" name="custom_js_form_submitted" value="1">
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="custom_js_enabled"
+                                name="custom_js_enabled" value="1"
+                                <?= ($settings['custom_js_enabled'] ?? false) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="custom_js_enabled">
+                                <strong>Enable Custom JavaScript</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">Enable or disable custom JavaScript injection on your website</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="custom_js_footer" class="form-label">Custom JavaScript Code</label>
+                        <textarea class="form-control font-monospace" id="custom_js_footer" name="custom_js_footer"
+                            rows="12" placeholder="<!-- Enter JavaScript code to be injected before closing </body> tag -->
+<script>
+// Your JavaScript code here
+// Example: Tawk.to chat widget, analytics, etc.
+</script>"><?= esc($settings['custom_js_footer'] ?? '') ?></textarea>
+                        <small class="text-muted">JavaScript code will be injected before the closing &lt;/body&gt; tag on all user-facing pages</small>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> Only add trusted JavaScript code. Malicious code can compromise your website security.
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Common Use Cases:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Chat widgets (Tawk.to, Intercom, etc.)</li>
+                            <li>Analytics tracking codes</li>
+                            <li>Social media pixels</li>
+                            <li>Custom tracking scripts</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-light">
+                        <h6><i class="fas fa-magic me-2"></i>Quick Insert Templates:</h6>
+                        <div class="btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="insertTawkTo()">
+                                <i class="fas fa-comments me-1"></i>Tawk.to Chat
+                            </button>
+
+                        </div>
+                        <small class="text-muted d-block mt-2">Click to insert template code. Remember to replace placeholder IDs with your actual IDs.</small>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save JavaScript Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Email Settings -->
         <div class="card mb-4">
             <div class="card-header">
@@ -359,6 +431,82 @@
         setTimeout(() => {
             alertDiv.remove();
         }, 5000);
+    }
+
+    // Custom JavaScript injection functionality
+    $(document).ready(function() {
+        // Auto-resize textarea
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Apply auto-resize to JavaScript textarea
+        const jsTextarea = document.querySelector('#custom_js_footer');
+        if (jsTextarea) {
+            // Initial resize
+            autoResize(jsTextarea);
+
+            // Resize on input
+            jsTextarea.addEventListener('input', function() {
+                autoResize(this);
+            });
+
+            // Add styling
+            jsTextarea.style.lineHeight = '1.5';
+            jsTextarea.style.fontFamily = 'Monaco, Menlo, "Ubuntu Mono", monospace';
+            jsTextarea.style.fontSize = '14px';
+        }
+
+        // Toggle custom JS sections based on enable checkbox
+        $('#custom_js_enabled').change(function() {
+            const isEnabled = $(this).is(':checked');
+            $('#custom_js_footer').prop('disabled', !isEnabled);
+
+            if (isEnabled) {
+                $('#custom_js_footer').removeClass('bg-light');
+            } else {
+                $('#custom_js_footer').addClass('bg-light');
+            }
+        }).trigger('change');
+    });
+
+    // Quick insert functions
+    function insertTawkTo() {
+        var tawkCode = '<!--Start of Tawk.to Script-->' + '\n' +
+            '<script type="text/javascript">' + '\n' +
+            'var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();' + '\n' +
+            '(function(){' + '\n' +
+            'var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];' + '\n' +
+            's1.async=true;' + '\n' +
+            's1.src="https://embed.tawk.to/YOUR_TAWK_ID/default";' + '\n' +
+            's1.charset="UTF-8";' + '\n' +
+            's1.setAttribute("crossorigin","*");' + '\n' +
+            's0.parentNode.insertBefore(s1,s0);' + '\n' +
+            '})();' + '\n' +
+            '<\/script>' + '\n' +
+            '<!--End of Tawk.to Script-->';
+
+        var textarea = document.getElementById('custom_js_footer');
+        if (textarea) {
+            textarea.value = tawkCode;
+            textarea.dispatchEvent(new Event('input'));
+            showToast('success', 'Tawk.to template inserted! Remember to replace YOUR_TAWK_ID with your actual Tawk.to ID.');
+        }
+    }
+
+
+
+    function showToast(type, message) {
+        // Simple toast notification
+        var alertClass = type === 'success' ? 'success' : 'danger';
+        var toast = $('<div class="alert alert-' + alertClass + ' alert-dismissible fade show position-fixed" ' +
+                     'style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">' +
+                     message +
+                     '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                     '</div>');
+        $('body').append(toast);
+        setTimeout(function() { toast.alert('close'); }, 5000);
     }
 </script>
 <?= $this->endSection() ?>

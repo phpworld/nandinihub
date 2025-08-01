@@ -180,6 +180,20 @@
                                             <i class="fas fa-star"></i> Featured
                                         </span>
                                     <?php endif; ?>
+
+                                    <!-- Wishlist Button -->
+                                    <?php if (session()->get('is_logged_in')): ?>
+                                        <?php
+                                        $wishlistModel = new \App\Models\WishlistModel();
+                                        $inWishlist = $wishlistModel->isInWishlist(session()->get('user_id'), $product['id']);
+                                        ?>
+                                        <button class="btn btn-sm position-absolute wishlist-btn <?= $inWishlist ? 'btn-danger' : 'btn-outline-danger' ?>"
+                                            style="top: 10px; right: 10px; z-index: 10;"
+                                            onclick="toggleWishlist(<?= $product['id'] ?>, $(this))"
+                                            title="<?= $inWishlist ? 'Remove from wishlist' : 'Add to wishlist' ?>">
+                                            <i class="<?= $inWishlist ? 'fas' : 'far' ?> fa-heart"></i>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="card-body d-flex flex-column">
