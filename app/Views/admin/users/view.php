@@ -170,7 +170,7 @@
                                         </td>
                                         <td>
                                             <span class="badge bg-light text-dark">
-                                                <?= $order['payment_method'] === 'cod' ? 'COD' : 'Online' ?>
+                                                Order Placed
                                             </span>
                                         </td>
                                         <td>

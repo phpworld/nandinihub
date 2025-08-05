@@ -43,7 +43,7 @@ class ShippingService
         if ($orderAmount < $method['minimum_order_amount']) {
             return [
                 'success' => false,
-                'message' => "Minimum order amount of ₹{$method['minimum_order_amount']} required for this shipping method",
+                'message' => "Minimum order amount of \${$method['minimum_order_amount']} required for this shipping method",
                 'cost' => 0.00
             ];
         }
@@ -51,7 +51,7 @@ class ShippingService
         if ($method['maximum_order_amount'] !== null && $orderAmount > $method['maximum_order_amount']) {
             return [
                 'success' => false,
-                'message' => "Maximum order amount of ₹{$method['maximum_order_amount']} exceeded for this shipping method",
+                'message' => "Maximum order amount of \${$method['maximum_order_amount']} exceeded for this shipping method",
                 'cost' => 0.00
             ];
         }
@@ -190,7 +190,7 @@ class ShippingService
                 'description' => $method['description'],
                 'delivery_time' => $method['delivery_time'],
                 'cost' => (float) $method['cost'],
-                'cost_formatted' => $method['cost'] > 0 ? '₹' . number_format($method['cost'], 2) : 'Free',
+                'cost_formatted' => $method['cost'] > 0 ? '$' . number_format($method['cost'], 2) : 'Free',
                 'is_free' => $method['cost'] == 0 || $method['is_free_shipping'],
                 'minimum_order_amount' => (float) $method['minimum_order_amount'],
                 'sort_order' => $method['sort_order']
@@ -229,14 +229,14 @@ class ShippingService
         if ($orderAmount < $method['minimum_order_amount']) {
             return [
                 'valid' => false,
-                'message' => "Minimum order amount of ₹{$method['minimum_order_amount']} required"
+                'message' => "Minimum order amount of \${$method['minimum_order_amount']} required"
             ];
         }
 
         if ($method['maximum_order_amount'] !== null && $orderAmount > $method['maximum_order_amount']) {
             return [
                 'valid' => false,
-                'message' => "Maximum order amount of ₹{$method['maximum_order_amount']} exceeded"
+                'message' => "Maximum order amount of \${$method['maximum_order_amount']} exceeded"
             ];
         }
 
@@ -270,7 +270,7 @@ class ShippingService
             'method_name' => $method['name'],
             'delivery_time' => $method['delivery_time'],
             'cost' => $cost,
-            'cost_formatted' => $cost > 0 ? '₹' . number_format($cost, 2) : 'Free',
+            'cost_formatted' => $cost > 0 ? '$' . number_format($cost, 2) : 'Free',
             'description' => $method['description']
         ];
     }

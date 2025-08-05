@@ -78,14 +78,14 @@
                                     </td>
                                     <td>
                                         <?php if ($method['cost'] > 0): ?>
-                                            <span class="text-success">₹<?= number_format($method['cost'], 2) ?></span>
+                                            <span class="text-success">$<?= number_format($method['cost'], 2) ?></span>
                                         <?php else: ?>
                                             <span class="text-primary">Free</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if ($method['minimum_order_amount'] > 0): ?>
-                                            ₹<?= number_format($method['minimum_order_amount'], 2) ?>
+                                            $<?= number_format($method['minimum_order_amount'], 2) ?>
                                         <?php else: ?>
                                             <span class="text-muted">No minimum</span>
                                         <?php endif; ?>

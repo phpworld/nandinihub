@@ -31,7 +31,7 @@
                     <?php if (isset($orderStats) && $orderStats['total_orders'] > 0): ?>
                         <small class="text-muted">
                             Total Orders: <?= $orderStats['total_orders'] ?> |
-                            Total Spent: ₹<?= number_format($orderStats['total_spent'], 2) ?>
+                            Total Spent: $<?= number_format($orderStats['total_spent'], 2) ?>
                         </small>
                     <?php endif; ?>
                 </div>
@@ -44,7 +44,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form method="GET" action="<?= base_url('orders') ?>" class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="status" class="form-label">Order Status</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">All Status</option>
@@ -56,10 +56,20 @@
                                 <option value="cancelled" <?= ($filters['status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label for="payment_status" class="form-label">Payment Status</label>
+                            <select class="form-select" id="payment_status" name="payment_status">
+                                <option value="">All Payments</option>
+                                <option value="pending" <?= ($filters['payment_status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>Paid</option>
+                                <option value="failed" <?= ($filters['payment_status'] ?? '') === 'failed' ? 'selected' : '' ?>>Failed</option>
+                                <option value="expired" <?= ($filters['payment_status'] ?? '') === 'expired' ? 'selected' : '' ?>>Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label for="search" class="form-label">Search</label>
                             <input type="text" class="form-control" id="search" name="search"
-                                placeholder="Order number or notes..." value="<?= esc($filters['search'] ?? '') ?>">
+                                placeholder="Order number..." value="<?= esc($filters['search'] ?? '') ?>">
                         </div>
                         <div class="col-md-2">
                             <label for="date_from" class="form-label">From Date</label>
@@ -112,34 +122,41 @@
                                                 <?= date('M d, Y', strtotime($order['created_at'])) ?>
                                             </small>
                                         </div>
-                                        <div class="col-md-2">
-                                            <span class="badge bg-<?= getStatusColor($order['status']) ?> fs-6 mb-1">
-                                                <?= ucfirst($order['status']) ?>
-                                            </span>
+                                        <div class="col-md-3">
+                                            <div class="mb-1">
+                                                <span class="badge bg-<?= getStatusColor($order['status']) ?> fs-6">
+                                                    <?= ucfirst($order['status']) ?>
+                                                </span>
+                                            </div>
+                                            <div class="mb-1">
+                                                <span class="badge bg-<?= getPaymentStatusColor($order['payment_status'] ?? 'pending') ?> fs-6">
+                                                    <i class="fas fa-credit-card me-1"></i><?= ucfirst($order['payment_status'] ?? 'pending') ?>
+                                                </span>
+                                            </div>
                                             <?php if ($order['status'] === 'shipped'): ?>
-                                                <br><small class="text-info">
+                                                <small class="text-info d-block">
                                                     <i class="fas fa-truck me-1"></i>In Transit
                                                 </small>
                                             <?php elseif ($order['status'] === 'processing'): ?>
-                                                <br><small class="text-warning">
+                                                <small class="text-warning d-block">
                                                     <i class="fas fa-cogs me-1"></i>Preparing
                                                 </small>
                                             <?php elseif ($order['status'] === 'delivered'): ?>
-                                                <br><small class="text-success">
+                                                <small class="text-success d-block">
                                                     <i class="fas fa-check-circle me-1"></i>Completed
                                                 </small>
                                             <?php elseif ($order['status'] === 'pending'): ?>
-                                                <br><small class="text-muted">
+                                                <small class="text-muted d-block">
                                                     <i class="fas fa-clock me-1"></i>Awaiting Confirmation
                                                 </small>
                                             <?php endif; ?>
                                         </div>
                                         <div class="col-md-2">
-                                            <strong>₹<?= number_format($order['total_amount'], 2) ?></strong>
+                                            <strong>$<?= number_format($order['total_amount'], 2) ?></strong>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <small class="text-muted">
-                                                <?= $order['payment_method'] == 'cod' ? 'Cash on Delivery' : 'Online Payment' ?>
+                                                Order Placed
                                             </small>
                                         </div>
                                         <div class="col-md-2 text-end">
@@ -340,12 +357,20 @@
     // Auto-submit form when filters change
     document.addEventListener('DOMContentLoaded', function() {
         const statusFilter = document.getElementById('status');
+        const paymentStatusFilter = document.getElementById('payment_status');
         const dateFromFilter = document.getElementById('date_from');
         const dateToFilter = document.getElementById('date_to');
 
         if (statusFilter) {
             statusFilter.addEventListener('change', function() {
                 // Auto-submit when status changes
+                this.form.submit();
+            });
+        }
+
+        if (paymentStatusFilter) {
+            paymentStatusFilter.addEventListener('change', function() {
+                // Auto-submit when payment status changes
                 this.form.submit();
             });
         }
@@ -407,6 +432,22 @@ function getStatusColor($status)
             return 'success';
         case 'cancelled':
             return 'danger';
+        default:
+            return 'secondary';
+    }
+}
+
+function getPaymentStatusColor($paymentStatus)
+{
+    switch ($paymentStatus) {
+        case 'paid':
+            return 'success';
+        case 'pending':
+            return 'warning';
+        case 'failed':
+            return 'danger';
+        case 'expired':
+            return 'secondary';
         default:
             return 'secondary';
     }

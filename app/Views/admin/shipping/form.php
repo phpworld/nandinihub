@@ -92,7 +92,7 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="cost" class="form-label">Shipping Cost (₹) <span class="text-danger">*</span></label>
+                                <label for="cost" class="form-label">Shipping Cost ($) <span class="text-danger">*</span></label>
                                 <input type="number" 
                                        class="form-control" 
                                        id="cost" 
@@ -105,7 +105,7 @@
                             </div>
                             
                             <div class="col-md-4 mb-3">
-                                <label for="minimum_order_amount" class="form-label">Minimum Order Amount (₹)</label>
+                                <label for="minimum_order_amount" class="form-label">Minimum Order Amount ($)</label>
                                 <input type="number" 
                                        class="form-control" 
                                        id="minimum_order_amount" 
@@ -199,11 +199,11 @@
                                     <h6 class="mb-1" id="preview-name">Shipping Method Name</h6>
                                     <small class="text-muted" id="preview-description">Description will appear here</small>
                                 </div>
-                                <span class="badge bg-primary" id="preview-cost">₹0.00</span>
+                                <span class="badge bg-primary" id="preview-cost">$0.00</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-info" id="preview-delivery">Delivery time</small>
-                                <small class="text-muted" id="preview-minimum">Min: ₹0</small>
+                                <small class="text-muted" id="preview-minimum">Min: $0</small>
                             </div>
                         </div>
                     </div>
@@ -244,7 +244,7 @@ $(document).ready(function() {
         if (cost === 0 || isFreeShipping) {
             $('#preview-cost').removeClass('bg-primary').addClass('bg-success').text('Free');
         } else {
-            $('#preview-cost').removeClass('bg-success').addClass('bg-primary').text(`₹${cost.toFixed(2)}`);
+            $('#preview-cost').removeClass('bg-success').addClass('bg-primary').text(`$${cost.toFixed(2)}`);
         }
     }
 

@@ -1,0 +1,56 @@
+CRITICAL - 2025-08-05 05:35:11 --> ErrorException: Undefined array key "payment_verified"
+[Method: GET, Route: admin/orders/27]
+in APPPATH\Views\admin\orders\view.php on line 83.
+ 1 APPPATH\Views\admin\orders\view.php(83): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "payment_verified"', 'D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php', 83)
+ 2 SYSTEMPATH\View\View.php(224): include('D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php')
+ 3 SYSTEMPATH\View\View.php(227): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1173): CodeIgniter\View\View->render('admin/orders/view', [], true)
+ 5 APPPATH\Controllers\AdminController.php(2212): view('admin/orders/view', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AdminController->viewOrder('27')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AdminController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-08-05 05:35:23 --> ErrorException: Undefined array key "payment_verified"
+[Method: GET, Route: admin/orders/26]
+in APPPATH\Views\admin\orders\view.php on line 83.
+ 1 APPPATH\Views\admin\orders\view.php(83): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "payment_verified"', 'D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php', 83)
+ 2 SYSTEMPATH\View\View.php(224): include('D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php')
+ 3 SYSTEMPATH\View\View.php(227): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1173): CodeIgniter\View\View->render('admin/orders/view', [], true)
+ 5 APPPATH\Controllers\AdminController.php(2212): view('admin/orders/view', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AdminController->viewOrder('26')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AdminController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-08-05 05:35:32 --> ErrorException: Undefined array key "payment_verified"
+[Method: GET, Route: admin/orders/26]
+in APPPATH\Views\admin\orders\view.php on line 83.
+ 1 APPPATH\Views\admin\orders\view.php(83): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "payment_verified"', 'D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php', 83)
+ 2 SYSTEMPATH\View\View.php(224): include('D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php')
+ 3 SYSTEMPATH\View\View.php(227): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1173): CodeIgniter\View\View->render('admin/orders/view', [], true)
+ 5 APPPATH\Controllers\AdminController.php(2212): view('admin/orders/view', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AdminController->viewOrder('26')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AdminController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-08-05 05:36:59 --> ErrorException: Undefined array key "payment_verified"
+[Method: GET, Route: admin/orders/26]
+in APPPATH\Views\admin\orders\view.php on line 83.
+ 1 APPPATH\Views\admin\orders\view.php(83): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "payment_verified"', 'D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php', 83)
+ 2 SYSTEMPATH\View\View.php(224): include('D:\\XAMPP\\htdocs\\nandinihub\\app\\Views\\admin\\orders\\view.php')
+ 3 SYSTEMPATH\View\View.php(227): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1173): CodeIgniter\View\View->render('admin/orders/view', [], true)
+ 5 APPPATH\Controllers\AdminController.php(2212): view('admin/orders/view', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AdminController->viewOrder('26')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AdminController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

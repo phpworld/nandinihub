@@ -24,8 +24,12 @@ class OrderModel extends Model
         'coupon_id',
         'coupon_code',
         'shipping_method_id',
-        'payment_method',
+        'payment_method_id',
         'payment_status',
+        'payment_screenshot',
+        'payment_verified',
+        'payment_verified_at',
+        'payment_verified_by',
         'shipping_address',
         'billing_address',
         'notes'
@@ -78,9 +82,10 @@ class OrderModel extends Model
 
     public function getOrderWithDetails($orderId, $userId = null)
     {
-        $builder = $this->select('orders.*, users.first_name, users.last_name, users.email, users.phone, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time')
+        $builder = $this->select('orders.*, users.first_name, users.last_name, users.email, users.phone, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time, payment_methods.name as payment_method_name, payment_methods.wallet_address, payment_methods.qr_code, payment_methods.payment_information')
             ->join('users', 'users.id = orders.user_id')
             ->join('shipping_methods', 'shipping_methods.id = orders.shipping_method_id', 'left')
+            ->join('payment_methods', 'payment_methods.id = orders.payment_method_id', 'left')
             ->where('orders.id', $orderId);
 
         if ($userId) {
@@ -92,8 +97,9 @@ class OrderModel extends Model
 
     public function getOrderByNumber($orderNumber, $userId = null)
     {
-        $builder = $this->select('orders.*, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time')
+        $builder = $this->select('orders.*, shipping_methods.name as shipping_method_name, shipping_methods.delivery_time as shipping_delivery_time, payment_methods.name as payment_method_name, payment_methods.wallet_address, payment_methods.qr_code, payment_methods.payment_information')
             ->join('shipping_methods', 'shipping_methods.id = orders.shipping_method_id', 'left')
+            ->join('payment_methods', 'payment_methods.id = orders.payment_method_id', 'left')
             ->where('order_number', $orderNumber);
 
         if ($userId) {
@@ -112,6 +118,33 @@ class OrderModel extends Model
     {
         return $this->update($orderId, ['payment_status' => $paymentStatus]);
     }
+
+    public function updatePaymentScreenshot($orderId, $screenshotPath)
+    {
+        return $this->update($orderId, ['payment_screenshot' => $screenshotPath]);
+    }
+
+    public function verifyPayment($orderId, $adminId)
+    {
+        return $this->update($orderId, [
+            'payment_verified' => 1,
+            'payment_verified_at' => date('Y-m-d H:i:s'),
+            'payment_verified_by' => $adminId,
+            'payment_status' => 'paid'
+        ]);
+    }
+
+    public function rejectPayment($orderId, $adminId)
+    {
+        return $this->update($orderId, [
+            'payment_verified' => 0,
+            'payment_verified_at' => date('Y-m-d H:i:s'),
+            'payment_verified_by' => $adminId,
+            'payment_status' => 'failed'
+        ]);
+    }
+
+
 
     public function canBeCancelled($order)
     {
@@ -181,6 +214,11 @@ class OrderModel extends Model
         // Apply status filter
         if (!empty($filters['status'])) {
             $builder->where('status', $filters['status']);
+        }
+
+        // Apply payment status filter
+        if (!empty($filters['payment_status'])) {
+            $builder->where('payment_status', $filters['payment_status']);
         }
 
         // Apply search filter (search in order number or notes)

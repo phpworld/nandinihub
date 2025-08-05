@@ -156,54 +156,53 @@
                     </div>
                 </div>
 
+
+
                 <!-- Payment Method -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Payment Method</h5>
                     </div>
                     <div class="card-body">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
-                            <label class="form-check-label" for="cod">
-                                <strong>Cash on Delivery (COD)</strong>
-                                <small class="d-block text-muted">Pay when you receive your order</small>
-                            </label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="online" value="online">
-                            <label class="form-check-label" for="online">
-                                <strong>Online Payment</strong>
-                                <small class="d-block text-muted">Pay securely using UPI, Cards, or Net Banking</small>
-                            </label>
-                        </div>
-
-                        <!-- Online Payment Details -->
-                        <div id="online_payment_details" class="mt-3" style="display: none;">
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-info-circle me-2"></i>Online Payment Features:</h6>
-                                <ul class="mb-0">
-                                    <li><strong>Secure Gateway:</strong> HDFC Bank SmartGateway</li>
-                                    <li><strong>Payment Options:</strong> Credit/Debit Cards, UPI, Net Banking, Wallets, EMI</li>
-                                    <li><strong>Security:</strong> JWT authentication & webhook verification</li>
-                                    <li><strong>Instant Confirmation:</strong> Order confirmed immediately after payment</li>
-                                </ul>
+                        <?php if (empty($paymentMethods)): ?>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No payment methods are currently available. Please contact support.
                             </div>
-                            <div class="row text-center">
-                                <div class="col-3">
-                                    <i class="fab fa-cc-visa fa-2x text-primary"></i>
+                        <?php else: ?>
+                            <?php foreach ($paymentMethods as $index => $method): ?>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="payment_method_id"
+                                           id="payment_<?= $method['id'] ?>"
+                                           value="<?= $method['id'] ?>"
+                                           <?= $index === 0 ? 'checked' : '' ?>
+                                           data-wallet="<?= esc($method['wallet_address']) ?>"
+                                           data-qr="<?= esc($method['qr_code']) ?>"
+                                           data-info="<?= esc($method['payment_information']) ?>">
+                                    <label class="form-check-label w-100" for="payment_<?= $method['id'] ?>">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong><?= esc($method['name']) ?></strong>
+                                                <?php if (!empty($method['payment_information'])): ?>
+                                                    <small class="d-block text-muted">
+                                                        <?= esc(substr($method['payment_information'], 0, 100)) ?>
+                                                        <?= strlen($method['payment_information']) > 100 ? '...' : '' ?>
+                                                    </small>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if (!empty($method['qr_code'])): ?>
+                                                <img src="<?= base_url($method['qr_code']) ?>"
+                                                     alt="QR Code"
+                                                     class="img-thumbnail"
+                                                     style="width: 40px; height: 40px;">
+                                            <?php endif; ?>
+                                        </div>
+                                    </label>
                                 </div>
-                                <div class="col-3">
-                                    <i class="fab fa-cc-mastercard fa-2x text-warning"></i>
-                                </div>
-                                <div class="col-3">
-                                    <i class="fas fa-university fa-2x text-success"></i>
-                                </div>
-                                <div class="col-3">
-                                    <i class="fas fa-mobile-alt fa-2x text-info"></i>
-                                </div>
-                            </div>
-                        </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -281,12 +280,14 @@
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping:</span>
-                            <span class="text-success" id="shipping_amount">
-                                <?php if ($cartTotal >= 500): ?>
-                                    Free
-                                <?php else: ?>
-                                    $50.00
-                                <?php endif; ?>
+                            <span id="shipping_amount" class="<?php
+                                $defaultShippingCost = 0;
+                                if (!empty($shippingMethods)) {
+                                    $defaultShippingCost = $shippingMethods[0]['cost'];
+                                }
+                                echo $defaultShippingCost > 0 ? 'text-primary' : 'text-success';
+                                ?>">
+                                <?php echo $defaultShippingCost > 0 ? '$' . number_format($defaultShippingCost, 2) : 'Free'; ?>
                             </span>
                         </div>
 
@@ -300,7 +301,14 @@
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
                             <strong class="text-primary" id="final_total">
-                                $<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
+                                <?php
+                                $defaultShippingCost = 0;
+                                if (!empty($shippingMethods)) {
+                                    $defaultShippingCost = $shippingMethods[0]['cost'];
+                                }
+                                $finalTotal = $cartTotal + $defaultShippingCost + ($cartTotal * 0.18);
+                                echo '$' . number_format($finalTotal, 2);
+                                ?>
                             </strong>
                         </div>
 
@@ -458,8 +466,8 @@
         document.getElementById('applied_coupon_display').style.display = 'none';
     }
 
-    function updateTotals(discountAmount) {
-        currentDiscount = parseFloat(discountAmount) || 0;
+    // SIMPLIFIED WORKING VERSION - Based on test_shipping.html
+    function updateTotalsSimple() {
         const subtotalAfterDiscount = originalSubtotal - currentDiscount;
 
         // Update discount row
@@ -473,11 +481,21 @@
             discountRow.style.display = 'none';
         }
 
-        // Calculate shipping based on selected method
+        // Calculate shipping based on selected method - EXACT SAME LOGIC AS TEST FILE
         const selectedShippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
         const shipping = selectedShippingMethod ? parseFloat(selectedShippingMethod.dataset.cost) : 0;
         const shippingSpan = document.getElementById('shipping_amount');
-        shippingSpan.textContent = shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`;
+
+
+
+        // Update shipping display - EXACT SAME LOGIC AS TEST FILE
+        if (shipping === 0) {
+            shippingSpan.textContent = 'Free';
+            shippingSpan.className = 'text-success';
+        } else {
+            shippingSpan.textContent = `$${shipping.toFixed(2)}`;
+            shippingSpan.className = 'text-primary';
+        }
 
         // Calculate tax on discounted amount
         const tax = subtotalAfterDiscount * 0.18;
@@ -486,6 +504,12 @@
         // Calculate final total
         const finalTotal = subtotalAfterDiscount + shipping + tax;
         document.getElementById('final_total').textContent = `$${finalTotal.toFixed(2)}`;
+    }
+
+    // Keep original function for coupon compatibility
+    function updateTotals(discountAmount) {
+        currentDiscount = parseFloat(discountAmount) || 0;
+        updateTotalsSimple();
     }
 
     function showCouponMessage(message, type) {
@@ -504,32 +528,32 @@
     document.getElementById('same_as_shipping').addEventListener('change', function() {
         const billingSection = document.getElementById('billing_address_section');
         const billingAddressField = document.getElementById('billing_address');
-        const shippingAddress = document.getElementById('shipping_address').value;
 
         if (this.checked) {
             billingSection.style.display = 'none';
-            billingAddressField.value = shippingAddress;
+            // Get selected delivery address text
+            const selectedAddress = document.querySelector('input[name="delivery_address_id"]:checked');
+            if (selectedAddress) {
+                const addressLabel = selectedAddress.nextElementSibling.textContent.trim();
+                billingAddressField.value = addressLabel;
+            }
         } else {
             billingSection.style.display = 'block';
             billingAddressField.value = '';
         }
     });
 
-    // Update billing address when shipping address changes
-    document.getElementById('shipping_address').addEventListener('input', function() {
-        const sameAsShipping = document.getElementById('same_as_shipping');
-        const billingAddressField = document.getElementById('billing_address');
+    // Update billing address when delivery address changes
+    document.querySelectorAll('input[name="delivery_address_id"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const sameAsShipping = document.getElementById('same_as_shipping');
+            const billingAddressField = document.getElementById('billing_address');
 
-        if (sameAsShipping.checked) {
-            billingAddressField.value = this.value;
-        }
-    });
-
-    // Set initial billing address
-    document.addEventListener('DOMContentLoaded', function() {
-        const shippingAddress = document.getElementById('shipping_address').value;
-        const billingAddressField = document.getElementById('billing_address');
-        billingAddressField.value = shippingAddress;
+            if (sameAsShipping.checked) {
+                const addressLabel = this.nextElementSibling.textContent.trim();
+                billingAddressField.value = addressLabel;
+            }
+        });
     });
 
     // Handle billing address textarea
@@ -541,31 +565,89 @@
     // Handle shipping method selection
     document.querySelectorAll('input[name="shipping_method_id"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
-            updateTotals(currentDiscount);
+            updateTotalsSimple();
         });
     });
 
     // Handle payment method selection
-    document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+    document.querySelectorAll('input[name="payment_method_id"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
-            const onlineDetails = document.getElementById('online_payment_details');
-            const submitBtn = document.querySelector('button[type="submit"]');
-
-            if (this.value === 'online') {
-                onlineDetails.style.display = 'block';
-                submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Proceed to Payment';
-            } else {
-                onlineDetails.style.display = 'none';
-                submitBtn.innerHTML = '<i class="fas fa-shopping-bag"></i> Place Order';
-            }
+            updatePaymentDetails();
         });
     });
+
+    // Initialize everything on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTotalsSimple();
+        updatePaymentDetails();
+
+        // Set initial billing address
+        const sameAsShipping = document.getElementById('same_as_shipping');
+        const billingAddressField = document.getElementById('billing_address');
+        if (sameAsShipping && sameAsShipping.checked) {
+            const selectedAddress = document.querySelector('input[name="delivery_address_id"]:checked');
+            if (selectedAddress && billingAddressField) {
+                const addressLabel = selectedAddress.nextElementSibling.textContent.trim();
+                billingAddressField.value = addressLabel;
+            }
+        }
+    });
+
+    function updatePaymentDetails() {
+        const selectedPayment = document.querySelector('input[name="payment_method_id"]:checked');
+        const paymentDetails = document.getElementById('payment_details');
+
+        if (selectedPayment) {
+            const walletAddress = selectedPayment.getAttribute('data-wallet');
+            const qrCode = selectedPayment.getAttribute('data-qr');
+            const paymentInfo = selectedPayment.getAttribute('data-info');
+
+            if (walletAddress) {
+                document.getElementById('wallet_address_display').value = walletAddress;
+                document.getElementById('payment_info_text').innerHTML = paymentInfo || 'Send payment to the wallet address below.';
+
+                const qrDisplay = document.getElementById('qr_code_display');
+                if (qrCode) {
+                    qrDisplay.innerHTML = `<img src="<?= base_url() ?>${qrCode}" alt="QR Code" class="img-fluid" style="max-width: 120px;">`;
+                } else {
+                    qrDisplay.innerHTML = '<span class="text-muted">No QR code available</span>';
+                }
+
+                paymentDetails.style.display = 'block';
+            } else {
+                paymentDetails.style.display = 'none';
+            }
+        }
+    }
+
+    function copyWalletAddress() {
+        const walletInput = document.getElementById('wallet_address_display');
+        walletInput.select();
+        walletInput.setSelectionRange(0, 99999);
+
+        try {
+            document.execCommand('copy');
+            const button = event.target.closest('button');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        } catch (err) {
+            alert('Failed to copy wallet address');
+        }
+    }
 
     // Form validation before submission
     document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         const deliveryAddress = document.querySelector('input[name="delivery_address_id"]:checked');
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
         const shippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
+        const paymentMethod = document.querySelector('input[name="payment_method_id"]:checked');
 
         if (!deliveryAddress) {
             e.preventDefault();
@@ -589,11 +671,7 @@
         const submitBtn = document.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
 
-        if (paymentMethod.value === 'online') {
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Order...';
-        } else {
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Order...';
-        }
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Order...';
         submitBtn.disabled = true;
 
         // Re-enable button after 10 seconds (in case of error)

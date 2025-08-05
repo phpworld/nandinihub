@@ -164,7 +164,7 @@
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
                             <strong id="cart-total">
-                                ₹<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
+                                $<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
                             </strong>
                         </div>
 
@@ -174,7 +174,7 @@
                             </div>
                         <?php else: ?>
                             <div class="alert alert-info small mb-3">
-                                <i class="fas fa-info-circle"></i> Add ₹<?= number_format(500 - $cartTotal, 2) ?> more for free shipping!
+                                <i class="fas fa-info-circle"></i> Add $<?= number_format(500 - $cartTotal, 2) ?> more for free shipping!
                             </div>
                         <?php endif; ?>
 

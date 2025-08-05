@@ -131,7 +131,7 @@ class CreatePagesTable extends Migration
             [
                 'title' => 'Shipping Policy',
                 'slug' => 'shipping-policy',
-                'content' => '<h2>Shipping Policy</h2><p>We offer various shipping options to meet your needs.</p><h3>Shipping Methods</h3><ul><li><strong>Standard Shipping:</strong> 3-5 business days</li><li><strong>Express Shipping:</strong> 1-2 business days</li><li><strong>Free Shipping:</strong> 5-7 business days (orders over ₹500)</li><li><strong>Local Pickup:</strong> Same day</li></ul><h3>Shipping Costs</h3><p>Shipping costs are calculated based on the weight and destination of your order. Free shipping is available for orders over ₹500.</p><h3>Processing Time</h3><p>Orders are typically processed within 1-2 business days before shipping.</p>',
+                'content' => '<h2>Shipping Policy</h2><p>We offer various shipping options to meet your needs.</p><h3>Shipping Methods</h3><ul><li><strong>Standard Shipping:</strong> 3-5 business days</li><li><strong>Express Shipping:</strong> 1-2 business days</li><li><strong>Free Shipping:</strong> 5-7 business days (orders over $500)</li><li><strong>Local Pickup:</strong> Same day</li></ul><h3>Shipping Costs</h3><p>Shipping costs are calculated based on the weight and destination of your order. Free shipping is available for orders over $500.</p><h3>Processing Time</h3><p>Orders are typically processed within 1-2 business days before shipping.</p>',
                 'meta_title' => 'Shipping Policy - Microdose Mushroom',
                 'meta_description' => 'Learn about our shipping options, costs, and delivery times.',
                 'is_active' => 1,

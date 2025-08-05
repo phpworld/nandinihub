@@ -483,20 +483,12 @@
             </tfoot>
         </table>
 
-        <!-- Payment & Order Information -->
+        <!-- Order Information -->
         <div style="display: flex; gap: 20px; margin-top: 30px;">
-            <!-- Payment Information -->
+            <!-- Order Information -->
             <div style="flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #17a2b8;">
-                <h5 style="color: #17a2b8; margin-bottom: 10px;">💳 Payment Information</h5>
+                <h5 style="color: #17a2b8; margin-bottom: 10px;">📦 Order Information</h5>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div>
-                        <p><strong>Payment Method:</strong><br><?= $order['payment_method'] === 'cod' ? 'Cash on Delivery' : ucfirst($order['payment_method']) ?></p>
-                        <p><strong>Payment Status:</strong><br>
-                            <span style="color: <?= $order['payment_status'] === 'paid' ? '#28a745' : '#ffc107' ?>; font-weight: bold;">
-                                <?= ucfirst($order['payment_status']) ?>
-                            </span>
-                        </p>
-                    </div>
                     <div>
                         <?php if (!empty($order['shipping_method_name'])): ?>
                             <p><strong>Shipping Method:</strong><br><?= esc($order['shipping_method_name']) ?></p>

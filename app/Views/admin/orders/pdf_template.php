@@ -329,17 +329,11 @@
             </tfoot>
         </table>
 
-        <!-- Payment & Order Information -->
+        <!-- Order Information -->
         <div class="payment-info-section">
-            <!-- Payment Information -->
+            <!-- Order Information -->
             <div class="payment-info-box">
-                <h5 style="color: #17a2b8; margin-bottom: 10px;">💳 Payment Information</h5>
-                <p><strong>Payment Method:</strong> <?= ucfirst($order['payment_method']) ?></p>
-                <p><strong>Payment Status:</strong> 
-                    <span style="color: <?= $order['payment_status'] === 'paid' ? '#28a745' : '#ffc107' ?>; font-weight: bold;">
-                        <?= ucfirst($order['payment_status']) ?>
-                    </span>
-                </p>
+                <h5 style="color: #17a2b8; margin-bottom: 10px;">📦 Order Information</h5>
                 <?php if (!empty($order['shipping_method_name'])): ?>
                     <p><strong>Shipping Method:</strong> <?= esc($order['shipping_method_name']) ?></p>
                     <p><strong>Delivery Time:</strong> <?= esc($order['shipping_delivery_time']) ?></p>

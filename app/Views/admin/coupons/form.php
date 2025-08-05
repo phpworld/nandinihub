@@ -221,7 +221,7 @@
         if (type === 'percentage') {
             valueText = value + '% OFF';
         } else if (type === 'fixed_amount') {
-            valueText = '₹' + value + ' OFF';
+            valueText = '$' + value + ' OFF';
         } else if (type === 'free_shipping') {
             valueText = 'FREE SHIPPING';
         }
@@ -229,7 +229,7 @@
 
         let conditions = 'No conditions';
         if (parseFloat(minOrder) > 0) {
-            conditions = 'Min order: ₹' + minOrder;
+            conditions = 'Min order: $' + minOrder;
         }
         document.getElementById('preview-conditions').textContent = conditions;
     }

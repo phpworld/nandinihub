@@ -80,7 +80,7 @@
                                     <?php if ($stats['coupon']['type'] === 'percentage'): ?>
                                         <?= $stats['coupon']['value'] ?>%
                                     <?php elseif ($stats['coupon']['type'] === 'fixed_amount'): ?>
-                                        ₹<?= number_format($stats['coupon']['value'], 2) ?>
+                                        $<?= number_format($stats['coupon']['value'], 2) ?>
                                     <?php else: ?>
                                         Free Shipping
                                     <?php endif; ?>
@@ -90,11 +90,11 @@
                             <div class="row">
                                 <div class="col-sm-6">
                                     <strong>Min Order:</strong><br>
-                                    ₹<?= number_format($stats['coupon']['minimum_order_amount'], 2) ?>
+                                    $<?= number_format($stats['coupon']['minimum_order_amount'], 2) ?>
                                 </div>
                                 <div class="col-sm-6">
                                     <strong>Max Discount:</strong><br>
-                                    <?= $stats['coupon']['maximum_discount_amount'] ? '₹' . number_format($stats['coupon']['maximum_discount_amount'], 2) : 'No limit' ?>
+                                    <?= $stats['coupon']['maximum_discount_amount'] ? '$' . number_format($stats['coupon']['maximum_discount_amount'], 2) : 'No limit' ?>
                                 </div>
                             </div>
                         </div>
@@ -186,7 +186,7 @@
                             <div class="display-6 text-warning mb-2">
                                 <i class="fas fa-rupee-sign"></i>
                             </div>
-                            <h3 class="card-title">₹<?= number_format($stats['usage_stats']['total_discount'], 2) ?></h3>
+                            <h3 class="card-title">$<?= number_format($stats['usage_stats']['total_discount'], 2) ?></h3>
                             <p class="card-text text-muted">Total Discount</p>
                         </div>
                     </div>
@@ -197,7 +197,7 @@
                             <div class="display-6 text-info mb-2">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <h3 class="card-title">₹<?= number_format($stats['usage_stats']['total_order_value'], 2) ?></h3>
+                            <h3 class="card-title">$<?= number_format($stats['usage_stats']['total_order_value'], 2) ?></h3>
                             <p class="card-text text-muted">Total Order Value</p>
                         </div>
                     </div>
@@ -212,7 +212,7 @@
                             <div class="display-6 text-secondary mb-2">
                                 <i class="fas fa-calculator"></i>
                             </div>
-                            <h4 class="card-title">₹<?= number_format($stats['usage_stats']['avg_discount'], 2) ?></h4>
+                            <h4 class="card-title">$<?= number_format($stats['usage_stats']['avg_discount'], 2) ?></h4>
                             <p class="card-text text-muted">Average Discount per Use</p>
                         </div>
                     </div>
@@ -223,7 +223,7 @@
                             <div class="display-6 text-secondary mb-2">
                                 <i class="fas fa-chart-bar"></i>
                             </div>
-                            <h4 class="card-title">₹<?= number_format($stats['usage_stats']['avg_order_value'], 2) ?></h4>
+                            <h4 class="card-title">$<?= number_format($stats['usage_stats']['avg_order_value'], 2) ?></h4>
                             <p class="card-text text-muted">Average Order Value</p>
                         </div>
                     </div>
@@ -263,10 +263,10 @@
                                                     #<?= $usage['order_number'] ?? $usage['order_id'] ?>
                                                 </a>
                                             </td>
-                                            <td>₹<?= number_format($usage['order_amount'], 2) ?></td>
+                                            <td>$<?= number_format($usage['order_amount'], 2) ?></td>
                                             <td>
                                                 <span class="badge bg-success">
-                                                    -₹<?= number_format($usage['discount_amount'], 2) ?>
+                                                    -$<?= number_format($usage['discount_amount'], 2) ?>
                                                 </span>
                                             </td>
                                         </tr>

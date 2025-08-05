@@ -49,7 +49,13 @@
                             </tr>
                             <tr>
                                 <td><strong>Payment Method:</strong></td>
-                                <td><?= $order['payment_method'] === 'cod' ? 'Cash on Delivery' : 'Online Payment' ?></td>
+                                <td>
+                                    <?php if (!empty($order['payment_method_name'])): ?>
+                                        <?= esc($order['payment_method_name']) ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">Not specified</span>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Payment Status:</strong></td>
@@ -58,13 +64,15 @@
                                     $paymentStatus = $order['payment_status'] ?? 'pending';
                                     $badgeClass = match ($paymentStatus) {
                                         'paid' => 'success',
-                                        'confirmed' => 'info',
+                                        'failed' => 'danger',
+                                        'expired' => 'secondary',
                                         'pending' => 'warning',
                                         default => 'secondary'
                                     };
                                     $statusText = match ($paymentStatus) {
                                         'paid' => 'Paid',
-                                        'confirmed' => 'Confirmed',
+                                        'failed' => 'Failed',
+                                        'expired' => 'Expired',
                                         'pending' => 'Pending',
                                         default => ucfirst($paymentStatus)
                                     };
@@ -72,15 +80,17 @@
                                     <span class="badge bg-<?= $badgeClass ?>">
                                         <?= $statusText ?>
                                     </span>
-                                    <?php if ($order['payment_method'] === 'cod' && $paymentStatus === 'pending'): ?>
-                                        <small class="text-muted d-block">Cash not received</small>
-                                    <?php elseif ($order['payment_method'] === 'cod' && $paymentStatus === 'confirmed'): ?>
-                                        <small class="text-success d-block">Cash received</small>
-                                    <?php elseif ($order['payment_method'] === 'cod' && $paymentStatus === 'paid'): ?>
-                                        <small class="text-success d-block">Payment completed</small>
+                                    <?php if ($order['payment_verified']): ?>
+                                        <br><small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>Verified
+                                            <?php if (!empty($order['payment_verified_at'])): ?>
+                                                on <?= date('M j, Y', strtotime($order['payment_verified_at'])) ?>
+                                            <?php endif; ?>
+                                        </small>
                                     <?php endif; ?>
                                 </td>
                             </tr>
+
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -103,6 +113,63 @@
                 </div>
             </div>
         </div>
+
+        <!-- Payment Screenshot -->
+        <?php if (!empty($order['payment_screenshot'])): ?>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>Payment Screenshot
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <img src="<?= base_url($order['payment_screenshot']) ?>"
+                                     alt="Payment Screenshot"
+                                     class="img-fluid rounded border shadow-sm"
+                                     style="max-width: 100%; max-height: 400px; cursor: pointer;"
+                                     onclick="openImageModal('<?= base_url($order['payment_screenshot']) ?>')">
+                                <p class="text-muted mt-2 small">Click to view full size</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Payment Verification Status:</h6>
+                            <?php if ($order['payment_verified']): ?>
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <strong>Payment Verified</strong>
+                                    <br><small>
+                                        Verified on <?= date('F j, Y \a\t g:i A', strtotime($order['payment_verified_at'])) ?>
+                                    </small>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Verification Pending</strong>
+                                    <br><small>Customer has uploaded payment proof. Please verify the payment.</small>
+                                </div>
+
+                                <!-- Verification Actions -->
+                                <div class="d-grid gap-2">
+                                    <button type="button"
+                                            class="btn btn-success"
+                                            onclick="verifyPayment(<?= $order['id'] ?>)">
+                                        <i class="fas fa-check me-2"></i>Verify Payment
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            onclick="rejectPayment(<?= $order['id'] ?>)">
+                                        <i class="fas fa-times me-2"></i>Reject Payment
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Order Items -->
         <div class="card mb-4">
@@ -331,39 +398,38 @@
                     </button>
                 </form>
 
-                <!-- Payment Status Update (for COD orders) -->
-                <?php if ($order['payment_method'] === 'cod'): ?>
-                    <div class="border-top pt-3">
-                        <form method="POST" action="<?= base_url('admin/orders/' . $order['id'] . '/payment-status') ?>">
-                            <?= csrf_field() ?>
-                            <div class="mb-3">
-                                <label for="payment_status" class="form-label">
-                                    <i class="fas fa-money-bill-wave me-1"></i>Payment Status (COD)
-                                </label>
-                                <select class="form-select" id="payment_status" name="payment_status">
-                                    <option value="pending" <?= ($order['payment_status'] ?? 'pending') === 'pending' ? 'selected' : '' ?>>
-                                        Pending - Payment not received
-                                    </option>
-                                    <option value="confirmed" <?= ($order['payment_status'] ?? '') === 'confirmed' ? 'selected' : '' ?>>
-                                        Confirmed - Payment received
-                                    </option>
-                                    <option value="paid" <?= ($order['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>
-                                        Paid - Payment completed
-                                    </option>
-                                </select>
-                                <div class="form-text">
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Update payment status when cash is received from customer
-                                    </small>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-credit-card me-1"></i>Update Payment Status
-                            </button>
-                        </form>
+                <!-- Payment Status Update -->
+                <form method="POST" action="<?= base_url('admin/orders/' . $order['id'] . '/payment-status') ?>">
+                    <?= csrf_field() ?>
+                    <div class="mb-3">
+                        <label for="payment_status" class="form-label">
+                            <i class="fas fa-credit-card me-1"></i>Update Payment Status
+                        </label>
+                        <select class="form-select" id="payment_status" name="payment_status">
+                            <option value="pending" <?= ($order['payment_status'] ?? 'pending') === 'pending' ? 'selected' : '' ?>>
+                                Pending - Payment not received
+                            </option>
+                            <option value="paid" <?= ($order['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>
+                                Paid - Payment confirmed
+                            </option>
+                            <option value="failed" <?= ($order['payment_status'] ?? '') === 'failed' ? 'selected' : '' ?>>
+                                Failed - Payment failed
+                            </option>
+                            <option value="expired" <?= ($order['payment_status'] ?? '') === 'expired' ? 'selected' : '' ?>>
+                                Expired - Payment window expired
+                            </option>
+                        </select>
+                        <div class="form-text">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Update payment status when cryptocurrency payment is confirmed
+                            </small>
+                        </div>
                     </div>
-                <?php endif; ?>
+                    <button type="submit" class="btn btn-success w-100 mb-3">
+                        <i class="fas fa-money-bill-wave me-1"></i>Update Payment Status
+                    </button>
+                </form>
 
                 <?php if (!empty($order['notes'])): ?>
                     <div class="mt-3 border-top pt-3">
@@ -375,6 +441,88 @@
         </div>
     </div>
 </div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Payment Screenshot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Payment Screenshot" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="downloadLink" href="" download class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openImageModal(imageSrc) {
+    document.getElementById('modalImage').src = imageSrc;
+    document.getElementById('downloadLink').href = imageSrc;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+
+function verifyPayment(orderId) {
+    if (confirm('Are you sure you want to verify this payment? This will mark the order as paid.')) {
+        fetch('<?= base_url('admin/orders/') ?>' + orderId + '/verify-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: '<?= csrf_token() ?>=<?= csrf_hash() ?>'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Payment verified successfully!');
+                location.reload();
+            } else {
+                alert('Failed to verify payment: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+
+function rejectPayment(orderId) {
+    if (confirm('Are you sure you want to reject this payment? This will mark the payment as failed.')) {
+        fetch('<?= base_url('admin/orders/') ?>' + orderId + '/reject-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: '<?= csrf_token() ?>=<?= csrf_hash() ?>'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Payment rejected successfully!');
+                location.reload();
+            } else {
+                alert('Failed to reject payment: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+</script>
+
 <?= $this->endSection() ?>
 
 <?php

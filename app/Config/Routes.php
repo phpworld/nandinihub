@@ -48,21 +48,13 @@ $routes->post('/change-password', 'AuthController::updatePassword');
 // Order routes
 $routes->get('/orders', 'OrderController::index');
 $routes->get('/orders/(:segment)', 'OrderController::show/$1');
+$routes->get('/orders/(:segment)/payment', 'OrderController::showPaymentDetails/$1');
+$routes->post('/orders/upload-payment-screenshot', 'OrderController::uploadPaymentScreenshot');
 $routes->get('/checkout', 'OrderController::checkout');
 $routes->post('/checkout', 'OrderController::processCheckout');
 $routes->post('/orders/cancel/(:segment)', 'OrderController::cancelOrder/$1');
 
-// Payment routes
-$routes->group('payment', function ($routes) {
-    $routes->post('initiate', 'PaymentController::initiate');
-    $routes->get('process/(:segment)', 'PaymentController::process/$1');
-    $routes->post('callback', 'PaymentController::callback');
-    $routes->get('callback', 'PaymentController::callback'); // GET callback for HDFC SmartGateway
-    $routes->post('webhook', 'PaymentController::webhook'); // Webhook for HDFC SmartGateway
-    $routes->get('success/(:segment)', 'PaymentController::success/$1');
-    $routes->get('failure/(:segment)', 'PaymentController::failure/$1');
-    $routes->post('verify/(:segment)', 'PaymentController::verify/$1');
-});
+
 
 // Coupon routes
 $routes->group('coupon', function ($routes) {
@@ -154,6 +146,9 @@ $routes->group('admin', function ($routes) {
     $routes->get('orders/(:num)/pdf', 'AdminController::downloadOrderPdf/$1');
     $routes->post('orders/(:num)/status', 'AdminController::updateOrderStatus/$1');
     $routes->post('orders/(:num)/payment-status', 'AdminController::updatePaymentStatus/$1');
+    $routes->post('orders/(:num)/verify-payment', 'AdminController::verifyPayment/$1');
+    $routes->post('orders/(:num)/reject-payment', 'AdminController::rejectPayment/$1');
+
 
     // Review management
     $routes->get('reviews', 'AdminController::reviews');
@@ -188,6 +183,15 @@ $routes->group('admin', function ($routes) {
     $routes->get('shipping/(:num)/edit', 'Admin\ShippingController::edit/$1');
     $routes->post('shipping/(:num)/update', 'Admin\ShippingController::update/$1');
     $routes->post('shipping/(:num)/delete', 'Admin\ShippingController::delete/$1');
+
+    // Payment Methods management
+    $routes->get('payment-methods', 'Admin\PaymentMethodController::index');
+    $routes->get('payment-methods/create', 'Admin\PaymentMethodController::create');
+    $routes->post('payment-methods/store', 'Admin\PaymentMethodController::store');
+    $routes->get('payment-methods/(:num)/edit', 'Admin\PaymentMethodController::edit/$1');
+    $routes->post('payment-methods/(:num)/update', 'Admin\PaymentMethodController::update/$1');
+    $routes->get('payment-methods/(:num)/delete', 'Admin\PaymentMethodController::delete/$1');
+    $routes->get('payment-methods/(:num)/toggle', 'Admin\PaymentMethodController::toggleStatus/$1');
     $routes->post('shipping/(:num)/toggle', 'Admin\ShippingController::toggle/$1');
     $routes->post('shipping/update-sort-order', 'Admin\ShippingController::updateSortOrder');
 
@@ -276,11 +280,7 @@ $routes->group('api/v1', ['filter' => 'jwtauth'], function ($routes) {
     $routes->delete('addresses/(:num)', 'Api\AddressApiController::delete/$1');
     $routes->put('addresses/(:num)/default', 'Api\AddressApiController::setDefault/$1');
 
-    // Payment routes
-    $routes->post('payment/initiate', 'Api\PaymentApiController::initiate');
-    $routes->get('payment/verify/(:segment)', 'Api\PaymentApiController::verify/$1');
-    $routes->get('payment/methods', 'Api\PaymentApiController::methods');
-    $routes->post('payment/callback', 'Api\PaymentApiController::callback');
+
 
     // Notification routes
     $routes->post('notifications/register-token', 'Api\NotificationApiController::registerToken');

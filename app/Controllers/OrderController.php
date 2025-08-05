@@ -36,6 +36,7 @@ class OrderController extends BaseController
 
         // Get filter parameters
         $status = $this->request->getGet('status');
+        $paymentStatus = $this->request->getGet('payment_status');
         $search = $this->request->getGet('search');
         $dateFrom = $this->request->getGet('date_from');
         $dateTo = $this->request->getGet('date_to');
@@ -45,6 +46,7 @@ class OrderController extends BaseController
         // Get user's orders with filters
         $orders = $this->orderModel->getUserOrdersWithFilters($userId, [
             'status' => $status,
+            'payment_status' => $paymentStatus,
             'search' => $search,
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
@@ -67,6 +69,7 @@ class OrderController extends BaseController
             'orderStats' => $orderStats,
             'filters' => [
                 'status' => $status,
+                'payment_status' => $paymentStatus,
                 'search' => $search,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo
@@ -112,6 +115,122 @@ class OrderController extends BaseController
         ];
 
         return view('orders/show', $data);
+    }
+
+    public function showPaymentDetails($orderNumber)
+    {
+        $userId = session()->get('user_id');
+        if (!$userId) {
+            return redirect()->to('/login');
+        }
+
+        $order = $this->orderModel->getOrderByNumber($orderNumber, $userId);
+        if (!$order) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Order not found');
+        }
+
+        // Only show payment details for pending payment orders
+        if ($order['payment_status'] !== 'pending') {
+            return redirect()->to('/orders/' . $orderNumber);
+        }
+
+        $data = [
+            'title' => 'Payment Required - Order #' . $order['order_number'],
+            'order' => $order
+        ];
+
+        return view('orders/payment_details', $data);
+    }
+
+    public function uploadPaymentScreenshot()
+    {
+        $userId = session()->get('user_id');
+        if (!$userId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ]);
+        }
+
+        $orderNumber = $this->request->getPost('order_number');
+        if (!$orderNumber) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Order number is required'
+            ]);
+        }
+
+        // Get order and verify ownership
+        $order = $this->orderModel->getOrderByNumber($orderNumber, $userId);
+        if (!$order) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Order not found'
+            ]);
+        }
+
+        // Check if screenshot already uploaded
+        if (!empty($order['payment_screenshot'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment screenshot already uploaded'
+            ]);
+        }
+
+        // Handle file upload
+        $file = $this->request->getFile('payment_screenshot');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid file upload'
+            ]);
+        }
+
+        $screenshotPath = $this->handleScreenshotUpload($file, $orderNumber);
+        if (!$screenshotPath) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to upload screenshot'
+            ]);
+        }
+
+        // Update order with screenshot path
+        if ($this->orderModel->updatePaymentScreenshot($order['id'], $screenshotPath)) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Payment screenshot uploaded successfully'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to save screenshot information'
+            ]);
+        }
+    }
+
+    private function handleScreenshotUpload($file, $orderNumber): ?string
+    {
+        $validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+        if (!in_array($file->getMimeType(), $validTypes)) {
+            return null;
+        }
+
+        if ($file->getSize() > 5 * 1024 * 1024) { // 5MB limit
+            return null;
+        }
+
+        $uploadPath = 'uploads/payment_screenshots/';
+        if (!is_dir(FCPATH . $uploadPath)) {
+            mkdir(FCPATH . $uploadPath, 0755, true);
+        }
+
+        $fileName = 'payment_' . $orderNumber . '_' . time() . '.' . $file->getExtension();
+        if ($file->move(FCPATH . $uploadPath, $fileName)) {
+            return $uploadPath . $fileName;
+        }
+
+        return null;
     }
 
     private function getOrderTimeline($order)
@@ -209,6 +328,10 @@ class OrderController extends BaseController
         $shippingService = new \App\Libraries\ShippingService();
         $shippingMethods = $shippingService->getShippingMethodsForCheckout($cartTotal);
 
+        // Get payment methods
+        $paymentMethodModel = new \App\Models\PaymentMethodModel();
+        $paymentMethods = $paymentMethodModel->getActivePaymentMethods();
+
         // Load user addresses
         $addressModel = new \App\Models\UserAddressModel();
         $userAddresses = $addressModel->getUserAddresses($userId);
@@ -219,6 +342,7 @@ class OrderController extends BaseController
             'cartTotal' => $cartTotal,
             'user' => $user,
             'shippingMethods' => $shippingMethods,
+            'paymentMethods' => $paymentMethods,
             'userAddresses' => $userAddresses
         ];
 
@@ -248,8 +372,8 @@ class OrderController extends BaseController
         // Validate form data
         $rules = [
             'delivery_address_id' => 'required|integer',
-            'payment_method' => 'required|in_list[cod,online]',
-            'shipping_method_id' => 'required|integer'
+            'shipping_method_id' => 'required|integer',
+            'payment_method_id' => 'required|integer'
         ];
 
         if (!$this->validate($rules)) {
@@ -275,6 +399,18 @@ class OrderController extends BaseController
         if (empty($billingAddress)) {
             $billingAddress = $shippingAddress;
         }
+
+        // Validate payment method
+        $paymentMethodId = (int) $this->request->getPost('payment_method_id');
+        $paymentMethodModel = new \App\Models\PaymentMethodModel();
+        $paymentValidation = $paymentMethodModel->validatePaymentMethodForOrder($paymentMethodId);
+
+        if (!$paymentValidation['valid']) {
+            session()->setFlashdata('error', $paymentValidation['message']);
+            return redirect()->back()->withInput();
+        }
+
+        $paymentMethod = $paymentValidation['method'];
 
         // Calculate totals
         $subtotal = $this->cartModel->getCartTotal($userId, $sessionId);
@@ -333,7 +469,7 @@ class OrderController extends BaseController
             'coupon_id' => $couponId,
             'coupon_code' => $couponCode,
             'shipping_method_id' => $shippingMethodId,
-            'payment_method' => $this->request->getPost('payment_method'),
+            'payment_method_id' => $paymentMethodId,
             'payment_status' => 'pending',
             'shipping_address' => $shippingAddress,
             'billing_address' => trim($billingAddress),
@@ -423,17 +559,10 @@ class OrderController extends BaseController
                 }
             }
 
-            // Handle different payment methods
-            if ($order['payment_method'] === 'online') {
-                // For online payment, redirect to payment initiation
-                session()->setFlashdata('info', 'Order created successfully! Please complete the payment to confirm your order.');
-                return redirect()->to('/orders/' . $order['order_number'] . '?payment=pending');
-            } else {
-                // For COD, send confirmation email and redirect to order details
-                $this->sendOrderConfirmationEmail($order, $cartItems);
-                session()->setFlashdata('success', 'Order placed successfully! Order number: ' . $order['order_number']);
-                return redirect()->to('/orders/' . $order['order_number']);
-            }
+            // Send confirmation emails to user and admin
+            $this->sendOrderConfirmationEmails($order, $cartItems);
+            session()->setFlashdata('success', 'Order placed successfully! Please complete the payment to confirm your order.');
+            return redirect()->to('/orders/' . $order['order_number'] . '/payment');
         } catch (\Exception $e) {
             $db->transRollback();
             log_message('error', 'Order processing exception: ' . $e->getMessage());
@@ -479,11 +608,45 @@ class OrderController extends BaseController
         }
     }
 
-    private function sendOrderConfirmationEmail($order, $orderItems)
+    private function sendOrderConfirmationEmails($order, $orderItems)
     {
-        // Email functionality will be implemented in the email notifications section
-        // For now, we'll just log the order
-        log_message('info', 'Order confirmation email should be sent for order: ' . $order['order_number']);
+        try {
+            // Get user information
+            $userModel = new \App\Models\UserModel();
+            $user = $userModel->find($order['user_id']);
+
+            if (!$user) {
+                log_message('error', 'User not found for order: ' . $order['order_number']);
+                return false;
+            }
+
+            // Initialize email service
+            $emailService = new \App\Libraries\EmailService();
+
+            // Send confirmation email to user
+            $userEmailSent = $emailService->sendOrderConfirmation($order, $orderItems, $user);
+
+            // Send notification email to admin
+            $adminEmailSent = $emailService->sendAdminOrderNotification($order, $orderItems, $user);
+
+            if ($userEmailSent) {
+                log_message('info', 'Order confirmation email sent to user: ' . $user['email'] . ' for order: ' . $order['order_number']);
+            } else {
+                log_message('error', 'Failed to send order confirmation email to user for order: ' . $order['order_number']);
+            }
+
+            if ($adminEmailSent) {
+                log_message('info', 'Order notification email sent to admin for order: ' . $order['order_number']);
+            } else {
+                log_message('error', 'Failed to send order notification email to admin for order: ' . $order['order_number']);
+            }
+
+            return $userEmailSent || $adminEmailSent; // Return true if at least one email was sent
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error sending order confirmation emails: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function cancelOrder($orderNumber)

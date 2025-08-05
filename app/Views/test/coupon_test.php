@@ -20,7 +20,7 @@
                         <div class="mb-4">
                             <h5>Test Cart</h5>
                             <div class="alert alert-info">
-                                <strong>Cart Total:</strong> ₹<span id="cart_total">250.00</span>
+                                <strong>Cart Total:</strong> $<span id="cart_total">250.00</span>
                             </div>
                         </div>
 
@@ -52,24 +52,24 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span id="subtotal">₹250.00</span>
+                                    <span id="subtotal">$250.00</span>
                                 </div>
                                 <div id="discount_row" class="d-flex justify-content-between mb-2 text-success" style="display: none;">
                                     <span>Discount:</span>
-                                    <span id="discount_amount">-₹0.00</span>
+                                    <span id="discount_amount">-$0.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Shipping:</span>
-                                    <span id="shipping">₹50.00</span>
+                                    <span id="shipping">$50.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Tax (18%):</span>
-                                    <span id="tax">₹45.00</span>
+                                    <span id="tax">$45.00</span>
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between">
                                     <strong>Total:</strong>
-                                    <strong id="final_total">₹345.00</strong>
+                                    <strong id="final_total">$345.00</strong>
                                 </div>
                             </div>
                         </div>
@@ -81,14 +81,14 @@
                                 <div class="col-md-6">
                                     <div class="card mb-2">
                                         <div class="card-body p-2">
-                                            <small><strong>WELCOME10</strong> - 10% off (min ₹100)</small>
+                                            <small><strong>WELCOME10</strong> - 10% off (min $100)</small>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="card mb-2">
                                         <div class="card-body p-2">
-                                            <small><strong>SAVE50</strong> - ₹50 off (min ₹200)</small>
+                                            <small><strong>SAVE50</strong> - $50 off (min $200)</small>
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +102,7 @@
                                 <div class="col-md-6">
                                     <div class="card mb-2">
                                         <div class="card-body p-2">
-                                            <small><strong>MEGA20</strong> - 20% off (min ₹500)</small>
+                                            <small><strong>MEGA20</strong> - 20% off (min $500)</small>
                                         </div>
                                     </div>
                                 </div>
@@ -191,9 +191,9 @@
             const display = document.getElementById('applied_coupon');
             const details = document.getElementById('coupon_details');
             
-            let text = `${data.coupon.code} - ₹${parseFloat(data.discount_amount).toFixed(2)} off`;
+            let text = `${data.coupon.code} - $${parseFloat(data.discount_amount).toFixed(2)} off`;
             if (data.coupon.type === 'percentage') {
-                text = `${data.coupon.code} - ${data.coupon.value}% off (₹${parseFloat(data.discount_amount).toFixed(2)})`;
+                text = `${data.coupon.code} - ${data.coupon.value}% off ($${parseFloat(data.discount_amount).toFixed(2)})`;
             }
             
             details.textContent = text;
@@ -214,7 +214,7 @@
             
             if (currentDiscount > 0) {
                 discountRow.style.display = 'flex';
-                discountAmountSpan.textContent = `-₹${currentDiscount.toFixed(2)}`;
+                discountAmountSpan.textContent = `-$${currentDiscount.toFixed(2)}`;
             } else {
                 discountRow.style.display = 'none';
             }

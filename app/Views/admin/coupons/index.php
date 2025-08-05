@@ -88,12 +88,12 @@
                                                 <?php if ($coupon['type'] === 'percentage'): ?>
                                                     <?= $coupon['value'] ?>%
                                                 <?php elseif ($coupon['type'] === 'fixed_amount'): ?>
-                                                    ₹<?= number_format($coupon['value'], 2) ?>
+                                                    $<?= number_format($coupon['value'], 2) ?>
                                                 <?php else: ?>
                                                     Free
                                                 <?php endif; ?>
                                             </td>
-                                            <td>₹<?= number_format($coupon['minimum_order_amount'], 2) ?></td>
+                                            <td>$<?= number_format($coupon['minimum_order_amount'], 2) ?></td>
                                             <td>
                                                 <small class="text-muted">
                                                     <?= $coupon['used_count'] ?> / 

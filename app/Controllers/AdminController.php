@@ -149,6 +149,16 @@ class AdminController extends BaseController
                 ]
             ],
             [
+                'title' => 'Payment Methods',
+                'url' => base_url('admin/payment-methods'),
+                'icon' => 'fas fa-credit-card',
+                'key' => 'payment_methods',
+                'submenu' => [
+                    ['title' => 'All Payment Methods', 'url' => base_url('admin/payment-methods')],
+                    ['title' => 'Add Payment Method', 'url' => base_url('admin/payment-methods/create')]
+                ]
+            ],
+            [
                 'title' => 'Pages',
                 'url' => base_url('admin/pages'),
                 'icon' => 'fas fa-file-alt',
@@ -2290,15 +2300,64 @@ class AdminController extends BaseController
             return $accessCheck;
         }
 
-        $status = $this->request->getPost('status');
+        $newStatus = $this->request->getPost('status');
 
-        if ($this->orderModel->updateOrderStatus($id, $status)) {
+        // Get current order to check old status
+        $order = $this->orderModel->find($id);
+        if (!$order) {
+            session()->setFlashdata('error', 'Order not found');
+            return redirect()->back();
+        }
+
+        $oldStatus = $order['status'];
+
+        if ($this->orderModel->updateOrderStatus($id, $newStatus)) {
+            // Send status update email to user if status actually changed
+            if ($oldStatus !== $newStatus) {
+                $this->sendOrderStatusUpdateEmail($order, $oldStatus, $newStatus);
+            }
+
             session()->setFlashdata('success', 'Order status updated successfully');
         } else {
             session()->setFlashdata('error', 'Failed to update order status');
         }
 
         return redirect()->back();
+    }
+
+    private function sendOrderStatusUpdateEmail($order, $oldStatus, $newStatus)
+    {
+        try {
+            // Get user information
+            $userModel = new \App\Models\UserModel();
+            $user = $userModel->find($order['user_id']);
+
+            if (!$user) {
+                log_message('error', 'User not found for order status update: ' . $order['order_number']);
+                return false;
+            }
+
+            // Initialize email service
+            $emailService = new \App\Libraries\EmailService();
+
+            // Update order with new status for email
+            $order['status'] = $newStatus;
+
+            // Send status update email to user
+            $emailSent = $emailService->sendOrderStatusUpdate($order, $user, $oldStatus, $newStatus);
+
+            if ($emailSent) {
+                log_message('info', 'Order status update email sent to user: ' . $user['email'] . ' for order: ' . $order['order_number']);
+            } else {
+                log_message('error', 'Failed to send order status update email to user for order: ' . $order['order_number']);
+            }
+
+            return $emailSent;
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error sending order status update email: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function updatePaymentStatus($id)
@@ -2318,6 +2377,80 @@ class AdminController extends BaseController
 
         return redirect()->back();
     }
+
+    public function verifyPayment($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Access denied'
+                ]);
+            }
+            return $accessCheck;
+        }
+
+        $adminId = session()->get('user_id');
+
+        if ($this->orderModel->verifyPayment($id, $adminId)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Payment verified successfully'
+                ]);
+            }
+            session()->setFlashdata('success', 'Payment verified successfully');
+        } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to verify payment'
+                ]);
+            }
+            session()->setFlashdata('error', 'Failed to verify payment');
+        }
+
+        return redirect()->back();
+    }
+
+    public function rejectPayment($id)
+    {
+        $accessCheck = $this->checkAdminAccess();
+        if ($accessCheck !== true) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Access denied'
+                ]);
+            }
+            return $accessCheck;
+        }
+
+        $adminId = session()->get('user_id');
+
+        if ($this->orderModel->rejectPayment($id, $adminId)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Payment rejected successfully'
+                ]);
+            }
+            session()->setFlashdata('success', 'Payment rejected successfully');
+        } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to reject payment'
+                ]);
+            }
+            session()->setFlashdata('error', 'Failed to reject payment');
+        }
+
+        return redirect()->back();
+    }
+
+
 
     // Review Management
     public function reviews()

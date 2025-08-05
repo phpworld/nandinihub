@@ -1,4 +1,4 @@
-<?php
+0<?php
 
 namespace App\Libraries;
 
@@ -7,33 +7,36 @@ use CodeIgniter\Email\Email;
 class EmailService
 {
     protected $email;
+    protected $emailConfig;
 
     public function __construct()
     {
         $this->email = \Config\Services::email();
-        
-        // Configure email settings
+        $this->emailConfig = new \App\Config\EmailSettings();
+
+        // Configure email settings from config
         $config = [
-            'protocol'    => 'smtp',
-            'SMTPHost'    => 'smtp.gmail.com', // Change to your SMTP host
-            'SMTPUser'    => 'your-email@gmail.com', // Change to your email
-            'SMTPPass'    => 'your-app-password', // Change to your app password
-            'SMTPPort'    => 587,
-            'SMTPCrypto'  => 'tls',
-            'mailType'    => 'html',
-            'charset'     => 'utf-8',
-            'newline'     => "\r\n"
+            'protocol'    => $this->emailConfig->protocol,
+            'SMTPHost'    => $this->emailConfig->SMTPHost,
+            'SMTPUser'    => $this->emailConfig->SMTPUser,
+            'SMTPPass'    => $this->emailConfig->SMTPPass,
+            'SMTPPort'    => $this->emailConfig->SMTPPort,
+            'SMTPCrypto'  => $this->emailConfig->SMTPCrypto,
+            'mailType'    => $this->emailConfig->mailType,
+            'charset'     => $this->emailConfig->charset,
+            'newline'     => $this->emailConfig->newline
         ];
-        
+
         $this->email->initialize($config);
     }
 
     public function sendOrderConfirmation($order, $orderItems, $user)
     {
         try {
-            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
+            $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
             $this->email->setTo($user['email']);
-            $this->email->setSubject('Order Confirmation - Order #' . $order['order_number']);
+            $subject = str_replace('{order_number}', $order['order_number'], $this->emailConfig->templates['order_confirmation']['subject']);
+            $this->email->setSubject($subject);
 
             $message = $this->generateOrderConfirmationEmail($order, $orderItems, $user);
             $this->email->setMessage($message);
@@ -54,9 +57,10 @@ class EmailService
     public function sendOrderStatusUpdate($order, $user, $oldStatus, $newStatus)
     {
         try {
-            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
+            $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
             $this->email->setTo($user['email']);
-            $this->email->setSubject('Order Status Update - Order #' . $order['order_number']);
+            $subject = str_replace('{order_number}', $order['order_number'], $this->emailConfig->templates['status_update']['subject']);
+            $this->email->setSubject($subject);
 
             $message = $this->generateOrderStatusUpdateEmail($order, $user, $oldStatus, $newStatus);
             $this->email->setMessage($message);
@@ -77,9 +81,9 @@ class EmailService
     public function sendWelcomeEmail($user)
     {
         try {
-            $this->email->setFrom('noreply@microdosemushroom.com', 'Microdose Mushroom');
+            $this->email->setFrom('noreply@nandinihub.com', 'Nandini Hub');
             $this->email->setTo($user['email']);
-            $this->email->setSubject('Welcome to Microdose Mushroom - Your Wellness Journey Begins');
+            $this->email->setSubject('Welcome to Nandini Hub - Your Wellness Journey Begins');
 
             $message = $this->generateWelcomeEmail($user);
             $this->email->setMessage($message);
@@ -89,6 +93,30 @@ class EmailService
                 return true;
             } else {
                 log_message('error', 'Failed to send welcome email: ' . $this->email->printDebugger());
+                return false;
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Email service error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function sendAdminOrderNotification($order, $orderItems, $user)
+    {
+        try {
+            $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
+            $this->email->setTo($this->emailConfig->adminEmail);
+            $subject = str_replace('{order_number}', $order['order_number'], $this->emailConfig->templates['admin_notification']['subject']);
+            $this->email->setSubject($subject);
+
+            $message = $this->generateAdminOrderNotificationEmail($order, $orderItems, $user);
+            $this->email->setMessage($message);
+
+            if ($this->email->send()) {
+                log_message('info', 'Admin order notification sent for order: ' . $order['order_number']);
+                return true;
+            } else {
+                log_message('error', 'Failed to send admin order notification: ' . $this->email->printDebugger());
                 return false;
             }
         } catch (\Exception $e) {
@@ -145,7 +173,7 @@ class EmailService
         
         $html .= '
                         <div class="total">
-                            <p>Total Amount: ₹' . number_format($order['total_amount'], 2) . '</p>
+                            <p>Total Amount: $' . number_format($order['total_amount'], 2) . '</p>
                         </div>
                     </div>
                     
@@ -166,6 +194,102 @@ class EmailService
         </body>
         </html>';
         
+        return $html;
+    }
+
+    private function generateAdminOrderNotificationEmail($order, $orderItems, $user)
+    {
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>New Order Notification</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 20px; text-align: center; }
+                .content { padding: 20px; background: #f9f9f9; }
+                .order-details { background: white; padding: 15px; margin: 15px 0; border-radius: 5px; }
+                .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+                .total { font-weight: bold; font-size: 18px; color: #dc3545; }
+                .customer-info { background: #e9ecef; padding: 15px; margin: 15px 0; border-radius: 5px; }
+                .footer { text-align: center; padding: 20px; color: #666; }
+                .urgent { background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🚨 New Order Alert</h1>
+                    <h2>Order #' . esc($order['order_number']) . '</h2>
+                </div>
+
+                <div class="content">
+                    <div class="urgent">
+                        <strong>⚡ Action Required:</strong> A new order has been placed and requires your attention.
+                    </div>
+
+                    <div class="customer-info">
+                        <h3>Customer Information</h3>
+                        <p><strong>Name:</strong> ' . esc($user['first_name'] . ' ' . $user['last_name']) . '</p>
+                        <p><strong>Email:</strong> ' . esc($user['email']) . '</p>
+                        <p><strong>Phone:</strong> ' . esc($user['phone'] ?? 'Not provided') . '</p>
+                    </div>
+
+                    <div class="order-details">
+                        <h3>Order Details</h3>
+                        <p><strong>Order Number:</strong> ' . esc($order['order_number']) . '</p>
+                        <p><strong>Order Date:</strong> ' . date('F j, Y \a\t g:i A', strtotime($order['created_at'])) . '</p>
+                        <p><strong>Payment Status:</strong> ' . ucfirst($order['payment_status']) . '</p>
+                        <p><strong>Payment Method:</strong> ' . esc($order['payment_method_name'] ?? 'Not specified') . '</p>
+
+                        <h4>Items Ordered:</h4>';
+
+        foreach ($orderItems as $item) {
+            $html .= '
+                        <div class="item">
+                            <strong>' . esc($item['name']) . '</strong><br>
+                            Quantity: ' . $item['quantity'] . ' × $' . number_format($item['price'], 2) . ' = $' . number_format($item['price'] * $item['quantity'], 2) . '
+                        </div>';
+        }
+
+        $html .= '
+                        <div class="total">
+                            <p>Subtotal: $' . number_format($order['subtotal_amount'], 2) . '</p>
+                            <p>Shipping: $' . number_format($order['shipping_amount'], 2) . '</p>
+                            <p>Tax: $' . number_format($order['tax_amount'], 2) . '</p>
+                            ' . ($order['discount_amount'] > 0 ? '<p>Discount: -$' . number_format($order['discount_amount'], 2) . '</p>' : '') . '
+                            <p><strong>Total Amount: $' . number_format($order['total_amount'], 2) . '</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="order-details">
+                        <h4>Shipping Address:</h4>
+                        ' . nl2br(esc($order['shipping_address'])) . '
+                    </div>
+
+                    ' . (!empty($order['notes']) ? '<div class="order-details"><h4>Customer Notes:</h4><p>' . nl2br(esc($order['notes'])) . '</p></div>' : '') . '
+
+                    <div class="urgent">
+                        <p><strong>Next Steps:</strong></p>
+                        <ul>
+                            <li>Review and confirm the order in admin panel</li>
+                            <li>Verify payment if required</li>
+                            <li>Prepare items for shipping</li>
+                            <li>Update order status as needed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p>Nandini Hub Admin Panel</p>
+                    <p><a href="' . base_url('admin/orders') . '">View Order in Admin Panel</a></p>
+                </div>
+            </div>
+        </body>
+        </html>';
+
         return $html;
     }
 

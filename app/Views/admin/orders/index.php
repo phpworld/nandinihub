@@ -116,8 +116,8 @@
                             <th>Customer</th>
                             <th>Email</th>
                             <th>Amount</th>
-                            <th>Payment Method</th>
                             <th>Status</th>
+                            <th>Payment</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
@@ -137,36 +137,34 @@
                                 <td>
                                     <strong>$<?= number_format($order['total_amount'], 2) ?></strong>
                                 </td>
-                                <td>
-                                    <span class="badge bg-light text-dark">
-                                        <?= $order['payment_method'] === 'cod' ? 'Cash on Delivery' : 'Online Payment' ?>
-                                    </span>
-                                    <?php if ($order['payment_method'] === 'cod'): ?>
-                                        <?php
-                                        $paymentStatus = $order['payment_status'] ?? 'pending';
-                                        $badgeClass = match ($paymentStatus) {
-                                            'paid' => 'success',
-                                            'confirmed' => 'info',
-                                            'pending' => 'warning',
-                                            default => 'secondary'
-                                        };
-                                        $statusText = match ($paymentStatus) {
-                                            'paid' => 'Paid',
-                                            'confirmed' => 'Confirmed',
-                                            'pending' => 'Pending',
-                                            default => ucfirst($paymentStatus)
-                                        };
-                                        ?>
-                                        <br>
-                                        <small class="badge bg-<?= $badgeClass ?> mt-1">
-                                            <?= $statusText ?>
-                                        </small>
-                                    <?php endif; ?>
-                                </td>
+
                                 <td>
                                     <span class="badge bg-<?= getOrderStatusColor($order['status']) ?>">
                                         <?= ucfirst($order['status']) ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <?php
+                                    $paymentStatus = $order['payment_status'] ?? 'pending';
+                                    $hasScreenshot = !empty($order['payment_screenshot']);
+                                    $isVerified = !empty($order['payment_verified']);
+                                    ?>
+
+                                    <?php if ($hasScreenshot): ?>
+                                        <?php if ($isVerified): ?>
+                                            <span class="badge bg-success" title="Payment verified">
+                                                <i class="fas fa-check-circle me-1"></i>Verified
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning" title="Screenshot uploaded, pending verification">
+                                                <i class="fas fa-camera me-1"></i>Pending
+                                            </span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary" title="No payment screenshot">
+                                            <i class="fas fa-clock me-1"></i><?= ucfirst($paymentStatus) ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <small><?= date('M j, Y g:i A', strtotime($order['created_at'])) ?></small>

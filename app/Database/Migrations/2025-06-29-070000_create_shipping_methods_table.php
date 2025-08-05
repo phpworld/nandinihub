@@ -112,7 +112,7 @@ class CreateShippingMethodsTable extends Migration
             ],
             [
                 'name' => 'Free Shipping',
-                'description' => 'Free delivery for orders above ₹500',
+                'description' => 'Free delivery for orders above $500',
                 'delivery_time' => '5–7 Business Days',
                 'cost' => 0.00,
                 'minimum_order_amount' => 500.00,
