@@ -82,12 +82,12 @@
                                                 $displayPrice = $item['final_price'];
                                                 $originalPrice = $item['variant_sale_price'] ?? $item['variant_price'] ?? $item['sale_price'] ?? $item['price'];
                                                 ?>
-                                                <span class="fw-bold item-price" data-price="<?= $displayPrice ?>">₹<?= number_format($displayPrice, 2) ?></span>
+                                                <span class="fw-bold item-price" data-price="<?= $displayPrice ?>"><?= format_currency($displayPrice) ?></span>
                                                 <?php if ($item['price_modifier'] != 0): ?>
                                                     <br><small class="text-muted">
-                                                        <del>₹<?= number_format($originalPrice, 2) ?></del>
+                                                        <del><?= format_currency($originalPrice) ?></del>
                                                         <span class="badge <?= $item['price_modifier'] > 0 ? 'bg-warning' : 'bg-success' ?> ms-1">
-                                                            <?= $item['price_modifier'] > 0 ? '+' : '' ?>₹<?= number_format(abs($item['price_modifier']), 2) ?>
+                                                            <?= $item['price_modifier'] > 0 ? '+' : '' ?><?= format_currency(abs($item['price_modifier'])) ?>
                                                         </span>
                                                     </small>
                                                 <?php endif; ?>
@@ -108,7 +108,7 @@
                                                 </div>
                                             </td>
                                             <td class="align-middle">
-                                                <span class="fw-bold item-total" data-cart-id="<?= $item['id'] ?>">₹<?= number_format($displayPrice * $item['quantity'], 2) ?></span>
+                                                <span class="fw-bold item-total" data-cart-id="<?= $item['id'] ?>"><?= format_currency($displayPrice * $item['quantity']) ?></span>
                                             </td>
                                             <td class="align-middle">
                                                 <button class="btn btn-outline-danger btn-sm"
@@ -144,37 +144,33 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span id="cart-subtotal">$<?= number_format($cartTotal, 2) ?></span>
+                            <span id="cart-subtotal"><?= format_currency($cartTotal) ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping:</span>
-                            <span class="text-success">
-                                <?php if ($cartTotal >= 500): ?>
+                            <span id="cart-shipping" class="<?= $shippingInfo['is_free'] ? 'text-success' : 'text-primary' ?>">
+                                <?php if ($shippingInfo['is_free']): ?>
                                     Free
                                 <?php else: ?>
-                                    $50.00
+                                    <?= format_currency($shippingInfo['cost']) ?>
                                 <?php endif; ?>
                             </span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tax (18% GST):</span>
-                            <span id="cart-tax">$<?= number_format($cartTotal * 0.18, 2) ?></span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
                             <strong id="cart-total">
-                                $<?= number_format($cartTotal + ($cartTotal >= 500 ? 0 : 50) + ($cartTotal * 0.18), 2) ?>
+                                <?= format_currency($cartTotal + $shippingInfo['cost']) ?>
                             </strong>
                         </div>
 
-                        <?php if ($cartTotal >= 500): ?>
+                        <?php if ($shippingInfo['is_free']): ?>
                             <div class="alert alert-success small mb-3">
-                                <i class="fas fa-check-circle"></i> You qualify for free shipping!
+                                <i class="fas fa-check-circle"></i> You qualify for free shipping with <?= esc($shippingInfo['method_name']) ?>!
                             </div>
                         <?php else: ?>
                             <div class="alert alert-info small mb-3">
-                                <i class="fas fa-info-circle"></i> Add $<?= number_format(500 - $cartTotal, 2) ?> more for free shipping!
+                                <i class="fas fa-info-circle"></i> Cheapest shipping: <?= esc($shippingInfo['method_name']) ?> - <?= format_currency($shippingInfo['cost']) ?>
                             </div>
                         <?php endif; ?>
 
@@ -221,6 +217,15 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    // Currency formatting function
+    const currencySymbol = '<?= get_currency_symbol() ?>';
+    const currencyPosition = '<?= get_setting('currency_position', 'before') ?>';
+
+    function formatCurrency(amount) {
+        const formattedAmount = amount.toFixed(2);
+        return currencyPosition === 'after' ? formattedAmount + currencySymbol : currencySymbol + formattedAmount;
+    }
+
     function updateQuantity(cartId, newQuantity) {
         if (newQuantity < 1) {
             removeFromCart(cartId);
@@ -236,7 +241,7 @@
         const itemPrice = parseFloat($(`tr:has(input[data-cart-id="${cartId}"]) .item-price`).data('price'));
         const itemTotal = $(`tr:has(input[data-cart-id="${cartId}"]) .item-total`);
         const newItemTotal = itemPrice * newQuantity;
-        itemTotal.text('₹' + newItemTotal.toFixed(2));
+        itemTotal.text(formatCurrency(newItemTotal));
 
         // Update cart totals immediately
         updateCartTotalsFromDOM();
@@ -253,7 +258,7 @@
                 // Revert changes if server update failed
                 quantityInput.val(oldQuantity);
                 const revertedTotal = itemPrice * oldQuantity;
-                itemTotal.text('₹' + revertedTotal.toFixed(2));
+                itemTotal.text(formatCurrency(revertedTotal));
                 updateCartTotalsFromDOM();
                 showAlert('danger', response.message);
             }
@@ -261,7 +266,7 @@
             // Revert changes if request failed
             quantityInput.val(oldQuantity);
             const revertedTotal = itemPrice * oldQuantity;
-            itemTotal.text('₹' + revertedTotal.toFixed(2));
+            itemTotal.text(formatCurrency(revertedTotal));
             updateCartTotalsFromDOM();
             showAlert('danger', 'Failed to update cart');
         });
@@ -317,13 +322,49 @@
     }
 
     function updateCartTotals(subtotal) {
-        const shipping = subtotal >= 500 ? 0 : 50;
-        const tax = subtotal * 0.18;
-        const total = subtotal + shipping + tax;
+        // Make AJAX call to get updated shipping cost for new subtotal
+        $.ajax({
+            url: '<?= base_url('cart/get-shipping-cost') ?>',
+            type: 'POST',
+            data: {
+                subtotal: subtotal,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    const shipping = response.shipping_cost;
+                    const total = subtotal + shipping;
 
-        $('#cart-subtotal').text('$' + subtotal.toFixed(2));
-        $('#cart-tax').text('$' + tax.toFixed(2));
-        $('#cart-total').text('$' + total.toFixed(2));
+                    $('#cart-subtotal').text(formatCurrency(subtotal));
+                    $('#cart-total').text(formatCurrency(total));
+
+                    // Update shipping display
+                    const shippingSpan = $('#cart-shipping');
+                    if (response.is_free) {
+                        shippingSpan.text('Free');
+                        shippingSpan.removeClass('text-primary').addClass('text-success');
+                    } else {
+                        shippingSpan.text(formatCurrency(shipping));
+                        shippingSpan.removeClass('text-success').addClass('text-primary');
+                    }
+                } else {
+                    // Fallback to legacy calculation
+                    const shipping = subtotal >= 500 ? 0 : 50;
+                    const total = subtotal + shipping;
+
+                    $('#cart-subtotal').text(formatCurrency(subtotal));
+                    $('#cart-total').text(formatCurrency(total));
+                }
+            },
+            error: function() {
+                // Fallback to legacy calculation
+                const shipping = subtotal >= 500 ? 0 : 50;
+                const total = subtotal + shipping;
+
+                $('#cart-subtotal').text(formatCurrency(subtotal));
+                $('#cart-total').text(formatCurrency(total));
+            }
+        });
     }
 
     function updateCartTotalsFromDOM() {
@@ -331,7 +372,7 @@
 
         // Calculate subtotal from all item totals
         $('.item-total').each(function() {
-            const itemTotalText = $(this).text().replace('$', '').replace(',', '');
+            const itemTotalText = $(this).text().replace(currencySymbol, '').replace(',', '');
             subtotal += parseFloat(itemTotalText);
         });
 

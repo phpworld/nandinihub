@@ -47,13 +47,13 @@
                 <!-- Price -->
                 <div class="price-section mb-3">
                     <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                        <span class="h4 text-muted text-decoration-line-through me-2">$<?= number_format($product['price'], 2) ?></span>
-                        <span class="h3 text-primary">$<?= number_format($product['sale_price'], 2) ?></span>
+                        <span class="h4 text-muted text-decoration-line-through me-2"><?= format_currency($product['price']) ?></span>
+                        <span class="h3 text-primary"><?= format_currency($product['sale_price']) ?></span>
                         <span class="badge bg-danger ms-2">
                             <?= round((($product['price'] - $product['sale_price']) / $product['price']) * 100) ?>% OFF
                         </span>
                     <?php else: ?>
-                        <span class="h3 text-primary">$<?= number_format($product['price'], 2) ?></span>
+                        <span class="h3 text-primary"><?= format_currency($product['price']) ?></span>
                     <?php endif; ?>
                 </div>
 
@@ -670,16 +670,32 @@
                 const finalPrice = Math.max(0, basePrice + totalPriceModifier);
 
                 // Update main product price display
-                $('.product-price .price').text('$' + finalPrice.toFixed(2));
+                const currencySymbol = '<?= get_currency_symbol() ?>';
+                const currencyPosition = '<?= get_setting('currency_position', 'before') ?>';
+
+                const formatPrice = (price) => {
+                    const formattedPrice = price.toFixed(2);
+                    return currencyPosition === 'after' ? formattedPrice + currencySymbol : currencySymbol + formattedPrice;
+                };
+
+                $('.product-price .price').text(formatPrice(finalPrice));
                 if (totalPriceModifier !== 0) {
-                    $('.product-price .original-price').text('$' + basePrice.toFixed(2)).show();
+                    $('.product-price .original-price').text(formatPrice(basePrice)).show();
                 } else {
                     $('.product-price .original-price').hide();
                 }
             } else {
                 // Reset to original price
                 const basePrice = parseFloat(<?= $product['sale_price'] ?? $product['price'] ?>);
-                $('.product-price .price').text('$' + basePrice.toFixed(2));
+                const currencySymbol = '<?= get_currency_symbol() ?>';
+                const currencyPosition = '<?= get_setting('currency_position', 'before') ?>';
+
+                const formatPrice = (price) => {
+                    const formattedPrice = price.toFixed(2);
+                    return currencyPosition === 'after' ? formattedPrice + currencySymbol : currencySymbol + formattedPrice;
+                };
+
+                $('.product-price .price').text(formatPrice(basePrice));
                 $('.product-price .original-price').hide();
             }
 

@@ -23,6 +23,7 @@ $routes->post('/cart/remove', 'CartController::remove');
 $routes->get('/cart/clear', 'CartController::clear');
 $routes->post('/cart/clear', 'CartController::clear');
 $routes->get('/cart/count', 'CartController::getCartCount');
+$routes->post('/cart/get-shipping-cost', 'CartController::getShippingCost');
 
 // Wishlist routes
 $routes->get('/wishlist', 'WishlistController::index');
@@ -301,3 +302,13 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('addresses/edit/(:num)', 'UserAddressController::edit/$1');
     $routes->get('addresses/delete/(:num)', 'UserAddressController::delete/$1');
 });
+
+// Test email routes
+$routes->get('test-email-page', 'TestEmailController::testPage');
+$routes->get('test-email', 'TestEmailController::testEmail');
+$routes->get('test-smtp', 'TestEmailController::testSMTP');
+$routes->get('test', 'TestEmailController::testPage'); // Alternative route
+$routes->get('debug', 'TestEmailController::debug'); // Debug route
+$routes->get('check-logs', 'TestEmailController::checkLogs'); // Check email logs
+$routes->get('test-order-email', 'TestEmailController::testOrderEmail'); // Test with real order data
+$routes->get('test-all-emails', 'TestEmailController::testAllEmailTypes'); // Comprehensive email test

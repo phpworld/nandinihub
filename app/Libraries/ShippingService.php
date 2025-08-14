@@ -197,12 +197,44 @@ class ShippingService
             ];
         }
 
-        // Sort by sort_order
+        // Sort by cost ascending (cheapest first), then by sort_order as secondary sort
         usort($formattedMethods, function($a, $b) {
+            // Primary sort: by cost (cheapest first)
+            $costComparison = $a['cost'] <=> $b['cost'];
+            if ($costComparison !== 0) {
+                return $costComparison;
+            }
+            // Secondary sort: by sort_order if costs are equal
             return $a['sort_order'] <=> $b['sort_order'];
         });
 
         return $formattedMethods;
+    }
+
+    /**
+     * Get cheapest shipping cost for cart display
+     */
+    public function getCheapestShippingCost(float $orderAmount): array
+    {
+        $cheapestMethod = $this->getBestShippingOption($orderAmount);
+
+        if (!$cheapestMethod) {
+            // Fallback to legacy logic if no shipping methods configured
+            $cost = $orderAmount >= 500 ? 0 : 50;
+            return [
+                'cost' => $cost,
+                'method_name' => $cost == 0 ? 'Free Shipping' : 'Standard Shipping',
+                'is_free' => $cost == 0,
+                'method_id' => null
+            ];
+        }
+
+        return [
+            'cost' => (float) $cheapestMethod['cost'],
+            'method_name' => $cheapestMethod['name'],
+            'is_free' => $cheapestMethod['cost'] == 0 || $cheapestMethod['is_free_shipping'],
+            'method_id' => $cheapestMethod['id']
+        ];
     }
 
     /**

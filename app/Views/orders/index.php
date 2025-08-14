@@ -258,10 +258,83 @@
                     <?php endforeach; ?>
                 </div>
 
-                <!-- Pagination -->
-                <?php if (isset($pager)): ?>
+                <!-- Custom Pagination -->
+                <?php if (isset($pager) && $pager['totalPages'] > 1): ?>
                     <div class="d-flex justify-content-center mt-4">
-                        <?= $pager->links() ?>
+                        <nav aria-label="Orders pagination">
+                            <ul class="pagination">
+                                <!-- Previous Page -->
+                                <?php if ($pager['hasPrevious']): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url($pager['baseUrl']) ?>?page=<?= $pager['previousPage'] ?><?= $pager['queryString'] ?>" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                <?php else: ?>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&laquo;</span>
+                                    </li>
+                                <?php endif; ?>
+
+                                <!-- Page Numbers -->
+                                <?php
+                                $startPage = max(1, $pager['currentPage'] - 2);
+                                $endPage = min($pager['totalPages'], $pager['currentPage'] + 2);
+
+                                // Show first page if not in range
+                                if ($startPage > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url($pager['baseUrl']) ?>?page=1<?= $pager['queryString'] ?>">1</a>
+                                    </li>
+                                    <?php if ($startPage > 2): ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <!-- Current range of pages -->
+                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                    <li class="page-item <?= $i == $pager['currentPage'] ? 'active' : '' ?>">
+                                        <a class="page-link" href="<?= base_url($pager['baseUrl']) ?>?page=<?= $i ?><?= $pager['queryString'] ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+
+                                <!-- Show last page if not in range -->
+                                <?php if ($endPage < $pager['totalPages']): ?>
+                                    <?php if ($endPage < $pager['totalPages'] - 1): ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url($pager['baseUrl']) ?>?page=<?= $pager['totalPages'] ?><?= $pager['queryString'] ?>"><?= $pager['totalPages'] ?></a>
+                                    </li>
+                                <?php endif; ?>
+
+                                <!-- Next Page -->
+                                <?php if ($pager['hasNext']): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url($pager['baseUrl']) ?>?page=<?= $pager['nextPage'] ?><?= $pager['queryString'] ?>" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                <?php else: ?>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&raquo;</span>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Pagination Info -->
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Showing <?= (($pager['currentPage'] - 1) * $pager['perPage']) + 1 ?> to
+                            <?= min($pager['currentPage'] * $pager['perPage'], $pager['totalItems']) ?> of
+                            <?= $pager['totalItems'] ?> orders
+                        </small>
                     </div>
                 <?php endif; ?>
             <?php endif; ?>

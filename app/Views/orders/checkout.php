@@ -120,6 +120,7 @@
                     </div>
                     <div class="card-body">
                         <?php if (!empty($shippingMethods)): ?>
+                            <?php // Shipping methods are sorted by cost (cheapest first), so first method is selected by default ?>
                             <?php foreach ($shippingMethods as $index => $method): ?>
                                 <div class="form-check mb-3">
                                     <input class="form-check-input shipping-method"
@@ -234,7 +235,7 @@
                                     </div>
                                     <div>
                                         <?php $price = $item['final_price'] ?? ($item['sale_price'] ?? $item['price']); ?>
-                                        <span>$<?= number_format($price * $item['quantity'], 2) ?></span>
+                                        <span><?= format_currency($price * $item['quantity']) ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -270,12 +271,12 @@
                         <!-- Totals -->
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span id="subtotal_amount">$<?= number_format($cartTotal, 2) ?></span>
+                            <span id="subtotal_amount"><?= format_currency($cartTotal) ?></span>
                         </div>
 
                         <div id="discount_row" class="d-flex justify-content-between mb-2 text-success" style="display: none;">
                             <span>Discount:</span>
-                            <span id="discount_amount">-$0.00</span>
+                            <span id="discount_amount">-<?= format_currency(0) ?></span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
@@ -287,13 +288,8 @@
                                 }
                                 echo $defaultShippingCost > 0 ? 'text-primary' : 'text-success';
                                 ?>">
-                                <?php echo $defaultShippingCost > 0 ? '$' . number_format($defaultShippingCost, 2) : 'Free'; ?>
+                                <?php echo $defaultShippingCost > 0 ? format_currency($defaultShippingCost) : 'Free'; ?>
                             </span>
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tax (18% GST):</span>
-                            <span id="tax_amount">$<?= number_format($cartTotal * 0.18, 2) ?></span>
                         </div>
 
                         <hr>
@@ -306,8 +302,8 @@
                                 if (!empty($shippingMethods)) {
                                     $defaultShippingCost = $shippingMethods[0]['cost'];
                                 }
-                                $finalTotal = $cartTotal + $defaultShippingCost + ($cartTotal * 0.18);
-                                echo '$' . number_format($finalTotal, 2);
+                                $finalTotal = $cartTotal + $defaultShippingCost;
+                                echo format_currency($finalTotal);
                                 ?>
                             </strong>
                         </div>
@@ -355,6 +351,15 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    // Currency formatting function
+    const currencySymbol = '<?= get_currency_symbol() ?>';
+    const currencyPosition = '<?= get_setting('currency_position', 'before') ?>';
+
+    function formatCurrency(amount) {
+        const formattedAmount = amount.toFixed(2);
+        return currencyPosition === 'after' ? formattedAmount + currencySymbol : currencySymbol + formattedAmount;
+    }
+
     // Coupon functionality
     let originalSubtotal = <?= $cartTotal ?>;
     let currentDiscount = 0;
@@ -453,9 +458,9 @@
         const display = document.getElementById('applied_coupon_display');
         const text = document.getElementById('applied_coupon_text');
 
-        let couponText = `${coupon.code} - $${parseFloat(coupon.discount_amount).toFixed(2)} off`;
+        let couponText = `${coupon.code} - ${formatCurrency(parseFloat(coupon.discount_amount))} off`;
         if (coupon.coupon_data && coupon.coupon_data.type === 'percentage') {
-            couponText = `${coupon.code} - ${coupon.coupon_data.value}% off ($${parseFloat(coupon.discount_amount).toFixed(2)})`;
+            couponText = `${coupon.code} - ${coupon.coupon_data.value}% off (${formatCurrency(parseFloat(coupon.discount_amount))})`;
         }
 
         text.textContent = couponText;
@@ -476,7 +481,7 @@
 
         if (currentDiscount > 0) {
             discountRow.style.display = 'flex';
-            discountAmountSpan.textContent = `-$${currentDiscount.toFixed(2)}`;
+            discountAmountSpan.textContent = `-${formatCurrency(currentDiscount)}`;
         } else {
             discountRow.style.display = 'none';
         }
@@ -493,17 +498,13 @@
             shippingSpan.textContent = 'Free';
             shippingSpan.className = 'text-success';
         } else {
-            shippingSpan.textContent = `$${shipping.toFixed(2)}`;
+            shippingSpan.textContent = formatCurrency(shipping);
             shippingSpan.className = 'text-primary';
         }
 
-        // Calculate tax on discounted amount
-        const tax = subtotalAfterDiscount * 0.18;
-        document.getElementById('tax_amount').textContent = `$${tax.toFixed(2)}`;
-
-        // Calculate final total
-        const finalTotal = subtotalAfterDiscount + shipping + tax;
-        document.getElementById('final_total').textContent = `$${finalTotal.toFixed(2)}`;
+        // Calculate final total (no tax)
+        const finalTotal = subtotalAfterDiscount + shipping;
+        document.getElementById('final_total').textContent = formatCurrency(finalTotal);
     }
 
     // Keep original function for coupon compatibility

@@ -115,8 +115,8 @@ class PagesController extends BaseController
             'meta_title' => 'permit_empty|max_length[255]',
             'meta_description' => 'permit_empty|max_length[500]',
             'meta_keywords' => 'permit_empty|max_length[500]',
-            'header_order' => 'integer|greater_than_equal_to[0]',
-            'footer_order' => 'integer|greater_than_equal_to[0]',
+            'header_order' => 'permit_empty|integer|greater_than_equal_to[0]',
+            'footer_order' => 'permit_empty|integer|greater_than_equal_to[0]',
             'template' => 'permit_empty|max_length[50]'
         ];
 
@@ -232,8 +232,8 @@ class PagesController extends BaseController
             'meta_title' => 'permit_empty|max_length[255]',
             'meta_description' => 'permit_empty|max_length[500]',
             'meta_keywords' => 'permit_empty|max_length[500]',
-            'header_order' => 'permit_empty',
-            'footer_order' => 'permit_empty',
+            'header_order' => 'permit_empty|integer|greater_than_equal_to[0]',
+            'footer_order' => 'permit_empty|integer|greater_than_equal_to[0]',
             'template' => 'permit_empty|max_length[50]'
         ];
 

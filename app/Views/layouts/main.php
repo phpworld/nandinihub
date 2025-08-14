@@ -9,7 +9,7 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Microdose Mushroom' ?></title>
+    <title><?= $title ?? get_site_name() ?></title>
     <meta name="description" content="<?= $meta_description ?? '' ?>">
 
     <?php
@@ -369,9 +369,9 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="<?= base_url('/') ?>">
                 <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
-                    <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:50px;max-width:200px;object-fit:contain;" class="me-2">
+                    <img src="<?= base_url($siteLogo) ?>" alt="<?= esc(get_site_name()) ?>" style="height:50px;max-width:200px;object-fit:contain;" class="me-2">
                 <?php else: ?>
-                    <i class="fas fa-mushroom me-2"></i>Microdose Mushroom
+                    <i class="fas fa-store me-2"></i><?= esc(get_site_name()) ?>
                 <?php endif; ?>
             </a>
 
@@ -532,12 +532,12 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
                 <div class="col-md-4">
                     <h5>
                         <?php if (!empty($siteLogo) && file_exists(FCPATH . $siteLogo)): ?>
-                            <img src="<?= base_url($siteLogo) ?>" alt="Site Logo" style="height:90px;max-width:270px;object-fit:contain;" class="me-2 mb-2">
+                            <img src="<?= base_url($siteLogo) ?>" alt="<?= esc(get_site_name()) ?>" style="height:90px;max-width:270px;object-fit:contain;" class="me-2 mb-2">
                         <?php else: ?>
-                            <i class="fas fa-mushroom me-2"></i>Microdose Mushroom
+                            <i class="fas fa-store me-2"></i><?= esc(get_site_name()) ?>
                         <?php endif; ?>
                     </h5>
-                    <p>Your trusted source for premium quality microdose mushrooms and psychedelic products. Bringing natural wellness to your doorstep.</p>
+                    <p><?= esc(get_setting('footer_text', 'Your trusted source for premium quality products. Bringing excellence to your doorstep.')) ?></p>
                 </div>
                 <div class="col-md-2">
                     <h6>Quick Links</h6>
@@ -565,8 +565,8 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
                 </div>
                 <div class="col-md-3">
                     <h6>Contact Info</h6>
-                    <p><i class="fas fa-phone me-2"></i>+1 (xxx)xxx xxxx</p>
-                    <p><i class="fas fa-envelope me-2"></i>info@microdosemushroom.com</p>
+                    <p><i class="fas fa-phone me-2"></i><?= esc(get_setting('contact_phone', '+91 9876543210')) ?></p>
+                    <p><i class="fas fa-envelope me-2"></i><?= esc(get_setting('contact_email', 'info@nandinihub.com')) ?></p>
                     <div class="mt-3">
                         <a href="#" class="text-dark me-3"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="text-dark me-3"><i class="fab fa-instagram"></i></a>
@@ -577,7 +577,7 @@ $siteFavicon = $settingModel->getSetting('site_favicon', '');
             </div>
             <hr class="my-4">
             <div class="text-center">
-                <p>&copy; 2025 Microdose Mushroom. All rights reserved.</p>
+                <p><?= esc(get_setting('footer_copyright', '© 2024 Nandini Hub. All rights reserved.')) ?></p>
             </div>
         </div>
     </footer>

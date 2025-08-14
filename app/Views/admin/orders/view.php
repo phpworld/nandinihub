@@ -346,12 +346,12 @@
                 <table class="table table-sm table-borderless">
                     <tr>
                         <td>Subtotal:</td>
-                        <td class="text-end">$<?= number_format(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0)), 2) ?></td>
+                        <td class="text-end"><?= format_currency(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0))) ?></td>
                     </tr>
                     <?php if (!empty($order['discount_amount']) && $order['discount_amount'] > 0): ?>
                         <tr>
                             <td>Discount:</td>
-                            <td class="text-end text-success">-$<?= number_format($order['discount_amount'], 2) ?></td>
+                            <td class="text-end text-success">-<?= format_currency($order['discount_amount']) ?></td>
                         </tr>
                     <?php endif; ?>
                     <?php if (!empty($order['tax_amount']) && $order['tax_amount'] > 0): ?>

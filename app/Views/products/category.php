@@ -44,7 +44,7 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="number" name="min_price" class="form-control form-control-sm"
-                                           placeholder="Min $" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
+                                           placeholder="Min <?= get_currency_symbol() ?>" value="<?= esc($currentFilters['min_price'] ?? '') ?>"
                                            min="<?= $priceRange['min'] ?>" max="<?= $priceRange['max'] ?>">
                                 </div>
                                 <div class="col-6">
@@ -204,10 +204,10 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div>
                                                 <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                                    <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
-                                                    <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
+                                                    <span class="price-original small"><?= format_currency($product['price']) ?></span>
+                                                    <span class="price-sale"><?= format_currency($product['sale_price']) ?></span>
                                                 <?php else: ?>
-                                                    <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
+                                                    <span class="price-sale"><?= format_currency($product['price']) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>

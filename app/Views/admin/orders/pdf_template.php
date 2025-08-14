@@ -14,29 +14,29 @@
 
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 10px;
+            line-height: 1.2;
             color: #333;
             background: white;
+            margin: 0;
+            padding: 0;
         }
 
         .invoice-container {
             max-width: 100%;
             margin: 0;
             background: white;
-            padding: 20px;
+            padding: 15px;
         }
 
         .company-info {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #ff6b35;
-            padding-bottom: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 20px;
-            border-radius: 8px 8px 0 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 10px;
+            padding: 10px;
         }
 
         .company-logo {
@@ -45,8 +45,8 @@
         }
 
         .company-logo img {
-            max-height: 60px;
-            max-width: 120px;
+            max-height: 40px;
+            max-width: 80px;
             object-fit: contain;
         }
 
@@ -55,36 +55,40 @@
         }
 
         .company-name {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             color: #ff6b35;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 5px solid #ff6b35;
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #ff6b35;
+            background: #f8f9fa;
         }
 
         .invoice-meta {
+            display: table-cell;
             background: #fff;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 8px;
             border: 1px solid #e9ecef;
+            width: 50%;
+            vertical-align: top;
         }
 
         .bill-to {
+            display: table-cell;
             background: #fff;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 8px;
             border: 1px solid #e9ecef;
+            width: 50%;
+            vertical-align: top;
+            text-align: right;
         }
 
         .invoice-title {
@@ -117,26 +121,25 @@
         .invoice-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
         }
 
         .invoice-table th,
         .invoice-table td {
             border: 1px solid #e9ecef;
-            padding: 10px;
+            padding: 5px;
             text-align: left;
             vertical-align: top;
+            font-size: 9px;
         }
 
         .invoice-table th {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            background: #ff6b35;
             color: white;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 8px;
             letter-spacing: 0.5px;
         }
 
@@ -151,23 +154,21 @@
         .invoice-total {
             border-top: 2px solid #ff6b35;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 10px;
             background-color: #fff3cd;
         }
 
         .invoice-footer {
-            margin-top: 40px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 10px;
+            font-size: 8px;
             color: #666;
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border-top: 3px solid #ff6b35;
-            padding: 20px;
-            border-radius: 0 0 8px 8px;
+            border-top: 2px solid #ff6b35;
+            padding: 10px;
         }
 
         .invoice-footer p {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .footer-highlight {
@@ -177,14 +178,14 @@
 
         .payment-info-section {
             display: flex;
-            gap: 20px;
-            margin-top: 30px;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .payment-info-box {
             flex: 1;
             background: #f8f9fa;
-            padding: 15px;
+            padding: 8px;
             border-radius: 8px;
             border-left: 5px solid #17a2b8;
         }
@@ -192,26 +193,40 @@
         .order-notes-box {
             flex: 1;
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 5px solid #6f42c1;
+            padding: 8px;
+            border-left: 3px solid #6f42c1;
         }
 
         h4, h5 {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             color: #333;
+            font-size: 10px;
         }
 
         address {
             font-style: normal;
-            line-height: 1.5;
+            line-height: 1.3;
         }
 
         p {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         strong {
+            font-weight: bold;
+        }
+
+        .invoice-title {
+            font-size: 16px;
+            color: #ff6b35;
+            margin: 0 0 8px 0;
+            font-weight: bold;
+        }
+
+        .bill-to h4 {
+            font-size: 12px;
+            color: #ff6b35;
+            margin: 0 0 8px 0;
             font-weight: bold;
         }
     </style>
@@ -252,29 +267,47 @@
             </div>
         </div>
 
-        <!-- Addresses -->
+        <!-- Shipping Address -->
         <?php if (!empty($order['shipping_address'])): ?>
-            <div class="address-section">
-                <div>
-                    <h5>Shipping Address:</h5>
-                    <address>
-                        <?php
-                        $shippingAddress = json_decode($order['shipping_address'], true);
-                        if ($shippingAddress):
-                        ?>
-                            <?= esc($shippingAddress['full_name']) ?><br>
-                            <?= esc($shippingAddress['address_line_1']) ?><br>
-                            <?php if (!empty($shippingAddress['address_line_2'])): ?>
-                                <?= esc($shippingAddress['address_line_2']) ?><br>
-                            <?php endif; ?>
-                            <?= esc($shippingAddress['city']) ?>, <?= esc($shippingAddress['state']) ?> <?= esc($shippingAddress['postal_code']) ?><br>
-                            <?= esc($shippingAddress['country']) ?><br>
-                            <?php if (!empty($shippingAddress['phone'])): ?>
-                                Phone: <?= esc($shippingAddress['phone']) ?>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    </address>
-                </div>
+            <div class="address-section" style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-left: 3px solid #ff6b35;">
+                <h5 style="margin: 0 0 5px 0; font-size: 12px; color: #ff6b35;">📦 Shipping Address:</h5>
+                <address style="margin: 0; font-style: normal; font-size: 9px; line-height: 1.3;">
+                    <?php
+                    // Try to decode as JSON first, if that fails, treat as plain text
+                    $shippingAddress = json_decode($order['shipping_address'], true);
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        // It's a formatted string, display as is
+                        echo nl2br(esc($order['shipping_address']));
+                    } else {
+                        // It's JSON data, display structured
+                        if (!empty($shippingAddress['full_name'])) {
+                            echo '<strong>' . esc($shippingAddress['full_name']) . '</strong><br>';
+                        }
+                        if (!empty($shippingAddress['address_line1'])) {
+                            echo esc($shippingAddress['address_line1']) . '<br>';
+                        }
+                        if (!empty($shippingAddress['address_line2'])) {
+                            echo esc($shippingAddress['address_line2']) . '<br>';
+                        }
+                        if (!empty($shippingAddress['landmark'])) {
+                            echo 'Near ' . esc($shippingAddress['landmark']) . '<br>';
+                        }
+                        if (!empty($shippingAddress['city']) || !empty($shippingAddress['state']) || !empty($shippingAddress['pincode'])) {
+                            echo esc($shippingAddress['city'] ?? '');
+                            if (!empty($shippingAddress['city']) && (!empty($shippingAddress['state']) || !empty($shippingAddress['pincode']))) echo ', ';
+                            echo esc($shippingAddress['state'] ?? '');
+                            if (!empty($shippingAddress['state']) && !empty($shippingAddress['pincode'])) echo ' ';
+                            echo esc($shippingAddress['pincode'] ?? '') . '<br>';
+                        }
+                        if (!empty($shippingAddress['country']) && $shippingAddress['country'] !== 'India') {
+                            echo esc($shippingAddress['country']) . '<br>';
+                        }
+                        if (!empty($shippingAddress['phone'])) {
+                            echo '📞 ' . esc($shippingAddress['phone']);
+                        }
+                    }
+                    ?>
+                </address>
             </div>
         <?php endif; ?>
 
@@ -299,32 +332,38 @@
                             <?php endif; ?>
                         </td>
                         <td><?= esc($item['product_sku'] ?? 'N/A') ?></td>
-                        <td class="text-right">$<?= number_format($item['price'], 2) ?></td>
+                        <td class="text-right">₹<?= number_format($item['price'], 2) ?></td>
                         <td class="text-right"><?= $item['quantity'] ?></td>
-                        <td class="text-right">₹<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                        <td class="text-right">₹<?= number_format($item['total'], 2) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right">₹<?= number_format($order['subtotal'], 2) ?></td>
+                    <td class="text-right">₹<?= number_format($order['subtotal_amount'] ?? 0, 2) ?></td>
                 </tr>
                 <?php if (!empty($order['tax_amount']) && $order['tax_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Tax:</strong></td>
-                        <td class="text-right">₹<?= number_format($order['tax_amount'], 2) ?></td>
+                        <td class="text-right">₹<?= number_format($order['tax_amount'] ?? 0, 2) ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php if (!empty($order['shipping_amount']) && $order['shipping_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Shipping:</strong></td>
-                        <td class="text-right">₹<?= number_format($order['shipping_amount'], 2) ?></td>
+                        <td class="text-right">₹<?= number_format($order['shipping_amount'] ?? 0, 2) ?></td>
+                    </tr>
+                <?php endif; ?>
+                <?php if (!empty($order['discount_amount']) && $order['discount_amount'] > 0): ?>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Discount:</strong></td>
+                        <td class="text-right">-₹<?= number_format($order['discount_amount'] ?? 0, 2) ?></td>
                     </tr>
                 <?php endif; ?>
                 <tr class="invoice-total">
                     <td colspan="4" class="text-right"><strong>TOTAL AMOUNT:</strong></td>
-                    <td class="text-right"><strong>₹<?= number_format($order['total_amount'], 2) ?></strong></td>
+                    <td class="text-right"><strong>₹<?= number_format($order['total_amount'] ?? 0, 2) ?></strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -333,18 +372,18 @@
         <div class="payment-info-section">
             <!-- Order Information -->
             <div class="payment-info-box">
-                <h5 style="color: #17a2b8; margin-bottom: 10px;">📦 Order Information</h5>
+                <h5 style="color: #17a2b8; margin-bottom: 3px; font-size: 9px;">📦 Order Information</h5>
                 <?php if (!empty($order['shipping_method_name'])): ?>
-                    <p><strong>Shipping Method:</strong> <?= esc($order['shipping_method_name']) ?></p>
-                    <p><strong>Delivery Time:</strong> <?= esc($order['shipping_delivery_time']) ?></p>
+                    <p style="font-size: 8px; margin-bottom: 1px;"><strong>Shipping:</strong> <?= esc($order['shipping_method_name']) ?></p>
+                    <p style="font-size: 8px; margin-bottom: 1px;"><strong>Delivery:</strong> <?= esc($order['shipping_delivery_time']) ?></p>
                 <?php endif; ?>
             </div>
 
             <!-- Order Notes -->
             <?php if (!empty($order['notes'])): ?>
                 <div class="order-notes-box">
-                    <h5 style="color: #6f42c1; margin-bottom: 10px;">📝 Order Notes</h5>
-                    <p><?= nl2br(esc($order['notes'])) ?></p>
+                    <h5 style="color: #6f42c1; margin-bottom: 3px; font-size: 9px;">📝 Order Notes</h5>
+                    <p style="font-size: 8px;"><?= nl2br(esc($order['notes'])) ?></p>
                 </div>
             <?php endif; ?>
         </div>

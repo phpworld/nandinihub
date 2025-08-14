@@ -12,11 +12,11 @@ class EmailSettings extends BaseConfig
     
     // SMTP Configuration
     public string $protocol = 'smtp';
-    public string $SMTPHost = 'smtp.gmail.com';
-    public string $SMTPUser = 'your-email@gmail.com'; // Change this to your email
-    public string $SMTPPass = 'your-app-password'; // Change this to your app password
-    public int $SMTPPort = 587;
-    public string $SMTPCrypto = 'tls';
+    public string $SMTPHost = 'smtp.hostinger.com';
+    public string $SMTPUser = 'info@boxbites.in';
+    public string $SMTPPass = 'Anikasingh@2024';
+    public int $SMTPPort = 587; // Changed to 587 for TLS
+    public string $SMTPCrypto = 'tls'; // Changed to TLS for port 587
     
     // Email Settings
     public string $mailType = 'html';
@@ -24,17 +24,17 @@ class EmailSettings extends BaseConfig
     public string $newline = "\r\n";
     
     // From Email Settings
-    public string $fromEmail = 'noreply@nandinihub.com';
-    public string $fromName = 'Nandini Hub';
-    
+    public string $fromEmail = 'info@boxbites.in';
+    public string $fromName = 'MICRODOSE MUSHROOM';
+
     // Admin Email Settings
-    public string $adminEmail = 'admin@nandinihub.com'; // Change this to your admin email
-    public string $adminName = 'Nandini Hub Admin';
-    
+    public string $adminEmail = 'info@boxbites.in';
+    public string $adminName = 'MICRODOSE MUSHROOM - Admin';
+
     // Site Information
-    public string $siteName = 'Nandini Hub';
-    public string $siteUrl = 'https://nandinihub.com';
-    public string $supportEmail = 'support@nandinihub.com';
+    public string $siteName = 'MICRODOSE MUSHROOM';
+    public string $siteUrl = 'https://boxbites.in';
+    public string $supportEmail = 'info@boxbites.in';
     
     /**
      * Email Templates Configuration

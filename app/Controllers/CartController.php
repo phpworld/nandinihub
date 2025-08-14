@@ -4,33 +4,77 @@ namespace App\Controllers;
 
 use App\Models\CartModel;
 use App\Models\ProductModel;
+use App\Libraries\ShippingService;
 
 class CartController extends BaseController
 {
     protected $cartModel;
     protected $productModel;
+    protected $shippingService;
 
     public function __construct()
     {
         $this->cartModel = new CartModel();
         $this->productModel = new ProductModel();
+        $this->shippingService = new ShippingService();
     }
 
     public function index()
     {
         $userId = session()->get('user_id');
         $sessionId = session()->session_id;
-        
+
         $cartItems = $this->cartModel->getCartItemsWithDetails($userId, $sessionId);
         $cartTotal = $this->cartModel->getCartTotal($userId, $sessionId);
+
+        // Get cheapest shipping cost for display
+        $shippingInfo = $this->shippingService->getCheapestShippingCost($cartTotal);
 
         $data = [
             'title' => 'Shopping Cart - Microdose Mushroom',
             'cartItems' => $cartItems,
-            'cartTotal' => $cartTotal
+            'cartTotal' => $cartTotal,
+            'shippingInfo' => $shippingInfo
         ];
 
         return view('cart/index', $data);
+    }
+
+    /**
+     * AJAX endpoint to get shipping cost for updated cart total
+     */
+    public function getShippingCost()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
+        }
+
+        $subtotal = (float) $this->request->getPost('subtotal');
+
+        if ($subtotal <= 0) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid subtotal'
+            ]);
+        }
+
+        try {
+            $shippingInfo = $this->shippingService->getCheapestShippingCost($subtotal);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'shipping_cost' => $shippingInfo['cost'],
+                'method_name' => $shippingInfo['method_name'],
+                'is_free' => $shippingInfo['is_free'],
+                'method_id' => $shippingInfo['method_id']
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error getting shipping cost: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error calculating shipping cost'
+            ]);
+        }
     }
 
     public function add()

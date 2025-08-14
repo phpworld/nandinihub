@@ -44,8 +44,8 @@ class PageModel extends Model
         'is_active' => 'in_list[0,1]',
         'show_in_header' => 'in_list[0,1]',
         'show_in_footer' => 'in_list[0,1]',
-        'header_order' => 'integer|greater_than_equal_to[0]',
-        'footer_order' => 'integer|greater_than_equal_to[0]',
+        'header_order' => 'permit_empty|integer|greater_than_equal_to[0]',
+        'footer_order' => 'permit_empty|integer|greater_than_equal_to[0]',
         'template' => 'permit_empty|max_length[50]'
     ];
 

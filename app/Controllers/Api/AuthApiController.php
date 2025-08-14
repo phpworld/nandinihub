@@ -68,6 +68,15 @@ class AuthApiController extends BaseApiController
         $user = $this->userModel->find($userId);
         unset($user['password']); // Remove password from response
 
+        // Send welcome email
+        try {
+            $emailService = new \App\Libraries\EmailService();
+            $emailResult = $emailService->sendWelcomeEmail($user);
+            log_message('info', 'Welcome email result for new API user ' . $user['email'] . ': ' . ($emailResult ? 'SUCCESS' : 'FAILED'));
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to send welcome email to new API user ' . $user['email'] . ': ' . $e->getMessage());
+        }
+
         // Generate JWT token
         $token = $this->jwtHelper->generateToken($user);
         $refreshToken = $this->jwtHelper->generateRefreshToken($userId);

@@ -1,7 +1,5 @@
-0<?php
-
+<?php
 namespace App\Libraries;
-
 use CodeIgniter\Email\Email;
 
 class EmailService
@@ -24,8 +22,20 @@ class EmailService
             'SMTPCrypto'  => $this->emailConfig->SMTPCrypto,
             'mailType'    => $this->emailConfig->mailType,
             'charset'     => $this->emailConfig->charset,
-            'newline'     => $this->emailConfig->newline
+            'newline'     => $this->emailConfig->newline,
+            'SMTPTimeout' => 30,
+            'wordWrap'    => true,
+            'wrapChars'   => 76
         ];
+
+        // Log email configuration for debugging
+        log_message('info', 'Email configuration: ' . json_encode([
+            'protocol' => $config['protocol'],
+            'SMTPHost' => $config['SMTPHost'],
+            'SMTPUser' => $config['SMTPUser'],
+            'SMTPPort' => $config['SMTPPort'],
+            'SMTPCrypto' => $config['SMTPCrypto']
+        ]));
 
         $this->email->initialize($config);
     }
@@ -33,6 +43,11 @@ class EmailService
     public function sendOrderConfirmation($order, $orderItems, $user)
     {
         try {
+            log_message('info', 'Attempting to send order confirmation email to: ' . $user['email'] . ' for order: ' . $order['order_number']);
+
+            // Reinitialize email service to avoid conflicts
+            $this->reinitializeEmail();
+
             $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
             $this->email->setTo($user['email']);
             $subject = str_replace('{order_number}', $order['order_number'], $this->emailConfig->templates['order_confirmation']['subject']);
@@ -41,17 +56,43 @@ class EmailService
             $message = $this->generateOrderConfirmationEmail($order, $orderItems, $user);
             $this->email->setMessage($message);
 
+            log_message('info', 'Email prepared, attempting to send...');
+
             if ($this->email->send()) {
-                log_message('info', 'Order confirmation email sent to: ' . $user['email']);
+                log_message('info', 'Order confirmation email sent successfully to: ' . $user['email']);
                 return true;
             } else {
-                log_message('error', 'Failed to send order confirmation email: ' . $this->email->printDebugger());
+                $debugInfo = $this->email->printDebugger(['headers', 'subject', 'body']);
+                log_message('error', 'Failed to send order confirmation email. Debug info: ' . $debugInfo);
                 return false;
             }
         } catch (\Exception $e) {
-            log_message('error', 'Email service error: ' . $e->getMessage());
+            log_message('error', 'Email service error in sendOrderConfirmation: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return false;
         }
+    }
+
+    private function reinitializeEmail()
+    {
+        // Create a fresh email instance to avoid conflicts
+        $this->email = \Config\Services::email();
+
+        $config = [
+            'protocol'    => $this->emailConfig->protocol,
+            'SMTPHost'    => $this->emailConfig->SMTPHost,
+            'SMTPUser'    => $this->emailConfig->SMTPUser,
+            'SMTPPass'    => $this->emailConfig->SMTPPass,
+            'SMTPPort'    => $this->emailConfig->SMTPPort,
+            'SMTPCrypto'  => $this->emailConfig->SMTPCrypto,
+            'mailType'    => $this->emailConfig->mailType,
+            'charset'     => $this->emailConfig->charset,
+            'newline'     => $this->emailConfig->newline,
+            'SMTPTimeout' => 30,
+            'wordWrap'    => true,
+            'wrapChars'   => 76
+        ];
+
+        $this->email->initialize($config);
     }
 
     public function sendOrderStatusUpdate($order, $user, $oldStatus, $newStatus)
@@ -81,22 +122,30 @@ class EmailService
     public function sendWelcomeEmail($user)
     {
         try {
-            $this->email->setFrom('noreply@nandinihub.com', 'Nandini Hub');
+            log_message('info', 'Attempting to send welcome email to: ' . $user['email']);
+
+            // Reinitialize email service to avoid conflicts
+            $this->reinitializeEmail();
+
+            $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
             $this->email->setTo($user['email']);
-            $this->email->setSubject('Welcome to Nandini Hub - Your Wellness Journey Begins');
+            $this->email->setSubject($this->emailConfig->templates['welcome']['subject']);
 
             $message = $this->generateWelcomeEmail($user);
             $this->email->setMessage($message);
 
+            log_message('info', 'Welcome email prepared, attempting to send...');
+
             if ($this->email->send()) {
-                log_message('info', 'Welcome email sent to: ' . $user['email']);
+                log_message('info', 'Welcome email sent successfully to: ' . $user['email']);
                 return true;
             } else {
-                log_message('error', 'Failed to send welcome email: ' . $this->email->printDebugger());
+                $debugInfo = $this->email->printDebugger(['headers', 'subject', 'body']);
+                log_message('error', 'Failed to send welcome email. Debug info: ' . $debugInfo);
                 return false;
             }
         } catch (\Exception $e) {
-            log_message('error', 'Email service error: ' . $e->getMessage());
+            log_message('error', 'Email service error in sendWelcomeEmail: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return false;
         }
     }
@@ -104,6 +153,11 @@ class EmailService
     public function sendAdminOrderNotification($order, $orderItems, $user)
     {
         try {
+            log_message('info', 'Attempting to send admin notification email to: ' . $this->emailConfig->adminEmail . ' for order: ' . $order['order_number']);
+
+            // Reinitialize email service to avoid conflicts
+            $this->reinitializeEmail();
+
             $this->email->setFrom($this->emailConfig->fromEmail, $this->emailConfig->fromName);
             $this->email->setTo($this->emailConfig->adminEmail);
             $subject = str_replace('{order_number}', $order['order_number'], $this->emailConfig->templates['admin_notification']['subject']);
@@ -112,15 +166,18 @@ class EmailService
             $message = $this->generateAdminOrderNotificationEmail($order, $orderItems, $user);
             $this->email->setMessage($message);
 
+            log_message('info', 'Admin email prepared, attempting to send...');
+
             if ($this->email->send()) {
-                log_message('info', 'Admin order notification sent for order: ' . $order['order_number']);
+                log_message('info', 'Admin order notification sent successfully for order: ' . $order['order_number']);
                 return true;
             } else {
-                log_message('error', 'Failed to send admin order notification: ' . $this->email->printDebugger());
+                $debugInfo = $this->email->printDebugger(['headers', 'subject', 'body']);
+                log_message('error', 'Failed to send admin order notification. Debug info: ' . $debugInfo);
                 return false;
             }
         } catch (\Exception $e) {
-            log_message('error', 'Email service error: ' . $e->getMessage());
+            log_message('error', 'Email service error in sendAdminOrderNotification: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return false;
         }
     }
@@ -249,8 +306,8 @@ class EmailService
         foreach ($orderItems as $item) {
             $html .= '
                         <div class="item">
-                            <strong>' . esc($item['name']) . '</strong><br>
-                            Quantity: ' . $item['quantity'] . ' × $' . number_format($item['price'], 2) . ' = $' . number_format($item['price'] * $item['quantity'], 2) . '
+                            <strong>' . esc($item['product_name']) . '</strong><br>
+                            Quantity: ' . $item['quantity'] . ' × $' . number_format($item['price'], 2) . ' = $' . number_format($item['total'], 2) . '
                         </div>';
         }
 

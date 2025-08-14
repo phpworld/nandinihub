@@ -502,10 +502,10 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                            <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
-                                            <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
+                                            <span class="price-original small"><?= format_currency($product['price']) ?></span>
+                                            <span class="price-sale"><?= format_currency($product['sale_price']) ?></span>
                                         <?php else: ?>
-                                            <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale"><?= format_currency($product['price']) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>
@@ -742,10 +742,10 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                                            <span class="price-original small">$<?= number_format($product['price'], 2) ?></span>
-                                            <span class="price-sale">$<?= number_format($product['sale_price'], 2) ?></span>
+                                            <span class="price-original small"><?= format_currency($product['price']) ?></span>
+                                            <span class="price-sale"><?= format_currency($product['sale_price']) ?></span>
                                         <?php else: ?>
-                                            <span class="price-sale">$<?= number_format($product['price'], 2) ?></span>
+                                            <span class="price-sale"><?= format_currency($product['price']) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="text-muted">Stock: <?= $product['stock_quantity'] ?></small>
@@ -775,7 +775,7 @@
             <div class="col-md-3">
                 <i class="fas fa-shipping-fast fa-3x mb-3"></i>
                 <h5>Free Shipping</h5>
-                <p>Free delivery on orders above ₹500</p>
+                <p>Free delivery on orders above <?= format_currency(500) ?></p>
             </div>
             <div class="col-md-3">
                 <i class="fas fa-shield-alt fa-3x mb-3"></i>

@@ -1,0 +1,89 @@
+DEBUG - 2025-08-06 08:06:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-06 08:06:52 --> Order processing attempt for user ID: 3
+INFO - 2025-08-06 08:06:52 --> POST data: {"csrf_test_name":"c4f8eb4379b27ec2129c011d22c11c6a","delivery_address_id":"1","shipping_method_id":"1","payment_method_id":"1","notes":"","billing_address":""}
+INFO - 2025-08-06 08:06:52 --> Order data prepared: {"user_id":"3","total_amount":97.2,"subtotal_amount":40,"shipping_amount":50,"tax_amount":7.199999999999999,"discount_amount":0,"coupon_id":null,"coupon_code":null,"shipping_method_id":1,"payment_method_id":1,"payment_status":"pending","shipping_address":"LGF 10 ANORA KALAN, Near TECHNO COLLAGE, Lucknow, Uttar Pradesh, 226028","billing_address":"LGF 10 ANORA KALAN, Near TECHNO COLLAGE, Lucknow, Uttar Pradesh, 226028","notes":"","status":"pending"}
+INFO - 2025-08-06 08:06:52 --> Order created with ID: 42
+INFO - 2025-08-06 08:06:52 --> Order items created successfully
+INFO - 2025-08-06 08:06:52 --> Product stock updated successfully
+INFO - 2025-08-06 08:06:52 --> Cart cleared successfully
+INFO - 2025-08-06 08:06:52 --> Order completed successfully: ORD202508061237
+INFO - 2025-08-06 08:06:52 --> Order transaction committed successfully for order: ORD202508061237
+INFO - 2025-08-06 08:06:52 --> 🚀 STARTING EMAIL PROCESS for order: ORD202508061237
+INFO - 2025-08-06 08:06:52 --> Order data for email: {"id":"42","order_number":"ORD202508061237","user_id":"3","total_amount":"97.20"}
+INFO - 2025-08-06 08:06:52 --> Cart items count for email: 1
+INFO - 2025-08-06 08:06:52 --> Starting sendOrderConfirmationEmails for order: ORD202508061237
+INFO - 2025-08-06 08:06:52 --> User found: vinaysingh43@gmail.com for order: ORD202508061237
+INFO - 2025-08-06 08:06:52 --> Email configuration: {"protocol":"smtp","SMTPHost":"smtp.hostinger.com","SMTPUser":"info@boxbites.in","SMTPPort":587,"SMTPCrypto":"tls"}
+INFO - 2025-08-06 08:06:52 --> EmailService initialized for order: ORD202508061237
+INFO - 2025-08-06 08:06:53 --> Attempting to send user confirmation email for order: ORD202508061237
+INFO - 2025-08-06 08:06:53 --> Attempting to send order confirmation email to: vinaysingh43@gmail.com for order: ORD202508061237
+ERROR - 2025-08-06 08:06:53 --> Email service error in sendOrderConfirmation: Undefined array key "payment_method" | Trace: #0 D:\xampp\htdocs\nandinihub\app\Libraries\EmailService.php(219): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array...', 'D:\\xampp\\htdocs...', 219)
+#1 D:\xampp\htdocs\nandinihub\app\Libraries\EmailService.php(56): App\Libraries\EmailService->generateOrderConfirmationEmail(Array, Array, Array)
+#2 D:\xampp\htdocs\nandinihub\app\Controllers\OrderController.php(658): App\Libraries\EmailService->sendOrderConfirmation(Array, Array, Array)
+#3 D:\xampp\htdocs\nandinihub\app\Controllers\OrderController.php(585): App\Controllers\OrderController->sendOrderConfirmationEmails(Array, Array)
+#4 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(933): App\Controllers\OrderController->processCheckout()
+#5 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\OrderController))
+#6 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#7 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#8 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#9 D:\xampp\htdocs\nandinihub\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#10 {main}
+INFO - 2025-08-06 08:06:53 --> User email result: FAILED for order: ORD202508061237
+INFO - 2025-08-06 08:06:55 --> Attempting to send admin notification email for order: ORD202508061237
+INFO - 2025-08-06 08:06:55 --> Attempting to send admin notification email to: info@boxbites.in for order: ORD202508061237
+ERROR - 2025-08-06 08:06:55 --> Email service error in sendAdminOrderNotification: Undefined array key "product_name" | Trace: #0 D:\xampp\htdocs\nandinihub\app\Libraries\EmailService.php(309): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array...', 'D:\\xampp\\htdocs...', 309)
+#1 D:\xampp\htdocs\nandinihub\app\Libraries\EmailService.php(166): App\Libraries\EmailService->generateAdminOrderNotificationEmail(Array, Array, Array)
+#2 D:\xampp\htdocs\nandinihub\app\Controllers\OrderController.php(666): App\Libraries\EmailService->sendAdminOrderNotification(Array, Array, Array)
+#3 D:\xampp\htdocs\nandinihub\app\Controllers\OrderController.php(585): App\Controllers\OrderController->sendOrderConfirmationEmails(Array, Array)
+#4 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(933): App\Controllers\OrderController->processCheckout()
+#5 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\OrderController))
+#6 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#7 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#8 D:\xampp\htdocs\nandinihub\vendor\codeigniter4\framework\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#9 D:\xampp\htdocs\nandinihub\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#10 {main}
+INFO - 2025-08-06 08:06:55 --> Admin email result: FAILED for order: ORD202508061237
+ERROR - 2025-08-06 08:06:55 --> Failed to send order confirmation email to user for order: ORD202508061237
+ERROR - 2025-08-06 08:06:55 --> Failed to send order notification email to admin for order: ORD202508061237
+INFO - 2025-08-06 08:06:55 --> sendOrderConfirmationEmails completed with result: FAILED for order: ORD202508061237
+INFO - 2025-08-06 08:06:55 --> 📧 EMAIL PROCESS COMPLETED with result: FAILED for order: ORD202508061237
+DEBUG - 2025-08-06 08:06:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:06:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:07:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:53:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:53:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:53:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:58:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:59:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 08:59:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 09:51:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 09:51:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-06 09:51:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

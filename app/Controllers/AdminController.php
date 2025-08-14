@@ -2249,6 +2249,10 @@ class AdminController extends BaseController
 
         $orderItems = $this->orderItemModel->getOrderItems($id);
 
+        // Debug: Log order data to check available fields
+        log_message('debug', 'PDF Order data: ' . json_encode(array_keys($order)));
+        log_message('debug', 'PDF Order values: ' . json_encode($order));
+
         // Load DOMPDF
         require_once ROOTPATH . 'vendor/autoload.php';
 
@@ -2710,6 +2714,24 @@ class AdminController extends BaseController
         if ($this->request->getPost('custom_js_form_submitted') !== null) {
             $rules['custom_js_form_submitted'] = 'permit_empty';
         }
+        if ($this->request->getPost('currency') !== null) {
+            $rules['currency'] = 'permit_empty|in_list[USD,INR,EUR,GBP,CAD,AUD,JPY]';
+        }
+        if ($this->request->getPost('currency_position') !== null) {
+            $rules['currency_position'] = 'permit_empty|in_list[before,after]';
+        }
+        if ($this->request->getPost('timezone') !== null) {
+            $rules['timezone'] = 'permit_empty|max_length[50]';
+        }
+        if ($this->request->getPost('date_format') !== null) {
+            $rules['date_format'] = 'permit_empty|max_length[20]';
+        }
+        if ($this->request->getPost('footer_text') !== null) {
+            $rules['footer_text'] = 'permit_empty|max_length[1000]';
+        }
+        if ($this->request->getPost('footer_copyright') !== null) {
+            $rules['footer_copyright'] = 'permit_empty|max_length[255]';
+        }
 
         // Only validate if there are rules to validate
         if (!empty($rules) && !$this->validate($rules)) {
@@ -2737,6 +2759,35 @@ class AdminController extends BaseController
         }
         if ($this->request->getPost('address') !== null) {
             $settingsData['business_address'] = $this->request->getPost('address');
+        }
+
+        // Currency and localization settings
+        if ($this->request->getPost('currency') !== null) {
+            $currency = $this->request->getPost('currency');
+            $settingsData['currency'] = $currency;
+
+            // Auto-update currency symbol based on selected currency
+            $currencyOptions = get_currency_options();
+            if (isset($currencyOptions[$currency])) {
+                $settingsData['currency_symbol'] = $currencyOptions[$currency]['symbol'];
+            }
+        }
+        if ($this->request->getPost('currency_position') !== null) {
+            $settingsData['currency_position'] = $this->request->getPost('currency_position');
+        }
+        if ($this->request->getPost('timezone') !== null) {
+            $settingsData['timezone'] = $this->request->getPost('timezone');
+        }
+        if ($this->request->getPost('date_format') !== null) {
+            $settingsData['date_format'] = $this->request->getPost('date_format');
+        }
+
+        // Footer settings
+        if ($this->request->getPost('footer_text') !== null) {
+            $settingsData['footer_text'] = $this->request->getPost('footer_text');
+        }
+        if ($this->request->getPost('footer_copyright') !== null) {
+            $settingsData['footer_copyright'] = $this->request->getPost('footer_copyright');
         }
 
         // Google Analytics settings
@@ -2780,6 +2831,8 @@ class AdminController extends BaseController
         // Update settings in database
         if (!empty($settingsData)) {
             if ($this->settingModel->updateSettings($settingsData)) {
+                // Clear settings cache after successful update
+                clear_settings_cache();
                 session()->setFlashdata('success', 'Settings updated successfully');
             } else {
                 session()->setFlashdata('error', 'Failed to update settings');

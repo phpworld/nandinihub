@@ -269,17 +269,33 @@ class OrderModel extends Model
             $queryParams['date_to'] = $filters['date_to'];
         }
 
-        // Set path with query parameters
-        $baseUrl = base_url('orders');
+        // Create custom pagination data
+        $totalPages = ceil($totalCount / $perPage);
+        $currentPage = (int) $page;
+
+        // Build query string for pagination links
+        $queryString = '';
         if (!empty($queryParams)) {
-            $baseUrl .= '?' . http_build_query($queryParams);
+            $queryString = '&' . http_build_query($queryParams);
         }
-        $pager->setPath($baseUrl);
-        $pager->makeLinks($page, $perPage, $totalCount);
+
+        // Create pagination data
+        $paginationData = [
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+            'totalItems' => $totalCount,
+            'hasNext' => $currentPage < $totalPages,
+            'hasPrevious' => $currentPage > 1,
+            'nextPage' => $currentPage < $totalPages ? $currentPage + 1 : null,
+            'previousPage' => $currentPage > 1 ? $currentPage - 1 : null,
+            'queryString' => $queryString,
+            'baseUrl' => 'orders'
+        ];
 
         return [
             'data' => $orders,
-            'pager' => $pager,
+            'pager' => $paginationData,
             'total' => $totalCount
         ];
     }

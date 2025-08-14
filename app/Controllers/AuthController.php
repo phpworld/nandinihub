@@ -103,6 +103,9 @@ class AuthController extends BaseController
         if ($this->userModel->insert($userData)) {
             $userId = $this->userModel->getInsertID();
 
+            // Get the created user for email
+            $user = $this->userModel->find($userId);
+
             // Set session data
             session()->set([
                 'user_id' => $userId,
@@ -114,6 +117,15 @@ class AuthController extends BaseController
             // Transfer cart items from session to user
             $sessionId = session()->session_id;
             $this->cartModel->transferCartToUser($sessionId, $userId);
+
+            // Send welcome email
+            try {
+                $emailService = new \App\Libraries\EmailService();
+                $emailResult = $emailService->sendWelcomeEmail($user);
+                log_message('info', 'Welcome email result for new user ' . $user['email'] . ': ' . ($emailResult ? 'SUCCESS' : 'FAILED'));
+            } catch (\Exception $e) {
+                log_message('error', 'Failed to send welcome email to new user ' . $user['email'] . ': ' . $e->getMessage());
+            }
 
             session()->setFlashdata('success', 'Registration successful! Welcome to Microdose Mushroom.');
             return redirect()->to('/');

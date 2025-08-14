@@ -446,9 +446,9 @@
                                 <strong><?= esc($item['product_name']) ?></strong>
                             </td>
                             <td><?= esc($item['product_sku'] ?? 'N/A') ?></td>
-                            <td class="text-right">$<?= number_format($item['price'], 2) ?></td>
+                            <td class="text-right"><?= format_currency($item['price']) ?></td>
                             <td class="text-right"><?= $item['quantity'] ?></td>
-                            <td class="text-right">$<?= number_format($item['total'], 2) ?></td>
+                            <td class="text-right"><?= format_currency($item['total']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -456,29 +456,29 @@
             <tfoot>
                 <tr>
                     <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right">$<?= number_format(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0)), 2) ?></td>
+                    <td class="text-right"><?= format_currency(($order['total_amount'] - ($order['shipping_amount'] ?? 0) - ($order['tax_amount'] ?? 0) + ($order['discount_amount'] ?? 0))) ?></td>
                 </tr>
                 <?php if (!empty($order['discount_amount']) && $order['discount_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Discount:</strong></td>
-                        <td class="text-right">-$<?= number_format($order['discount_amount'], 2) ?></td>
+                        <td class="text-right">-<?= format_currency($order['discount_amount']) ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php if (!empty($order['tax_amount']) && $order['tax_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Tax:</strong></td>
-                        <td class="text-right">$<?= number_format($order['tax_amount'], 2) ?></td>
+                        <td class="text-right"><?= format_currency($order['tax_amount']) ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php if (!empty($order['shipping_amount']) && $order['shipping_amount'] > 0): ?>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Shipping:</strong></td>
-                        <td class="text-right">$<?= number_format($order['shipping_amount'], 2) ?></td>
+                        <td class="text-right"><?= format_currency($order['shipping_amount']) ?></td>
                     </tr>
                 <?php endif; ?>
                 <tr class="invoice-total">
                     <td colspan="4" class="text-right"><strong>TOTAL AMOUNT:</strong></td>
-                    <td class="text-right"><strong>$<?= number_format($order['total_amount'], 2) ?></strong></td>
+                    <td class="text-right"><strong><?= format_currency($order['total_amount']) ?></strong></td>
                 </tr>
             </tfoot>
         </table>

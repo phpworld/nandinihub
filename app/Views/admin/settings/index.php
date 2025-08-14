@@ -75,27 +75,52 @@
                         <div class="col-md-4 mb-3">
                             <label for="currency" class="form-label">Currency</label>
                             <select class="form-select" id="currency" name="currency">
-                                <option value="USD" selected>US Dollar ($)</option>
-                                <option value="INR">Indian Rupee (₹)</option>
-                                <option value="EUR">Euro (€)</option>
+                                <?php
+                                $currencyOptions = get_currency_options();
+                                $selectedCurrency = $settings['currency'] ?? 'USD';
+                                foreach ($currencyOptions as $code => $info): ?>
+                                    <option value="<?= $code ?>" <?= $selectedCurrency === $code ? 'selected' : '' ?>>
+                                        <?= esc($info['name']) ?> (<?= esc($info['symbol']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="timezone" class="form-label">Timezone</label>
                             <select class="form-select" id="timezone" name="timezone">
-                                <option value="Asia/Kolkata" selected>Asia/Kolkata</option>
-                                <option value="UTC">UTC</option>
-                                <option value="America/New_York">America/New_York</option>
+                                <?php
+                                $timezoneOptions = get_timezone_options();
+                                $selectedTimezone = $settings['timezone'] ?? 'Asia/Kolkata';
+                                foreach ($timezoneOptions as $value => $label): ?>
+                                    <option value="<?= $value ?>" <?= $selectedTimezone === $value ? 'selected' : '' ?>>
+                                        <?= esc($label) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="date_format" class="form-label">Date Format</label>
                             <select class="form-select" id="date_format" name="date_format">
-                                <option value="d/m/Y" selected>DD/MM/YYYY</option>
-                                <option value="m/d/Y">MM/DD/YYYY</option>
-                                <option value="Y-m-d">YYYY-MM-DD</option>
+                                <?php
+                                $dateFormatOptions = get_date_format_options();
+                                $selectedDateFormat = $settings['date_format'] ?? 'd/m/Y';
+                                foreach ($dateFormatOptions as $value => $label): ?>
+                                    <option value="<?= $value ?>" <?= $selectedDateFormat === $value ? 'selected' : '' ?>>
+                                        <?= esc($label) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="currency_position" class="form-label">Currency Symbol Position</label>
+                            <select class="form-select" id="currency_position" name="currency_position">
+                                <option value="before" <?= ($settings['currency_position'] ?? 'before') === 'before' ? 'selected' : '' ?>>Before Amount ($100)</option>
+                                <option value="after" <?= ($settings['currency_position'] ?? 'before') === 'after' ? 'selected' : '' ?>>After Amount (100$)</option>
                             </select>
                         </div>
                     </div>
@@ -124,6 +149,41 @@
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Save General Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-align-left me-2"></i>Footer Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="<?= base_url('admin/settings') ?>" method="POST">
+                    <?= csrf_field() ?>
+
+                    <div class="mb-3">
+                        <label for="footer_text" class="form-label">Footer Description</label>
+                        <textarea class="form-control" id="footer_text" name="footer_text" rows="3"
+                            placeholder="Enter footer description text"><?= esc($settings['footer_text'] ?? 'Your trusted source for premium quality products. Bringing excellence to your doorstep.') ?></textarea>
+                        <small class="text-muted">This text will appear in the footer section of your website</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="footer_copyright" class="form-label">Copyright Text</label>
+                        <input type="text" class="form-control" id="footer_copyright" name="footer_copyright"
+                            value="<?= esc($settings['footer_copyright'] ?? '© 2024 Nandini Hub. All rights reserved.') ?>"
+                            placeholder="© 2024 Your Company. All rights reserved.">
+                        <small class="text-muted">Copyright text displayed in the footer</small>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Footer Settings
                         </button>
                     </div>
                 </form>

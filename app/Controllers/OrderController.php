@@ -559,16 +559,38 @@ class OrderController extends BaseController
                 }
             }
 
-            // Send confirmation emails to user and admin
-            $this->sendOrderConfirmationEmails($order, $cartItems);
-            session()->setFlashdata('success', 'Order placed successfully! Please complete the payment to confirm your order.');
-            return redirect()->to('/orders/' . $order['order_number'] . '/payment');
+            // Commit the transaction first
+            $db->transCommit();
+            log_message('info', 'Order transaction committed successfully for order: ' . $order['order_number']);
+
         } catch (\Exception $e) {
             $db->transRollback();
             log_message('error', 'Order processing exception: ' . $e->getMessage());
             session()->setFlashdata('error', 'Failed to place order: ' . $e->getMessage());
             return redirect()->back()->withInput();
         }
+
+        // Send confirmation emails AFTER transaction is committed
+        // This prevents email errors from affecting the order creation
+        try {
+            log_message('info', '🚀 STARTING EMAIL PROCESS for order: ' . $order['order_number']);
+            log_message('info', 'Order data for email: ' . json_encode([
+                'id' => $order['id'],
+                'order_number' => $order['order_number'],
+                'user_id' => $order['user_id'],
+                'total_amount' => $order['total_amount']
+            ]));
+            log_message('info', 'Cart items count for email: ' . count($cartItems));
+
+            $emailResult = $this->sendOrderConfirmationEmails($order, $cartItems);
+            log_message('info', '📧 EMAIL PROCESS COMPLETED with result: ' . ($emailResult ? 'SUCCESS' : 'FAILED') . ' for order: ' . $order['order_number']);
+        } catch (\Exception $e) {
+            // Log email errors but don't fail the order
+            log_message('error', '❌ EMAIL PROCESS EXCEPTION for order: ' . $order['order_number'] . ' - Error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+        }
+
+        session()->setFlashdata('success', 'Order placed successfully! Please complete the payment to confirm your order.');
+        return redirect()->to('/orders/' . $order['order_number'] . '/payment');
     }
 
 
@@ -611,6 +633,8 @@ class OrderController extends BaseController
     private function sendOrderConfirmationEmails($order, $orderItems)
     {
         try {
+            log_message('info', 'Starting sendOrderConfirmationEmails for order: ' . $order['order_number']);
+
             // Get user information
             $userModel = new \App\Models\UserModel();
             $user = $userModel->find($order['user_id']);
@@ -620,14 +644,27 @@ class OrderController extends BaseController
                 return false;
             }
 
+            log_message('info', 'User found: ' . $user['email'] . ' for order: ' . $order['order_number']);
+
             // Initialize email service
             $emailService = new \App\Libraries\EmailService();
+            log_message('info', 'EmailService initialized for order: ' . $order['order_number']);
+
+            // Add delay to ensure proper initialization
+            sleep(1);
 
             // Send confirmation email to user
+            log_message('info', 'Attempting to send user confirmation email for order: ' . $order['order_number']);
             $userEmailSent = $emailService->sendOrderConfirmation($order, $orderItems, $user);
+            log_message('info', 'User email result: ' . ($userEmailSent ? 'SUCCESS' : 'FAILED') . ' for order: ' . $order['order_number']);
+
+            // Add delay between emails
+            sleep(2);
 
             // Send notification email to admin
+            log_message('info', 'Attempting to send admin notification email for order: ' . $order['order_number']);
             $adminEmailSent = $emailService->sendAdminOrderNotification($order, $orderItems, $user);
+            log_message('info', 'Admin email result: ' . ($adminEmailSent ? 'SUCCESS' : 'FAILED') . ' for order: ' . $order['order_number']);
 
             if ($userEmailSent) {
                 log_message('info', 'Order confirmation email sent to user: ' . $user['email'] . ' for order: ' . $order['order_number']);
@@ -641,10 +678,13 @@ class OrderController extends BaseController
                 log_message('error', 'Failed to send order notification email to admin for order: ' . $order['order_number']);
             }
 
-            return $userEmailSent || $adminEmailSent; // Return true if at least one email was sent
+            $result = $userEmailSent || $adminEmailSent;
+            log_message('info', 'sendOrderConfirmationEmails completed with result: ' . ($result ? 'SUCCESS' : 'FAILED') . ' for order: ' . $order['order_number']);
+
+            return $result; // Return true if at least one email was sent
 
         } catch (\Exception $e) {
-            log_message('error', 'Error sending order confirmation emails: ' . $e->getMessage());
+            log_message('error', 'Error sending order confirmation emails: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return false;
         }
     }

@@ -11,6 +11,9 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+-- Disable foreign key checks during import
+SET FOREIGN_KEY_CHECKS = 0;
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -296,19 +299,8 @@ CREATE TABLE `order_items` (
 -- Dumping data for table `order_items`
 --
 
+-- Only insert order_items that reference existing orders (28, 29, 30, 31, 32, 33)
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `variant_sku`, `variant_options`, `product_name`, `product_sku`, `quantity`, `price`, `total`, `created_at`, `updated_at`) VALUES
-(36, 18, 11, NULL, NULL, NULL, 'Buy B+ Magic Mushrooms Spores Online USA', 'N/A', 1, 30.00, 30.00, '2025-08-01 05:08:02', '2025-08-01 05:08:02'),
-(39, 21, 35, NULL, NULL, NULL, 'Shop Neuro Botanicals Calm Microdose Mushroom Capsules', 'N/A', 1, 25.00, 25.00, '2025-08-01 10:55:33', '2025-08-01 10:55:33'),
-(40, 22, 13, NULL, NULL, NULL, 'Buy Florida White Magic Mushrooms Online USA', 'N/A', 1, 30.00, 30.00, '2025-08-01 11:04:02', '2025-08-01 11:04:02'),
-(41, 22, 11, NULL, NULL, NULL, 'Buy B+ Magic Mushrooms Spores Online USA', 'N/A', 1, 30.00, 30.00, '2025-08-01 11:04:02', '2025-08-01 11:04:02'),
-(42, 23, 17, NULL, NULL, NULL, 'Buy Penis Envy Mushroom Online USA', 'N/A', 1, 40.00, 40.00, '2025-08-01 11:45:53', '2025-08-01 11:45:53'),
-(43, 23, 11, NULL, NULL, NULL, 'Buy B+ Magic Mushrooms Spores Online USA', 'N/A', 1, 30.00, 30.00, '2025-08-01 11:45:53', '2025-08-01 11:45:53'),
-(44, 23, 9, NULL, NULL, NULL, 'Buy African Transkei Magic Mushrooms Online USA', 'N/A', 1, 39.00, 39.00, '2025-08-01 11:45:53', '2025-08-01 11:45:53'),
-(45, 24, 46, NULL, NULL, NULL, 'Shop Wonder Psilocybin Milk Chocolate Bar (6000mg)', 'N/A', 1, 80.00, 80.00, '2025-08-01 11:49:19', '2025-08-01 11:49:19'),
-(46, 25, 46, NULL, NULL, NULL, 'Shop Wonder Psilocybin Milk Chocolate Bar (6000mg)', 'N/A', 1, 80.00, 80.00, '2025-08-01 11:57:11', '2025-08-01 11:57:11'),
-(47, 25, 44, NULL, NULL, NULL, 'Buy Wonder Psilocybin Mushroom Cherry Cola Gummies (3000mg)', 'N/A', 1, 45.00, 45.00, '2025-08-01 11:57:11', '2025-08-01 11:57:11'),
-(48, 26, 46, NULL, NULL, NULL, 'Shop Wonder Psilocybin Milk Chocolate Bar (6000mg)', 'N/A', 1, 80.00, 80.00, '2025-08-05 05:27:32', '2025-08-05 05:27:32'),
-(49, 27, 35, NULL, NULL, NULL, 'Shop Neuro Botanicals Calm Microdose Mushroom Capsules', 'N/A', 1, 25.00, 25.00, '2025-08-05 05:33:46', '2025-08-05 05:33:46'),
 (50, 28, 23, NULL, NULL, NULL, 'Buy Cubes Scooby Snacks Microdose Capsules (50x300mg)', 'N/A', 1, 160.00, 160.00, '2025-08-05 05:42:51', '2025-08-05 05:42:51'),
 (51, 29, 27, NULL, NULL, NULL, 'Buy Kind Stranger Holiday Capsules (125mg)', 'N/A', 1, 82.00, 82.00, '2025-08-05 05:44:14', '2025-08-05 05:44:14'),
 (52, 30, 11, NULL, NULL, NULL, 'Buy B+ Magic Mushrooms Spores Online USA', 'N/A', 1, 30.00, 30.00, '2025-08-05 05:52:46', '2025-08-05 05:52:46'),
@@ -1228,6 +1220,9 @@ ALTER TABLE `user_devices`
 ALTER TABLE `wishlist`
   ADD CONSTRAINT `wishlist_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `wishlist_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Re-enable foreign key checks after import
+SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
