@@ -52,13 +52,14 @@
 
 
     <!-- Form -->
-    <div class="row">
-        <div class="col-lg-8">
-            <form method="POST" action="<?= $page ? base_url('admin/pages/' . $page['id'] . '/update') : base_url('admin/pages/store') ?>">
-                <?= csrf_field() ?>
-                <?php if ($page): ?>
-                    <input type="hidden" name="_method" value="POST">
-                <?php endif; ?>
+    <form method="POST" action="<?= $page ? base_url('admin/pages/' . $page['id'] . '/update') : base_url('admin/pages/store') ?>">
+        <?= csrf_field() ?>
+        <?php if ($page): ?>
+            <input type="hidden" name="_method" value="POST">
+        <?php endif; ?>
+
+        <div class="row">
+            <div class="col-lg-8">
 
                 <!-- Basic Information -->
                 <div class="card mb-4">
@@ -173,8 +174,7 @@
                         <i class="fas fa-save me-2"></i><?= $page ? 'Update Page' : 'Create Page' ?>
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
 
         <!-- Sidebar -->
         <div class="col-lg-4">
@@ -270,7 +270,8 @@
                 </div>
             <?php endif; ?>
         </div>
-    </div>
+        </div>
+    </form>
 </div>
 
 <script>

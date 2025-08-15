@@ -1,0 +1,168 @@
+DEBUG - 2025-08-15 07:23:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:23:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:07 --> getAdminData called with activeSection: dashboard
+DEBUG - 2025-08-15 07:24:07 --> User ID from session: 13
+DEBUG - 2025-08-15 07:24:07 --> User found: yes
+DEBUG - 2025-08-15 07:24:07 --> Sidebar items count: 12
+DEBUG - 2025-08-15 07:24:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:24:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:24:56 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:24:56 --> Request method: POST
+INFO - 2025-08-15 07:24:56 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/6/update
+DEBUG - 2025-08-15 07:24:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:24:56 --> Page update attempt for ID: 6
+INFO - 2025-08-15 07:24:56 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":""}
+INFO - 2025-08-15 07:24:56 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":""}
+INFO - 2025-08-15 07:24:56 --> Generated slug: test-page
+INFO - 2025-08-15 07:24:56 --> Update data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":0,"show_in_header":0,"show_in_footer":0,"header_order":0,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:24:56 --> Attempting to update with data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":0,"show_in_header":0,"show_in_footer":0,"header_order":0,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:24:56 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:24:56 --> Update result: success
+INFO - 2025-08-15 07:24:56 --> Page after update: {"id":"6","title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"0","show_in_header":"0","show_in_footer":"0","header_order":"0","footer_order":"0","template":"default","created_at":"2025-08-14 08:03:28","updated_at":"2025-08-15 07:24:56"}
+INFO - 2025-08-15 07:24:56 --> Page updated successfully
+DEBUG - 2025-08-15 07:24:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:25:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:25:15 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:25:15 --> Request method: POST
+INFO - 2025-08-15 07:25:15 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/6/update
+DEBUG - 2025-08-15 07:25:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:25:15 --> Page update attempt for ID: 6
+INFO - 2025-08-15 07:25:15 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":""}
+INFO - 2025-08-15 07:25:15 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":""}
+INFO - 2025-08-15 07:25:15 --> Generated slug: test-page
+INFO - 2025-08-15 07:25:15 --> Update data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":0,"show_in_header":0,"show_in_footer":0,"header_order":0,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:25:15 --> Attempting to update with data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":0,"show_in_header":0,"show_in_footer":0,"header_order":0,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:25:15 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:25:15 --> Update result: success
+INFO - 2025-08-15 07:25:15 --> Page after update: {"id":"6","title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"0","show_in_header":"0","show_in_footer":"0","header_order":"0","footer_order":"0","template":"default","created_at":"2025-08-14 08:03:28","updated_at":"2025-08-15 07:25:15"}
+INFO - 2025-08-15 07:25:15 --> Page updated successfully
+DEBUG - 2025-08-15 07:25:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:25:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:28:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:28:11 --> getAdminData called with activeSection: dashboard
+DEBUG - 2025-08-15 07:28:11 --> User ID from session: 13
+DEBUG - 2025-08-15 07:28:11 --> User found: yes
+DEBUG - 2025-08-15 07:28:11 --> Sidebar items count: 12
+DEBUG - 2025-08-15 07:28:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:42:36 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:42:36 --> Request method: POST
+INFO - 2025-08-15 07:42:36 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/6/update
+DEBUG - 2025-08-15 07:42:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:42:36 --> Page update attempt for ID: 6
+INFO - 2025-08-15 07:42:36 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"5","show_in_footer":"0","footer_order":"0"}
+INFO - 2025-08-15 07:42:36 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"5","show_in_footer":"0","footer_order":"0"}
+INFO - 2025-08-15 07:42:36 --> Generated slug: test-page
+INFO - 2025-08-15 07:42:36 --> Update data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":0,"header_order":5,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:42:36 --> Attempting to update with data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":0,"header_order":5,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:42:36 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:42:36 --> Update result: success
+INFO - 2025-08-15 07:42:36 --> Page after update: {"id":"6","title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","show_in_footer":"0","header_order":"5","footer_order":"0","template":"default","created_at":"2025-08-14 08:03:28","updated_at":"2025-08-15 07:42:36"}
+INFO - 2025-08-15 07:42:36 --> Page updated successfully
+DEBUG - 2025-08-15 07:42:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:42:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:43:00 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:43:00 --> Request method: POST
+INFO - 2025-08-15 07:43:00 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/6/update
+DEBUG - 2025-08-15 07:43:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:43:00 --> Page update attempt for ID: 6
+INFO - 2025-08-15 07:43:00 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"5","show_in_footer":"1","footer_order":"4"}
+INFO - 2025-08-15 07:43:00 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"test page","template":"default","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"5","show_in_footer":"1","footer_order":"4"}
+INFO - 2025-08-15 07:43:00 --> Generated slug: test-page
+INFO - 2025-08-15 07:43:00 --> Update data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":1,"header_order":5,"footer_order":4,"template":"default"}
+INFO - 2025-08-15 07:43:00 --> Attempting to update with data: {"title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":1,"header_order":5,"footer_order":4,"template":"default"}
+INFO - 2025-08-15 07:43:00 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:43:00 --> Update result: success
+INFO - 2025-08-15 07:43:00 --> Page after update: {"id":"6","title":"test page","slug":"test-page","content":"<p>this si test page<\/p>","meta_title":"","meta_description":"","meta_keywords":"","is_active":"1","show_in_header":"1","show_in_footer":"1","header_order":"5","footer_order":"4","template":"default","created_at":"2025-08-14 08:03:28","updated_at":"2025-08-15 07:43:00"}
+INFO - 2025-08-15 07:43:00 --> Page updated successfully
+DEBUG - 2025-08-15 07:43:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:43:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:44:50 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:44:50 --> Request method: POST
+INFO - 2025-08-15 07:44:50 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/1/update
+DEBUG - 2025-08-15 07:44:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:44:50 --> Page update attempt for ID: 1
+INFO - 2025-08-15 07:44:50 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"About Us","template":"default","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"2","show_in_footer":"1","footer_order":"2"}
+INFO - 2025-08-15 07:44:50 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"About Us","template":"default","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"2","show_in_footer":"1","footer_order":"2"}
+INFO - 2025-08-15 07:44:50 --> Generated slug: about-us
+INFO - 2025-08-15 07:44:50 --> Update data: {"title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":1,"header_order":2,"footer_order":2,"template":"default"}
+INFO - 2025-08-15 07:44:50 --> Attempting to update with data: {"title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":1,"header_order":2,"footer_order":2,"template":"default"}
+INFO - 2025-08-15 07:44:50 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:44:50 --> Update result: success
+INFO - 2025-08-15 07:44:50 --> Page after update: {"id":"1","title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","show_in_footer":"1","header_order":"2","footer_order":"2","template":"default","created_at":"2025-06-29 08:24:55","updated_at":"2025-08-15 07:44:50"}
+INFO - 2025-08-15 07:44:50 --> Page updated successfully
+DEBUG - 2025-08-15 07:44:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:44:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-15 07:45:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:45:38 --> === UPDATE METHOD CALLED ===
+INFO - 2025-08-15 07:45:38 --> Request method: POST
+INFO - 2025-08-15 07:45:38 --> Request URI: http://localhost/nandinihub/index.php/admin/pages/1/update
+DEBUG - 2025-08-15 07:45:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2025-08-15 07:45:38 --> Page update attempt for ID: 1
+INFO - 2025-08-15 07:45:38 --> POST data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"About Us","template":"default","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"2","show_in_footer":"0","footer_order":"0"}
+INFO - 2025-08-15 07:45:38 --> All request data: {"csrf_test_name":"36fb6b743de8166923a40d8c23bb6b73","_method":"POST","title":"About Us","template":"default","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","header_order":"2","show_in_footer":"0","footer_order":"0"}
+INFO - 2025-08-15 07:45:38 --> Generated slug: about-us
+INFO - 2025-08-15 07:45:38 --> Update data: {"title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":0,"header_order":2,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:45:38 --> Attempting to update with data: {"title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":1,"show_in_header":1,"show_in_footer":0,"header_order":2,"footer_order":0,"template":"default"}
+INFO - 2025-08-15 07:45:38 --> Database test - page exists: {"count":"1"}
+INFO - 2025-08-15 07:45:38 --> Update result: success
+INFO - 2025-08-15 07:45:38 --> Page after update: {"id":"1","title":"About Us","slug":"about-us","content":"<h2>About Microdose Mushroom<\/h2>\r\n<p>Welcome to Microdose Mushroom, your trusted microdose destination. We are committed to providing you with the best microdose products and exceptional customer service.<\/p>\r\n<p>Our mission is to make microdosing convenient, reliable, and accessible for everyone.<\/p>","meta_title":"About Us - Microdose Mushroom","meta_description":"Learn more about Microdose Mushroom, your trusted online microdose destination.","meta_keywords":"","is_active":"1","show_in_header":"1","show_in_footer":"0","header_order":"2","footer_order":"0","template":"default","created_at":"2025-06-29 08:24:55","updated_at":"2025-08-15 07:45:38"}
+INFO - 2025-08-15 07:45:38 --> Page updated successfully
+DEBUG - 2025-08-15 07:45:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
