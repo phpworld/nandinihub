@@ -24,20 +24,26 @@ class ProductController extends BaseController
             'min_price' => $this->request->getGet('min_price'),
             'max_price' => $this->request->getGet('max_price'),
             'search' => $this->request->getGet('q'),
-            'sort' => $this->request->getGet('sort')
+            'sort' => $this->request->getGet('sort'),
+            'page' => $this->request->getGet('page') ?? 1,
+            'per_page' => 12
         ];
 
-        // Remove empty filters
-        $filters = array_filter($filters, function($value) {
-            return $value !== null && $value !== '';
-        });
+        // Remove empty filters (except page and per_page)
+        $cleanFilters = array_filter($filters, function($value, $key) {
+            return ($value !== null && $value !== '') || in_array($key, ['page', 'per_page']);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        // Get products with pagination
+        $productsData = $this->productModel->getProductsWithFiltersAndPagination($cleanFilters);
 
         $data = [
             'title' => 'All Products - Microdose Mushroom',
-            'products' => $this->productModel->getProductsWithFilters($filters),
+            'products' => $productsData['data'],
+            'pager' => $productsData['pager'],
             'categories' => $this->categoryModel->getActiveCategories(),
             'priceRange' => $this->productModel->getPriceRange(),
-            'currentFilters' => $filters
+            'currentFilters' => $cleanFilters
         ];
 
         return view('products/index', $data);
@@ -86,21 +92,30 @@ class ProductController extends BaseController
             'min_price' => $this->request->getGet('min_price'),
             'max_price' => $this->request->getGet('max_price'),
             'search' => $this->request->getGet('q'),
-            'sort' => $this->request->getGet('sort')
+            'sort' => $this->request->getGet('sort'),
+            'page' => $this->request->getGet('page') ?? 1,
+            'per_page' => 12
         ];
 
-        // Remove empty filters (except category_id)
-        $filters = array_filter($filters, function($value, $key) {
-            return $key === 'category_id' || ($value !== null && $value !== '');
+        // Remove empty filters (except category_id, page, and per_page)
+        $cleanFilters = array_filter($filters, function($value, $key) {
+            return $key === 'category_id' || in_array($key, ['page', 'per_page']) || ($value !== null && $value !== '');
         }, ARRAY_FILTER_USE_BOTH);
+
+        // Get products with pagination
+        $productsData = $this->productModel->getProductsWithFiltersAndPagination($cleanFilters);
+
+        // Update base URL for category pagination
+        $productsData['pager']['baseUrl'] = 'category/' . $slug;
 
         $data = [
             'title' => $category['name'] . ' - Microdose Mushroom',
             'category' => $category,
-            'products' => $this->productModel->getProductsWithFilters($filters),
+            'products' => $productsData['data'],
+            'pager' => $productsData['pager'],
             'categories' => $this->categoryModel->getActiveCategories(),
             'priceRange' => $this->productModel->getPriceRange(),
-            'currentFilters' => $filters
+            'currentFilters' => $cleanFilters
         ];
 
         return view('products/category', $data);

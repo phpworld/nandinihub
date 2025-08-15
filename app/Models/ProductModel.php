@@ -327,6 +327,121 @@ class ProductModel extends Model
         return $builder->findAll();
     }
 
+    public function getProductsWithFiltersAndPagination($filters = [])
+    {
+        $builder = $this->select('products.*, categories.name as category_name')
+                       ->join('categories', 'categories.id = products.category_id')
+                       ->where('products.is_active', 1)
+                       ->where('categories.is_active', 1);
+
+        // Category filter
+        if (!empty($filters['category_id'])) {
+            $builder->where('products.category_id', $filters['category_id']);
+        }
+
+        // Price range filter
+        if (!empty($filters['min_price'])) {
+            $builder->where('(CASE WHEN products.sale_price IS NOT NULL THEN products.sale_price ELSE products.price END) >=', $filters['min_price'], false);
+        }
+
+        if (!empty($filters['max_price'])) {
+            $builder->where('(CASE WHEN products.sale_price IS NOT NULL THEN products.sale_price ELSE products.price END) <=', $filters['max_price'], false);
+        }
+
+        // Search keyword
+        if (!empty($filters['search'])) {
+            $builder->groupStart()
+                   ->like('products.name', $filters['search'])
+                   ->orLike('products.description', $filters['search'])
+                   ->orLike('products.short_description', $filters['search'])
+                   ->orLike('categories.name', $filters['search'])
+                   ->groupEnd();
+        }
+
+        // Sort options
+        $sortBy = $filters['sort'] ?? 'newest';
+        switch ($sortBy) {
+            case 'price_low':
+                // Use raw SQL for complex expressions
+                $builder->orderBy('CASE WHEN products.sale_price IS NOT NULL THEN products.sale_price ELSE products.price END', 'ASC', false);
+                break;
+            case 'price_high':
+                // Use raw SQL for complex expressions
+                $builder->orderBy('CASE WHEN products.sale_price IS NOT NULL THEN products.sale_price ELSE products.price END', 'DESC', false);
+                break;
+            case 'name':
+                $builder->orderBy('products.name', 'ASC');
+                break;
+            case 'featured':
+                $builder->orderBy('products.is_featured', 'DESC')
+                       ->orderBy('products.created_at', 'DESC');
+                break;
+            default: // newest
+                $builder->orderBy('products.created_at', 'DESC');
+                break;
+        }
+
+        // Get total count for pagination
+        $totalCount = $builder->countAllResults(false);
+
+        // Apply pagination
+        $perPage = $filters['per_page'] ?? 12;
+        $page = $filters['page'] ?? 1;
+        $offset = ($page - 1) * $perPage;
+
+        $products = $builder->limit($perPage, $offset)->findAll();
+
+        // Build URL with existing query parameters
+        $queryParams = [];
+
+        // Preserve existing filters in pagination links
+        if (!empty($filters['category_id'])) {
+            $queryParams['category'] = $filters['category_id'];
+        }
+        if (!empty($filters['min_price'])) {
+            $queryParams['min_price'] = $filters['min_price'];
+        }
+        if (!empty($filters['max_price'])) {
+            $queryParams['max_price'] = $filters['max_price'];
+        }
+        if (!empty($filters['search'])) {
+            $queryParams['q'] = $filters['search'];
+        }
+        if (!empty($filters['sort'])) {
+            $queryParams['sort'] = $filters['sort'];
+        }
+
+        // Create custom pagination data
+        $totalPages = ceil($totalCount / $perPage);
+        $currentPage = (int) $page;
+
+        // Build query string for pagination links
+        $queryString = '';
+        if (!empty($queryParams)) {
+            $queryString = '&' . http_build_query($queryParams);
+        }
+
+        // Create pagination data
+        $paginationData = [
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+            'totalItems' => $totalCount,
+            'hasNext' => $currentPage < $totalPages,
+            'hasPrevious' => $currentPage > 1,
+            'nextPage' => $currentPage + 1,
+            'previousPage' => $currentPage - 1,
+            'queryString' => $queryString,
+            'baseUrl' => 'products'
+        ];
+
+        return [
+            'data' => $products,
+            'pager' => $paginationData,
+            'total' => $totalCount
+        ];
+    }
+
     public function getPriceRange()
     {
         $result = $this->select('
